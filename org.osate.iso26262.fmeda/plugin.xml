@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            id="org.osate.iso26262.fmeda.commands.category"
+            name="Fmeda Report Category">
+      </category>
+      <command
+            categoryId="org.osate.iso26262.fmeda.commands.category"
+            name="FMEDA Report"
+            id="org.osate.iso26262.fmeda.commands.fmedaCommand">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="org.osate.iso26262.fmeda.handler.FmedaHandler"
+            commandId="org.osate.iso26262.fmeda.commands.fmedaCommand">
+         <enabledWhen>
+            <reference definitionId="org.osate.ui.definition.isInstanceFileOrComponentInstanceSelected"/>
+         </enabledWhen>
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="org.osate.iso26262.fmeda.commands.fmedaCommand"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            contextId="org.eclipse.ui.contexts.window"
+            sequence="M1+6">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu?after=additions">
+         <menu
+               id="org.osate.iso26262.fmeda.menus.fmedaMenu"
+               label="FMEDA"
+               mnemonic="M">
+            <command
+                  commandId="org.osate.iso26262.fmeda.commands.fmedaCommand"
+                  id="org.osate.iso26262.fmeda.menus.fmedaCommand"
+                  mnemonic="S">
+            </command>
+         </menu>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+         <toolbar
+               id="org.osate.iso26262.fmeda.toolbars.fmedaToolbar">
+            <command
+                  id="org.osate.iso26262.fmeda.toolbars.fmedaCommand"
+                  commandId="org.osate.iso26262.fmeda.commands.fmedaCommand"
+                  icon="icons/fta.png"
+                  tooltip="FMEDA Analyze">
+            </command>
+         </toolbar>
+      </menuContribution>
+   </extension>
+   <!--
+               Register analysis classes with methods to be called for analysis execution
+   -->
+   <extension
+         point="org.osate.pluginsupport.registeredjavaclasses">
+      <class
+            path="org.osate.iso26262.fmeda.CreateFTAModel">
+      </class>
+   </extension>
+
+</plugin>
