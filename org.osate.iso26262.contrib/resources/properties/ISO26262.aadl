@@ -1,0 +1,91 @@
+property set ISO26262 is
+	with EMV2;
+
+	SeverityLabels: type enumeration (S0, S1, S2, S3);
+	ControllabilityLabels: type enumeration (C0, C1, C2, C3);
+	ExposureLabels: type enumeration (E0, E1, E2, E3, E4);
+	ASILLabels: type enumeration (QM, A, B, C, D);
+	SafetyRequireCategory: type enumeration (SG, FSR, TSR, HSR, SSR);
+	
+	OccurrenceDistribution: EMV2::DistributionSpecification
+	  applies to ({emv2}**error propagation, {emv2}**error flow, {emv2}**error behavior event,
+		{emv2}**error behavior state, {emv2}**error type, {emv2}**type set);
+		
+	Hazards: list of record (
+		HazardName: aadlstring;
+		Description: aadlstring;
+		Mishap: aadlstring;
+		FailureCondition: aadlstring;
+		VerificationMethod: aadlstring;
+		CrossReference: aadlstring;
+		Comment: aadlstring;
+		Probability: aadlreal 0.0 .. 1.0;
+
+		Severity: ISO26262::SeverityLabels;
+		Controllability: ISO26262::ControllabilityLabels;
+		Exposure: ISO26262::ExposureLabels;
+		ASIL: ISO26262::ASILLabels;
+
+		SafetyDescription: aadlstring;
+		SafetyCategory: ISO26262::SafetyRequireCategory;
+		OperatMode: aadlstring;
+		FTTI: Time;
+		SafeState: aadlstring;
+		MissionTime: Time;
+		
+	)applies to ({emv2}**error type, {emv2}**type set, {emv2}**error behavior state,
+		{emv2}**error propagation, {emv2}**error event, {emv2}**error flow);
+	
+	FmeaHead: record (
+		CompanyName: aadlstring; -- 公司名称
+		EngineeringLocation: aadlstring; -- 工程地点
+		CustomerName: aadlstring; -- 顾客名称
+		ModelYear_Program: aadlstring; -- 车型年/项目
+		Subject: aadlstring; -- 项目
+		DFMEAStartData: aadlstring; -- DFMEA开始日期
+		DFMEARevisionData: aadlstring; -- DFMEA修订日期
+		CrossFuncTeam: aadlstring; -- 跨功能团队
+		DFMEAID: aadlstring; -- DFMEA编号
+		DesignResponsibility: aadlstring; -- 设计责任
+		ConfidentialityLevel: aadlstring; -- 保密等级
+		FocusComponent: aadlstring; -- 焦点元素
+	)applies to (all);
+	
+	FmeaRiskAnalysis: record (
+		Severity: aadlinteger 1 .. 10;
+		PC: aadlstring;
+		Occurrence: aadlinteger 1 .. 10;
+		DC: aadlstring;
+		Detection: aadlinteger 1 .. 10;
+	)applies to ({emv2}**error type, {emv2}**type set, {emv2}**error behavior state,
+		{emv2}**error propagation, {emv2}**error event, {emv2}**error flow);
+
+	FmeaOptimization: list of record (
+		OptPC: aadlstring;
+		OptDC: aadlstring;
+		ResponsPerson: aadlstring;
+		TargetCompletionData: aadlstring;
+		Status: aadlstring;
+		Evidence: aadlstring;
+		CompletionData: aadlstring;
+		OptOccurrence: aadlinteger 1 .. 10;
+		OptDetection: aadlinteger 1 .. 10;
+		Notes: aadlstring;
+	)applies to ({emv2}**error type, {emv2}**type set, {emv2}**error behavior state,
+		{emv2}**error propagation, {emv2}**error event, {emv2}**error flow);
+		
+
+	Failure_Mode: record (
+		Distribution: aadlreal;
+		-- Single Point Fault
+		Violate_SP_Satety: aadlboolean;
+		SPF_SM: aadlstring; 				--Security Mechanism
+		SPF_DC: aadlreal; 					--Diagnostic Coverage
+		-- Multiple Point Fault
+		Violate_MP_Satety: aadlboolean;
+		MPF_SM: aadlstring; 				--Security Mechanism
+		MPF_DC: aadlreal; 					--Diagnostic Coverage
+	)applies to  ({emv2}**error propagation, {emv2}**error flow, {emv2}**error behavior event,
+		{emv2}**error behavior state, {emv2}**error type, {emv2}**type set);
+
+end ISO26262;
