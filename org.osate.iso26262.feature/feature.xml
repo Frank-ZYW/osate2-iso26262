@@ -15,7 +15,7 @@
    <license url="http://www.example.com/license">
       [Enter License Description here.]
    </license>
-   
+
    <requires>
       <import plugin="org.eclipse.ui" version="3.7.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.runtime" version="3.7.0" match="greaterOrEqual"/>
@@ -27,8 +27,8 @@
       <import plugin="org.eclipse.ui.browser" version="3.0.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ui.ide" version="3.0.0" match="greaterOrEqual"/>
       <import plugin="org.osate.aadl2" version="4.0.0" match="greaterOrEqual"/>
-      <import plugin="org.osate.aadl2.errormodel.faulttree" version="6.2.0" match="greaterOrEqual"/>
-      <import plugin="org.osate.aadl2.errormodel.propagationgraph" version="6.3.0" match="greaterOrEqual"/>
+      <import plugin="org.osate.aadl2.errormodel.faulttree" version="6.1.0" match="greaterOrEqual"/>
+      <import plugin="org.osate.aadl2.errormodel.propagationgraph" version="6.2.0" match="greaterOrEqual"/>
       <import plugin="org.osate.aadl2.modelsupport" version="6.1.0" match="greaterOrEqual"/>
       <import plugin="org.osate.ui" version="6.3.0" match="greaterOrEqual"/>
       <import plugin="org.osate.results" version="3.0.0" match="greaterOrEqual"/>
@@ -39,13 +39,20 @@
          id="org.osate.iso26262.fmeda"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="2.2.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="org.osate.iso26262.contrib"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.0.0.qualifier"/>
+
+   <plugin
+         id="org.osate.iso26262.lib"
+         download-size="0"
+         install-size="0"
+         version="1.0.0"
+         unpack="false"/>
 
 </feature>
