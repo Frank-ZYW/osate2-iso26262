@@ -1,4 +1,4 @@
-package org.osate.iso26262.hara;
+package org.osate.iso26262.hazard;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;

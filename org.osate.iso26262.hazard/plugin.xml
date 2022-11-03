@@ -5,55 +5,64 @@
    <extension
          point="org.eclipse.ui.commands">
       <category
-            id="FMEA.commands.category"
-            name="HARA Category">
+            id="org.osate.iso26262.hazard.category"
+            name="OSATE ISO-26262 Hazard Analyses">
       </category>
       <command
-            categoryId="FMEA.commands.category"
-            name="HARA Command"
-            id="HARA.commands.sampleCommand">
+            categoryId="org.osate.iso26262.hazard.category"
+            id="org.osate.iso26262.hazard.command"
+            name="Run Hazard Analysis"
+            description="Run Hazard analysis and get report">
       </command>
    </extension>
    
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-            class="org.osate.iso26262.hara.handler.HARAhandler"
-            commandId="HARA.commands.sampleCommand">
+            class="org.osate.iso26262.hazard.handler.HARAhandler"
+            commandId="org.osate.iso26262.hazard.command">
+         <enabledWhen>
+            <reference definitionId="org.osate.ui.definition.isInstanceFileOrComponentInstanceSelected"/>
+         </enabledWhen>
       </handler>
    </extension>
    
-   
    <extension
-         point="org.eclipse.ui.bindings">
-      <key
-            commandId="HARA.commands.sampleCommand"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            contextId="org.eclipse.ui.contexts.window"
-            sequence="M1+6">
-      </key>
-   </extension>
+         point="org.eclipse.ui.commandImages">
+      <image
+            commandId="org.osate.iso26262.hazard.command"
+            icon="icons/sample.png">
+      </image>
+   </extension>  
    
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
-            locationURI="menu:FMEA.menus.sampleMenu?after=core">
-            <command
-                  commandId="HARA.commands.sampleCommand"
-                  id="hara.menus.sampleCommand"
-                  mnemonic="H">
-            </command>
+            locationURI="menu:org.osate.ui.iso26262Menu?after=core">
+         <command
+               commandId="org.osate.iso26262.hazard.command">
+         </command>
       </menuContribution>
-      
       <menuContribution
-            locationURI="toolbar:FMEA.toolbars.sampleToolbar">
-            <command
-                  id="HARA.toolbars.sampleCommand"
-                  commandId="HARA.commands.sampleCommand"
-                  icon="icons/sample.png"
-                  tooltip="HARA generation">
-            </command>
+            locationURI="toolbar:org.osate.ui.iso26262Toolbar?after=core">
+         <command
+               commandId="org.osate.iso26262.hazard.command"
+               tooltip="Run Hazard analysis">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference definitionId="org.osate.ui.definition.inAadlPerspective"/>
+            </visibleWhen>
+         </command>
       </menuContribution>
+      <menuContribution
+            locationURI="popup:org.osate.ui.iso26262NavigatorPopup?after=core">
+         <command
+               commandId="org.osate.iso26262.hazard.command">
+            <visibleWhen
+                  checkEnabled="true">
+            </visibleWhen>
+         </command>
+       </menuContribution>
    </extension>
 
 </plugin>

@@ -1,4 +1,4 @@
-package org.osate.iso26262.hara;
+package org.osate.iso26262.hazard;
 
 import java.io.File;
 import java.io.IOException;

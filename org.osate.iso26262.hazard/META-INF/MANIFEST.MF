@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: HARA
-Bundle-SymbolicName: HARAgeneration;singleton:=true
+Bundle-Name: %pluginName
+Bundle-SymbolicName: org.osate.iso26262.hazard;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.osate.iso26262.hara.Activator
+Bundle-Activator: org.osate.iso26262.hazard.Activator
 Require-Bundle: org.eclipse.ui;bundle-version="[3.115.0,4.0.0)",
  org.eclipse.core.runtime;bundle-version="[3.17.0,4.0.0)",
  org.osate.aadl2;bundle-version="[4.0.0,5.0.0)",
@@ -19,11 +19,14 @@ Require-Bundle: org.eclipse.ui;bundle-version="[3.115.0,4.0.0)",
  org.eclipse.ui.ide;bundle-version="[3.13.1,4.0.0)",
  org.eclipse.sirius.common.ui;bundle-version="[5.1.0,8.0.0)",
  org.osate.results;bundle-version="[3.0.0,4.0.0)",
- org.osate.aadl2.errormodel.faulttree.generation,
- org.osate.aadl2.errormodel.faulttree,
- org.osate.aadl2.instantiation,
- org.osate.iso26262.lib;bundle-version="[1.0.0,2.0.0)"
+ org.osate.aadl2.errormodel.faulttree.generation;bundle-version="[1.0.0,2.0.0)",
+ org.osate.aadl2.instantiation;bundle-version="[2.0.0,3.0.0)",
+ org.osate.iso26262.lib;bundle-version="[1.0.0,2.0.0)",
+ org.osate.iso26262.ui;bundle-version="[1.0.0,2.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: org.osate.iso26262.hazard
 Bundle-ActivationPolicy: lazy
-Automatic-Module-Name: FMEA.generation
+Bundle-Vendor: %providerName
+Export-Package: org.osate.iso26262.hazard,
+ org.osate.iso26262.hazard.handler
 Bundle-ClassPath: .

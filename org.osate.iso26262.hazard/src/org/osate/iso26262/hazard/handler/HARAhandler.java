@@ -22,7 +22,7 @@
  * censes only apply to the Third Party Software and not any other portion of this program or this program as a whole.
  */
 
-package org.osate.iso26262.hara.handler;
+package org.osate.iso26262.hazard.handler;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -36,7 +36,7 @@ import org.osate.aadl2.ComponentImplementation;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.instance.SystemInstance;
 import org.osate.aadl2.instantiation.InstantiateModel;
-import org.osate.iso26262.hara.HARAReport;
+import org.osate.iso26262.hazard.HARAReport;
 
 
 public final class HARAhandler extends AbstractHandler {
