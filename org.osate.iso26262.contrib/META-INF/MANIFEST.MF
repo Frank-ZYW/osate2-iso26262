@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Contrib
+Bundle-Name: %pluginName
 Bundle-SymbolicName: org.osate.iso26262.contrib;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: org.osate.iso26262.contrib
