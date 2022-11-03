@@ -6,13 +6,13 @@
          point="org.eclipse.ui.commands">
       <category
             id="org.osate.iso26262.hazard.category"
-            name="OSATE ISO-26262 Hazard Analyses">
+            name="OSATE ISO-26262 Hazard Assessment">
       </category>
       <command
             categoryId="org.osate.iso26262.hazard.category"
             id="org.osate.iso26262.hazard.command"
-            name="Run Hazard Analysis"
-            description="Run Hazard analysis and get report">
+            name="Run Hazard Assessment"
+            description="Run Hazard and get report">
       </command>
    </extension>
    
@@ -47,7 +47,7 @@
             locationURI="toolbar:org.osate.ui.iso26262Toolbar?after=core">
          <command
                commandId="org.osate.iso26262.hazard.command"
-               tooltip="Run Hazard analysis">
+               tooltip="Run Hazard Assessment">
             <visibleWhen
                   checkEnabled="false">
                <reference definitionId="org.osate.ui.definition.inAadlPerspective"/>

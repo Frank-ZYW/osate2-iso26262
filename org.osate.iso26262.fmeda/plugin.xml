@@ -6,13 +6,13 @@
          point="org.eclipse.ui.commands">
       <category
             id="org.osate.iso26262.fmeda.category"
-            name="OSATE ISO-26262 FMEDA Analyses">
+            name="OSATE ISO-26262 Failure Mode Effect and Diagnostic Analysis">
       </category>
       <command
             categoryId="org.osate.iso26262.fmeda.category"
             id="org.osate.iso26262.fmeda.command"
-            name="Run FMEDA Analysis"
-            description="Run FMEDA analysis and get report">
+            name="Run Failure Mode Effect and Diagnostic Analysis"
+            description="Run FMEDA and get report">
       </command>
    </extension>
    
@@ -47,7 +47,7 @@
             locationURI="toolbar:org.osate.ui.iso26262Toolbar?after=core">
          <command
                commandId="org.osate.iso26262.fmeda.command"
-               tooltip="Run FMEDA analysis">
+               tooltip="Run Failure Mode Effect and Diagnostic Analysis">
             <visibleWhen
                   checkEnabled="false">
                <reference definitionId="org.osate.ui.definition.inAadlPerspective"/>
