@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
    <feature id="org.osate.iso26262.feature">
-      <category name="org.osate.iso26262.feature"/>
+      <category name="org.osate.iso26262.category"/>
    </feature>
-   <category-def name="org.osate.iso26262.feature" label="org.osate.iso26262.feature"/>
+   <category-def name="org.osate.iso26262.category" label="org.osate.iso26262.category"/>
 </site>
