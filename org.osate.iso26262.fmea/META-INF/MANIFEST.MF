@@ -4,31 +4,19 @@ Bundle-Name: %pluginName
 Bundle-SymbolicName: org.osate.iso26262.fmea;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.osate.iso26262.fmea.Activator
-Require-Bundle: org.eclipse.ui;bundle-version="[3.115.0,4.0.0)",
- org.eclipse.core.runtime;bundle-version="[3.17.0,4.0.0)",
- org.osate.aadl2;bundle-version="[4.0.0,5.0.0)",
- org.osate.aadl2.errormodel.faulttree;bundle-version="[6.1.0,7.0.0)",
+Require-Bundle: org.osate.aadl2.errormodel.faulttree;bundle-version="[6.1.0,7.0.0)",
  org.osate.aadl2.modelsupport;bundle-version="[6.1.0,7.0.0)",
  org.osate.ui;bundle-version="[6.3.0,7.0.0)",
- org.eclipse.sirius;bundle-version="[6.3.0,8.0.0)",
  org.osate.aadl2.errormodel.propagationgraph;bundle-version="[6.2.0,7.0.0)",
- org.eclipse.sirius.ui;bundle-version="[6.3.0,8.0.0)",
- org.eclipse.emf.transaction;bundle-version="[1.9.0,2.0.0)",
- org.eclipse.sirius.ext.base;bundle-version="[5.0.1,780.0)",
- org.eclipse.ui.browser;bundle-version="[3.6.100,4.0.0)",
- org.eclipse.ui.ide;bundle-version="[3.13.1,4.0.0)",
- org.eclipse.sirius.common.ui;bundle-version="[5.1.0,8.0.0)",
- org.osate.results;bundle-version="[3.0.0,4.0.0)",
  org.osate.aadl2.errormodel.faulttree.generation;bundle-version="[1.0.8,2.0.0)",
- org.osate.aadl2.errormodel.faulttree;bundle-version="[6.1.0,7.0.0)",
  org.osate.aadl2.instantiation;bundle-version="[2.0.0,3.0.0)",
  org.osate.iso26262.lib;bundle-version="[1.0.0,2.0.0)",
-  org.osate.iso26262.ui;bundle-version="[1.0.0,2.0.0)"
+ org.osate.iso26262.ui;bundle-version="[1.0.0,2.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: org.osate.iso26262.fmea
 Bundle-ActivationPolicy: lazy
-Automatic-Module-Name: FMEA.generation
-Bundle-ClassPath: .
 Bundle-Vendor: %providerName
 Export-Package: org.osate.iso26262.fmea,
  org.osate.iso26262.fmea.export,
  org.osate.iso26262.fmea.handler
+Bundle-ClassPath: .
