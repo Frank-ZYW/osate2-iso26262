@@ -289,14 +289,14 @@ public class FileExport {
 	public void Report_Fuc(Func_item fci, int absrow) throws RowsExceededException, WriteException {
 		String prefix = null;
 		// 1.下一个更高级别的功能和需求
-		System.out.println("		Function::" + fci.myfunc.myfunc + "  Maxrows::" + fci.maxrows);
+		System.out.println("		Function::" + fci.myfunc.funcname + "  Maxrows::" + fci.maxrows);
 		System.out.println("		Supfunc size::" + fci.supfunc.size());
 		int row = 1;
 		int column = 3;
 		if (fci.supfunc.size() > 0) {
 			for (int i = 0; i < fci.supfunc.size(); i++) {
 				prefix = getprefix(fci.levelmap.get(fci.supfunc.get(i)) - 1, "<");
-				sheet.addCell(new Label(column, absrow + row, prefix + fci.supfunc.get(i).myfunc, normalcf));
+				sheet.addCell(new Label(column, absrow + row, prefix + fci.supfunc.get(i).funcname, normalcf));
 				if (i == fci.supfunc.size() - 1 && row < fci.maxrows) {
 					sheet.mergeCells(column, absrow + row, column, absrow + fci.maxrows);
 				}
@@ -310,7 +310,7 @@ public class FileExport {
 		// 2.焦点组件的功能和需求
 		row = 1;
 		column = 4;
-		sheet.addCell(new Label(column, absrow + row, fci.myfunc.myfunc, normalcf));
+		sheet.addCell(new Label(column, absrow + row, fci.myfunc.funcname, normalcf));
 		sheet.mergeCells(column, absrow + row, column, absrow + fci.maxrows);
 
 		// 3.下一个较低的级别的功能和需求或特征
@@ -320,7 +320,7 @@ public class FileExport {
 		if (fci.subfunc.size() > 0) {
 			for (int i = 0; i < fci.subfunc.size(); i++) {
 				prefix = getprefix(fci.levelmap.get(fci.subfunc.get(i)) - 1, ">");
-				sheet.addCell(new Label(column, absrow + row, prefix + fci.subfunc.get(i).myfunc, normalcf));
+				sheet.addCell(new Label(column, absrow + row, prefix + fci.subfunc.get(i).funcname, normalcf));
 				if (i == fci.subfunc.size() - 1 && row < fci.maxrows) {
 					sheet.mergeCells(column, absrow + row, column, absrow + fci.maxrows);
 				}

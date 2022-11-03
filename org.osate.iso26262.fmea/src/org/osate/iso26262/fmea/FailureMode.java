@@ -119,7 +119,7 @@ public class FailureMode {
 
 	public void Fill_Optimizations() {
 
-		List<EMV2PropertyAssociation> fm = EMV2Properties.getProperty("FMEA_Prop::Optimization", ref_component.ci,
+		List<EMV2PropertyAssociation> fm = EMV2Properties.getProperty("ISO26262::FmeaOptimization", ref_component.ci,
 				failure_mode,
 				failure_mode.getTypeSet());
 
@@ -141,7 +141,7 @@ public class FailureMode {
 
 					if (fields != null) {
 					// get OPT_PC
-					BasicPropertyAssociation xref = GetProperties.getRecordField(fields, "OPT_PC");
+					BasicPropertyAssociation xref = GetProperties.getRecordField(fields, "OptPC");
 					if (xref != null) {
 						PropertyExpression val = xref.getOwnedValue();
 						OPT_PC = ((StringLiteral) val).getValue();
@@ -149,7 +149,7 @@ public class FailureMode {
 					}
 
 					// get OPT_DC
-					xref = GetProperties.getRecordField(fields, "OPT_DC");
+					xref = GetProperties.getRecordField(fields, "OptDC");
 					if (xref != null) {
 						PropertyExpression val = xref.getOwnedValue();
 						OPT_DC = ((StringLiteral) val).getValue();
@@ -157,7 +157,7 @@ public class FailureMode {
 					}
 
 					// get Respons_Person
-					xref = GetProperties.getRecordField(fields, "Respons_Person");
+					xref = GetProperties.getRecordField(fields, "ResponsPerson");
 					if (xref != null) {
 						PropertyExpression val = xref.getOwnedValue();
 						Respons_Person = ((StringLiteral) val).getValue();
@@ -165,7 +165,7 @@ public class FailureMode {
 					}
 
 					// get Target_Completion_Data
-					xref = GetProperties.getRecordField(fields, "Target_Completion_Data");
+					xref = GetProperties.getRecordField(fields, "TargetCompletionData");
 					if (xref != null) {
 						PropertyExpression val = xref.getOwnedValue();
 						Target_Completion_Data = ((StringLiteral) val).getValue();
@@ -189,7 +189,7 @@ public class FailureMode {
 					}
 
 					// get Completion_Data
-					xref = GetProperties.getRecordField(fields, "Completion_Data");
+					xref = GetProperties.getRecordField(fields, "CompletionData");
 					if (xref != null) {
 						PropertyExpression val = xref.getOwnedValue();
 						Completion_Data = ((StringLiteral) val).getValue();
@@ -197,7 +197,7 @@ public class FailureMode {
 					}
 
 					// get OPT_Occurrence
-					xref = GetProperties.getRecordField(fields, "OPT_Occurrence");
+					xref = GetProperties.getRecordField(fields, "OPTOccurrence");
 					if (xref != null) {
 						PropertyExpression val = xref.getOwnedValue();
 						OPT_Occurrence = (int) ((IntegerLiteral) val).getValue();
@@ -205,7 +205,7 @@ public class FailureMode {
 					}
 
 					// get OPT_Detection
-					xref = GetProperties.getRecordField(fields, "OPT_Detection");
+					xref = GetProperties.getRecordField(fields, "OPTDetection");
 					if (xref != null) {
 						PropertyExpression val = xref.getOwnedValue();
 						OPT_Detection = (int) ((IntegerLiteral) val).getValue();

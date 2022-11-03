@@ -57,15 +57,7 @@ public class FmeaBuilder {
 		}
 	}
 
-
-	public void BuildFuncNet(Structure root) {
-		root.LinkFunc();
-		for (Structure cc : root.low_level_components_map.values()) {
-			BuildFuncNet(cc);
-		}
-	}
-
-	public void BuildFailureNet(Structure root) {
+	public void BuildFailureAndFuncNet(Structure root) {
 		Collection<ErrorBehaviorState> states = EMV2Util.getAllErrorBehaviorStates(root.ci);
 		PropagationGraph currentPropagationGraph = Util.generatePropagationGraph(root.ci.getSystemInstance(), false);
 		for (ErrorBehaviorState si : states) {
@@ -79,6 +71,26 @@ public class FmeaBuilder {
 		}
 	}
 
+//	public void BuildFuncNet(Structure root) {
+//		root.LinkFunc();
+//		for (Structure cc : root.low_level_components_map.values()) {
+//			BuildFuncNet(cc);
+//		}
+//	}
+
+//	public void BuildFailureNet(Structure root) {
+//		Collection<ErrorBehaviorState> states = EMV2Util.getAllErrorBehaviorStates(root.ci);
+//		PropagationGraph currentPropagationGraph = Util.generatePropagationGraph(root.ci.getSystemInstance(), false);
+//		for (ErrorBehaviorState si : states) {
+//			FTAGenerator generator = new FTAGenerator(currentPropagationGraph);
+//			FaultTree ftamodel = generator.getftaModel(root.ci, si, null, FaultTreeType.COMPOSITE_PARTS);
+//			root.LinkFTAevent(ftamodel.getRoot(), root.failure_modes.get(si.getName()));
+////			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+//////			System.out.println("State Name::::" + EMV2Util.getPrintName(si));
+////			TravelFTARootEvent(ftamodel.getRoot(), "");
+////			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+//		}
+//	}
 
 
 	public void TravelFTARootEvent(Event event, String indent) {

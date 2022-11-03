@@ -1,6 +1,5 @@
 package org.osate.iso26262.fmea;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -8,7 +7,6 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.osate.aadl2.BasicPropertyAssociation;
 import org.osate.aadl2.IntegerLiteral;
-import org.osate.aadl2.ListValue;
 import org.osate.aadl2.NamedElement;
 import org.osate.aadl2.Property;
 import org.osate.aadl2.PropertyExpression;
@@ -38,8 +36,9 @@ public class Structure {
 		System.out.println("new Structure::" + ci.getName());
 		this.high_level_component = high;
 		this.ci = ci;
-		Fill_functions();
-		Fill_failure_modes();
+//		Fill_functions();
+//		Fill_failure_modes();
+		FillFunctionsAndFailuremode();
 	}
 
 	public void Print(String indent) {
@@ -71,49 +70,10 @@ public class Structure {
 
 	}
 
-	public void Fill_functions() {
-
-		Property property;
-		List<? extends PropertyExpression> propertyValues;
-		List<? extends PropertyExpression> propertyValues2;
-		BasicPropertyAssociation pa;
-
-		property = GetProperties.lookupPropertyDefinition(ci, "FMEA_Prop", "Function");
-		propertyValues = ci.getPropertyValueList(property);
-
-		for (PropertyExpression pe : propertyValues) {
-			RecordValue rv = (RecordValue) pe;
-			EList<BasicPropertyAssociation> fields = rv.getOwnedFieldValues();
-
-			String id = null;
-			String myfunc = null;
-			List<String> func_ref = new ArrayList<String>();
-
-			pa = GetProperties.getRecordField(fields, "Func_ID");
-			if (pa != null) {
-				id = ((StringLiteral) pa.getValue()).getValue();
-			}
-
-			pa = GetProperties.getRecordField(fields, "Func_Descrip");
-			if (pa != null) {
-				myfunc = ((StringLiteral) pa.getValue()).getValue();
-			}
-
-			pa = GetProperties.getRecordField(fields, "Func_Require");
-			if (pa != null && pa.getValue() instanceof ListValue) {
-				propertyValues2 = ((ListValue) pa.getValue()).getOwnedListElements();
-				for (PropertyExpression pe2 : propertyValues2) {
-					func_ref.add(((StringLiteral) pe2).getValue());
-				}
-			}
-
-			functions.put(id, new Function(id, myfunc, this, func_ref));
-		}
-	}
-
-	public void Fill_failure_modes() {
+	public void FillFunctionsAndFailuremode() {
 
 		for (ErrorBehaviorState es : EMV2Util.getAllErrorBehaviorStates(ci)) {
+
 			String id;
 			String mode_name = null;
 			Function ref_func = null;
@@ -122,48 +82,46 @@ public class Structure {
 			Integer detection = null;
 			String prevention_control = null;
 			String detection_control = null;
-
-
-
+			String funcname = null;
 			// get id
 			id = EMV2Util.getPrintName(es);
 
 			// -------------Failure_Mode---------------------
-			List<EMV2PropertyAssociation> fm = EMV2Properties.getProperty("FMEA_Prop::Failure_Mode", ci, es,
-					es.getTypeSet());
+			List<EMV2PropertyAssociation> fm = EMV2Properties.getProperty("ISO26262::Hazards", ci, es, es.getTypeSet());
 			EMV2PropertyAssociation fma = fm.isEmpty() ? null : fm.get(0);
 			PropertyExpression fmv = EMV2Properties.getPropertyValue(fma);
 			EList<BasicPropertyAssociation> fields = fmv == null ? null : ((RecordValue) fmv).getOwnedFieldValues();
 //			System.out.println("field::::::::" + fields != null ? "OK" : "null");
 			if (fields != null) {
 				// get Mode_Name
-				BasicPropertyAssociation xref = GetProperties.getRecordField(fields, "Mode_Name");
+				BasicPropertyAssociation xref = GetProperties.getRecordField(fields, "HazardName");
 				if (xref != null) {
 					PropertyExpression val = xref.getOwnedValue();
 					mode_name = ((StringLiteral) val).getValue();
 					xref = null;
 				}
-				// get Link_Func
-				xref = GetProperties.getRecordField(fields, "Link_Func");
+				if (mode_name == null) {
+					mode_name = ci.getName() + "." + id;
+				}
+
+				xref = GetProperties.getRecordField(fields, "SafetyDescription");
 				if (xref != null) {
 					PropertyExpression val = xref.getOwnedValue();
-					ref_func = functions.get(((StringLiteral) val).getValue());
-					if (ref_func == null) {
-						Dialog.showInfo("Fill_failure_modes",
-								"FuncRequire \"" + ((StringLiteral) val).getValue() + "\" in " + this.ci.getName() + "."
-										+ es.getName() + ":\n Don't have Function \"" + ((StringLiteral) val).getValue()
-										+ "\" in " + this.ci.getName());
-
-					}
+					funcname = ((StringLiteral) val).getValue();
 					xref = null;
 				}
+				if (funcname == null) {
+					funcname = "Function of " + ci.getName() + "." + id;
+				}
+				// get Link_Func
+				ref_func = new Function(id, funcname, this, null);
+				functions.put(id, ref_func);
 			}
 			// -------------Failure_Mode----------------------------
 
-
 			// -------------Risk_Analysis---------------------
 
-			fm = EMV2Properties.getProperty("FMEA_Prop::Risk_Analysis", ci, es, es.getTypeSet());
+			fm = EMV2Properties.getProperty("ISO26262::FmeaRiskAnalysis", ci, es, es.getTypeSet());
 			fma = fm.isEmpty() ? null : fm.get(0);
 			fmv = EMV2Properties.getPropertyValue(fma);
 			fields = fmv == null ? null : ((RecordValue) fmv).getOwnedFieldValues();
@@ -184,7 +142,7 @@ public class Structure {
 					xref = null;
 				}
 				// get Detection
-				xref = GetProperties.getRecordField(fields, "detection");
+				xref = GetProperties.getRecordField(fields, "Detection");
 				if (xref != null) {
 					PropertyExpression val = xref.getOwnedValue();
 					detection = (int) ((IntegerLiteral) val).getValue();
@@ -209,6 +167,7 @@ public class Structure {
 			}
 
 			// -------------Risk_Analysis----------------------------
+
 			failure_modes.put(id, new FailureMode(id, mode_name, es, this, ref_func, severity, occurrence, detection,
 					prevention_control, detection_control));
 			if (ref_func != null) {
@@ -219,37 +178,43 @@ public class Structure {
 
 	}
 
-	public void LinkFunc() {
-		for (Function fi : functions.values()) {
-			for (String fri : fi.func_require) {
-//				System.out.println("    " + this.ci.getName() + " :: " + fi.id + " :: " + fri);
-				List<String> reflist = fi.SplitFuncRequire(fri);
-				List<String> componentlist = reflist.subList(0, reflist.size() - 1);
-				String funcid = reflist.get(reflist.size() - 1);
-				Structure current = this;
-				for (String cc : componentlist) {
-					if (current.low_level_components_map.containsKey(cc)) {
-						current = current.low_level_components_map.get(cc);
-					} else {
-						Dialog.showInfo("LinkFunc", "FuncRequire \"" + fri + "\" in " + this.ci.getName() + "-" + fi.id
-								+ ":\n Don't have subcmponent \"" + cc + "\" in " + current.ci.getName());
-//						return;
-					}
-				}
-				if(current.functions.containsKey(funcid))
-				{
-					fi.func_cause.add(current.functions.get(funcid));
-					current.functions.get(funcid).func_effect.add(fi);
-					System.out.println("add Func link::  " + this.ci.getName() + "." + fi.id + " <==> " + fri);
+//	public void Fill_functions() {
+//	}
 
-				} else {
-					Dialog.showInfo("LinkFunc", "FuncRequire \"" + fri + "\" in " + this.ci.getName() + "-" + fi.id
-							+ ":\n Don't have Function \"" + funcid + "\" in " + current.ci.getName());
-//					return;
-				}
-			}
-		}
-	}
+//	public void Fill_failure_modes() {
+//	}
+
+//	public void LinkFunc() {
+//		for (Function fi : functions.values()) {
+//			for (String fri : fi.func_require) {
+////				System.out.println("    " + this.ci.getName() + " :: " + fi.id + " :: " + fri);
+//				List<String> reflist = fi.SplitFuncRequire(fri);
+//				List<String> componentlist = reflist.subList(0, reflist.size() - 1);
+//				String funcid = reflist.get(reflist.size() - 1);
+//				Structure current = this;
+//				for (String cc : componentlist) {
+//					if (current.low_level_components_map.containsKey(cc)) {
+//						current = current.low_level_components_map.get(cc);
+//					} else {
+//						Dialog.showInfo("LinkFunc", "FuncRequire \"" + fri + "\" in " + this.ci.getName() + "-" + fi.id
+//								+ ":\n Don't have subcmponent \"" + cc + "\" in " + current.ci.getName());
+////						return;
+//					}
+//				}
+//				if(current.functions.containsKey(funcid))
+//				{
+//					fi.func_cause.add(current.functions.get(funcid));
+//					current.functions.get(funcid).func_effect.add(fi);
+//					System.out.println("add Func link::  " + this.ci.getName() + "." + fi.id + " <==> " + fri);
+//
+//				} else {
+//					Dialog.showInfo("LinkFunc", "FuncRequire \"" + fri + "\" in " + this.ci.getName() + "-" + fi.id
+//							+ ":\n Don't have Function \"" + funcid + "\" in " + current.ci.getName());
+////					return;
+//				}
+//			}
+//		}
+//	}
 
 	public void LinkFTAevent(Event rootevent, FailureMode fm) {
 		boolean samecomponent=((ComponentInstance) rootevent.getRelatedInstanceObject()).getName().equals(ci.getName());
@@ -266,12 +231,14 @@ public class Structure {
 
 							if (tfm != null) {
 								if (!Islinked(fm, tfm)) {
-								fm.failure_cause.add(tfm);
-								tfm.failure_effect.add(fm);
-								System.out.println("add Error link::  " + fm.ref_component.ci.getName() + "." + fm.id
-										+ " <==> " + tfm.ref_component.ci.getName() + "." + tfm.id);
-							}
-						} else {
+									fm.failure_cause.add(tfm);
+									tfm.failure_effect.add(fm);
+									fm.ref_func.func_cause.add(tfm.ref_func);
+									tfm.ref_func.func_effect.add(fm.ref_func);
+									System.out.println("add Error link::  " + fm.ref_component.ci.getName() + "."
+											+ fm.id + " <==> " + tfm.ref_component.ci.getName() + "." + tfm.id);
+								}
+							} else {
 								Dialog.showInfo("LinkFTAevent",
 										"Component \"" + linkc.ci.getName() + "\" don't have failuremode::"
 												+ ((NamedElement) ei.getRelatedEMV2Object()).getName());
@@ -293,6 +260,47 @@ public class Structure {
 		}
 	}
 
+//	public void LinkFTAevent(Event rootevent, FailureMode fm) {
+//		boolean samecomponent=((ComponentInstance) rootevent.getRelatedInstanceObject()).getName().equals(ci.getName());
+//		if (samecomponent) {
+//				for (Event ei : rootevent.getSubEvents()) {
+//					if (isIntermediateevent(ei)) {
+//						LinkFTAevent(ei,fm);
+//					} else {
+//						Structure linkc = Findstructure(((InstanceObject) ei.getRelatedInstanceObject()).getName());
+//						if (linkc != null) {
+//							FailureMode tfm = null;
+//							EObject nne = ei.getRelatedEMV2Object();
+//							tfm = linkc.failure_modes.get(EMV2Util.getPrintName((NamedElement) nne));
+//
+//							if (tfm != null) {
+//								if (!Islinked(fm, tfm)) {
+//								fm.failure_cause.add(tfm);
+//								tfm.failure_effect.add(fm);
+//								System.out.println("add Error link::  " + fm.ref_component.ci.getName() + "." + fm.id
+//										+ " <==> " + tfm.ref_component.ci.getName() + "." + tfm.id);
+//							}
+//						} else {
+//								Dialog.showInfo("LinkFTAevent",
+//										"Component \"" + linkc.ci.getName() + "\" don't have failuremode::"
+//												+ ((NamedElement) ei.getRelatedEMV2Object()).getName());
+//							}
+//
+//							linkc.LinkFTAevent(ei, tfm);
+//						} else {
+//							Dialog.showInfo("LinkFTAevent",
+//									"Can't find Sub Component \""
+//											+ ((InstanceObject) ei.getRelatedInstanceObject()).getName() + "\" in "
+//											+ ci.getName());
+//						}
+//
+//					}
+//				}
+//		} else
+//		{
+//			Dialog.showInfo("LinkFTAevent", "not samecomponent");
+//		}
+//	}
 	public boolean Islinked(FailureMode sup, FailureMode sub) {
 		boolean result1 = false;
 		boolean result2 = false;

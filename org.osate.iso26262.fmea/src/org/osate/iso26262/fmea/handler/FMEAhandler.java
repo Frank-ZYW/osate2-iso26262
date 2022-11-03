@@ -79,28 +79,31 @@ public final class FMEAhandler extends AbstractHandler {
 			}
 
 			ComponentInstance target = rootInstance;
-		System.out.println("Start!!!!!");
-		// 准备构建FMEA数据结构
-		FmeaBuilder fb = new FmeaBuilder();
-		// 构造结构树
-		fb.Construct_structure_tree(target);
-		// 构造功能网
-		fb.BuildFuncNet(fb.root_component);
-		// 构造故障网
-		fb.BuildFailureNet(fb.root_component);
-		// 填充AP值
-		fb.FillAP(fb.root_component);
-		// 打印数据结构
-		fb.Print_Structure(fb.root_component, "");
+			System.out.println("Start!!!!!");
+			// 准备构建FMEA数据结构
+			FmeaBuilder fb = new FmeaBuilder();
+			// 构造结构树
+			fb.Construct_structure_tree(target);
+//			// 构造功能网
+//			fb.BuildFuncNet(fb.root_component);
+//			// 构造故障网
+//			fb.BuildFailureNet(fb.root_component);
 
-		// 从关注组件中获取表头
-		fb.getHead();
+			// 同时构造故障网与功能网
+			fb.BuildFailureAndFuncNet(fb.root_component);
+			// 填充AP值
+			fb.FillAP(fb.root_component);
+			// 打印数据结构
+			fb.Print_Structure(fb.root_component, "");
 
-		// 准备文件输出
-		FileExport fe = new FileExport();
-		fe.ExportFMEAreport(fb);
+			// 从关注组件中获取表头
+			fb.getHead();
+
+			// 准备文件输出
+			FileExport fe = new FileExport();
+			fe.ExportFMEAreport(fb);
 			System.out.println("FINISH!!AAAAAa");
-		return Status.OK_STATUS;
+			return Status.OK_STATUS;
 		});
 		return Status.error("error");
 	}
