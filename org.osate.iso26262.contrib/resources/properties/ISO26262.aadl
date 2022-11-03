@@ -11,7 +11,7 @@ property set ISO26262 is
 	  applies to ({emv2}**error propagation, {emv2}**error flow, {emv2}**error behavior event,
 		{emv2}**error behavior state, {emv2}**error type, {emv2}**type set);
 		
-	Hazards: list of record (
+	Hazards:  record (
 		HazardName: aadlstring;
 		Description: aadlstring;
 		Mishap: aadlstring;
