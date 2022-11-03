@@ -5,13 +5,14 @@
    <extension
          point="org.eclipse.ui.commands">
       <category
-            id="FMEA.commands.category"
-            name="Sample Category">
+            id="org.osate.iso26262.fmea.category"
+            name="OSATE ISO-26262 Failure Mode and Effect Analysis">
       </category>
       <command
-            categoryId="FMEA.commands.category"
-            name="FMEA Command"
-            id="FMEA.commands.sampleCommand">
+            categoryId="org.osate.iso26262.fmea.category"
+            id="org.osate.iso26262.fmea.command"
+            name="Run Failure Mode and Effect Analysis"
+            description="Run FMEA and get report">
       </command>
    </extension>
    
@@ -19,55 +20,49 @@
          point="org.eclipse.ui.handlers">
       <handler
             class="org.osate.iso26262.fmea.handler.FMEAhandler"
-            commandId="FMEA.commands.sampleCommand">
+            commandId="org.osate.iso26262.fmea.command">
+         <enabledWhen>
+            <reference definitionId="org.osate.ui.definition.instanceAnalysisCommandEnabled"/>
+         </enabledWhen>
       </handler>
    </extension>
    
-   
    <extension
-         point="org.eclipse.ui.bindings">
-      <key
-            commandId="FMEA.commands.sampleCommand"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            contextId="org.eclipse.ui.contexts.window"
-            sequence="M1+6">
-      </key>
-   </extension>
+         point="org.eclipse.ui.commandImages">
+      <image
+            commandId="org.osate.iso26262.fmea.command"
+            icon="icons/sample.png">
+      </image>
+   </extension>  
    
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
-            locationURI="menu:org.eclipse.ui.main.menu?after=additions">
-         <menu
-               id="FMEA.menus.sampleMenu"
-               label="FMEA test"
-               mnemonic="M">
-            <separator
-                      name="core">
-            </separator>
-            <command
-                  commandId="FMEA.commands.sampleCommand"
-                  id="FMEA.menus.sampleCommand"
-                  mnemonic="S">
-            </command>
-         </menu>
+            locationURI="menu:org.osate.ui.iso26262Menu?after=core">
+         <command
+               commandId="org.osate.iso26262.fmea.command">
+         </command>
       </menuContribution>
       <menuContribution
-            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
-         <toolbar
-               id="FMEA.toolbars.sampleToolbar"
-               label="ISO26262">
-            <separator
-                  name="core">
-            </separator>
-            <command
-                  id="FMEA.toolbars.sampleCommand"
-                  commandId="FMEA.commands.sampleCommand"
-                  icon="icons/sample.png"
-                  tooltip="FMEA generation">
-            </command>
-         </toolbar>
+            locationURI="toolbar:org.osate.ui.iso26262Toolbar?after=core">
+         <command
+               commandId="org.osate.iso26262.fmea.command"
+               tooltip="Run Failure Mode and Effect Analysis">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference definitionId="org.osate.ui.definition.inAadlPerspective"/>
+            </visibleWhen>
+         </command>
       </menuContribution>
+      <menuContribution
+            locationURI="popup:org.osate.ui.iso26262NavigatorPopup?after=core">
+         <command
+               commandId="org.osate.iso26262.fmea.command">
+            <visibleWhen
+                  checkEnabled="true">
+            </visibleWhen>
+         </command>
+       </menuContribution>
    </extension>
 
 </plugin>
