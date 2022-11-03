@@ -12,8 +12,11 @@
   	<modules>
   	    <module>org.osate.iso26262.contrib</module>
   	    <module>org.osate.iso26262.feature</module>
+  	    <module>org.osate.iso26262.fmea</module>
   	    <module>org.osate.iso26262.fmeda</module>
+  	    <module>org.osate.iso26262.hazard</module>
   	    <module>org.osate.iso26262.lib</module>
+  	    <module>org.osate.iso26262.ui</module>
   	</modules>
 
 </project>
