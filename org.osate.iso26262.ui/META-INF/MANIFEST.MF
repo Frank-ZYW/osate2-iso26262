@@ -5,4 +5,4 @@ Bundle-SymbolicName: org.osate.iso26262.ui;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: org.osate.iso26262.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: org.osate.ui;bundle-version="[6.3.3,8.0.0)"
+Require-Bundle: org.osate.ui;bundle-version="[6.3.0,8.0.0)"
