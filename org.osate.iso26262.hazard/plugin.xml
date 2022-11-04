@@ -31,7 +31,7 @@
          point="org.eclipse.ui.commandImages">
       <image
             commandId="org.osate.iso26262.hazard.command"
-            icon="icons/sample.png">
+            icon="icons/hazardicon.png">
       </image>
    </extension>  
    
