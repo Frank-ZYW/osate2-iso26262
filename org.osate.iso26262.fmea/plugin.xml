@@ -31,7 +31,7 @@
          point="org.eclipse.ui.commandImages">
       <image
             commandId="org.osate.iso26262.fmea.command"
-            icon="icons/sample.png">
+            icon="icons/FMEAicon.png">
       </image>
    </extension>  
    
