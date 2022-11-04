@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.osate.iso26262.fmea.FailureMode;
 
-import javafx.util.Pair;
 
 public class Error_item {
 	Integer suplevel;
