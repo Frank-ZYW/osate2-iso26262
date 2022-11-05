@@ -21,11 +21,11 @@ public class ErrorDialog extends Dialog {
 
 	private final Model model;
 
-	public ErrorDialog(final Shell shell, final List<ComponentInstance> errorComponentList) {
+	public ErrorDialog(final Shell shell, final List<ComponentInstance> illegalComponentList) {
 		super(shell);
 		setShellStyle(getShellStyle() | SWT.RESIZE);
 
-		this.model = new Model(errorComponentList);
+		this.model = new Model(illegalComponentList);
 	}
 
 	private static final class Model {
@@ -35,8 +35,8 @@ public class ErrorDialog extends Dialog {
 		private final String[] ciNames;
 		private final String[] instanceObjectPaths;
 
-		public Model(final List<ComponentInstance> errorComponentList) {
-			final int size = errorComponentList.size();
+		public Model(final List<ComponentInstance> illegalComponentList) {
+			final int size = illegalComponentList.size();
 
 			elements = new Integer[size];
 			for (int i = 0; i < size; i++) {
@@ -47,13 +47,13 @@ public class ErrorDialog extends Dialog {
 			instanceObjectPaths = new String[size];
 
 			int i = 0;
-			for (ComponentInstance ci : errorComponentList) {
+			for (ComponentInstance ci : illegalComponentList) {
 				ciNames[i] = ci.getFullName();
 				instanceObjectPaths[i] = ci.getInstanceObjectPath();
 				i += 1;
 			}
 
-			message = "The following Components must have FMEDA properties!";
+			message = "The following Components must have legal FMEDA properties!";
 		}
 
 		public String getMessage() {
