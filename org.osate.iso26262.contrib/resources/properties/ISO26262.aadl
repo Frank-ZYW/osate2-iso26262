@@ -11,19 +11,22 @@ property set ISO26262 is
 	  applies to ({emv2}**error propagation, {emv2}**error flow, {emv2}**error behavior event,
 		{emv2}**error behavior state, {emv2}**error type, {emv2}**type set);
 		
-	Hazards:  record (
+	Hazards:  list of record (
 		HazardName: aadlstring;
 		Description: aadlstring;
 		Mishap: aadlstring;
-		FailureCondition: aadlstring;
+		Evironment: aadlstring;
 		VerificationMethod: aadlstring;
 		CrossReference: aadlstring;
 		Comment: aadlstring;
 		Probability: aadlreal 0.0 .. 1.0;
 
 		Severity: ISO26262::SeverityLabels;
+		SeverityComment: aadlstring;
 		Controllability: ISO26262::ControllabilityLabels;
+		ControllabilityComment: aadlstring;
 		Exposure: ISO26262::ExposureLabels;
+		ExposureComment: aadlstring;
 		ASIL: ISO26262::ASILLabels;
 
 		SafetyDescription: aadlstring;
@@ -32,7 +35,6 @@ property set ISO26262 is
 		FTTI: Time;
 		SafeState: aadlstring;
 		MissionTime: Time;
-		
 	)applies to ({emv2}**error type, {emv2}**type set, {emv2}**error behavior state,
 		{emv2}**error propagation, {emv2}**error event, {emv2}**error flow);
 	

@@ -7,6 +7,7 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.osate.aadl2.BasicPropertyAssociation;
 import org.osate.aadl2.IntegerLiteral;
+import org.osate.aadl2.ListValue;
 import org.osate.aadl2.NamedElement;
 import org.osate.aadl2.Property;
 import org.osate.aadl2.PropertyExpression;
@@ -90,7 +91,9 @@ public class Structure {
 			List<EMV2PropertyAssociation> fm = EMV2Properties.getProperty("ISO26262::Hazards", ci, es, es.getTypeSet());
 			EMV2PropertyAssociation fma = fm.isEmpty() ? null : fm.get(0);
 			PropertyExpression fmv = EMV2Properties.getPropertyValue(fma);
-			EList<BasicPropertyAssociation> fields = fmv == null ? null : ((RecordValue) fmv).getOwnedFieldValues();
+//			EList<BasicPropertyAssociation> fields = fmv == null ? null : ((RecordValue) fmv).getOwnedFieldValues();
+			EList<BasicPropertyAssociation> fields = fmv == null ? null
+					: ((RecordValue) ((ListValue) fmv).getOwnedListElements().get(0)).getOwnedFieldValues();
 //			System.out.println("field::::::::" + fields != null ? "OK" : "null");
 			if (fields != null) {
 				// get Mode_Name
