@@ -38,6 +38,7 @@ public class FileExport {
 
 	WritableCellFormat headcf;
 	WritableCellFormat normalcf;
+	WritableCellFormat redcf;
 
 	String pathname;
 
@@ -52,12 +53,41 @@ public class FileExport {
 		pathname += suffix;
 	}
 
+	public void mergecell(int lc, int lr, int rc, int rr) {
+		if (lr > rr || lc > rc) {
+			return;
+		}
+		try {
+			sheet.mergeCells(lc, lr, rc, rr);
+		} catch (WriteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	public void addcell(String content) {
 		if (content == null) {
 			content="";
 		}
 		try {
 			sheet.addCell(new Label(curcolumn, currow, content, normalcf));
+		} catch (RowsExceededException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (WriteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		curcolumn++;
+	}
+
+	public void addRedcell(String content) {
+		if (content == null) {
+			content = "";
+		}
+		try {
+			sheet.addCell(new Label(curcolumn, currow, content, redcf));
+
 		} catch (RowsExceededException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -115,6 +145,13 @@ public class FileExport {
 			normalcf.setAlignment(jxl.format.Alignment.LEFT); // 水平靠左
 			normalcf.setVerticalAlignment(jxl.format.VerticalAlignment.TOP);// 垂直靠上
 			normalcf.setWrap(true);// 自动换行
+
+			redcf = new WritableCellFormat(wf); // 单元格定义
+			redcf.setBackground(jxl.format.Colour.RED); // 黄色底纹
+			redcf.setBorder(jxl.format.Border.ALL, jxl.format.BorderLineStyle.THIN);// 细边框
+			redcf.setAlignment(jxl.format.Alignment.LEFT); // 水平靠左
+			redcf.setVerticalAlignment(jxl.format.VerticalAlignment.TOP);// 垂直靠上
+			redcf.setWrap(true);// 自动换行
 //			// 输出第一步（规划与准备）与2-6步的表头
 //			ReportHead();
 //			// 输出第二部结构分析
