@@ -138,7 +138,7 @@ public class CsvReportGenerator {
 		result.append("SPFM," + String.format("%.3f", this.table.SPFM * 100) + "%,");
 		result.append("LFM," + String.format("%.3f", this.table.LFM * 100) + "%,");
 		result.append("PMHF," + String.format("%.3f", this.table.PMHF) + " FIT,");
-		result.append(this.table.reachASILLevel.toString() + "\n");
+		result.append(this.table.reachASILLevel ? "Accept" : "Reject" + "\n");
 
 		return result.toString();
 	}
