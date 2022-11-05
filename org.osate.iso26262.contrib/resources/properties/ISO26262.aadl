@@ -89,5 +89,34 @@ property set ISO26262 is
 		MPF_DC: aadlreal; 					--Diagnostic Coverage
 	)applies to  ({emv2}**error propagation, {emv2}**error flow, {emv2}**error behavior event,
 		{emv2}**error behavior state, {emv2}**error type, {emv2}**type set);
+		
+	--------------------
+	
+	FMEDASafetyProperties : ISO26262::FMEDASafetyPropertiesSpecification 
+		applies to ({emv2}**error behavior state);
+	
+	FMEDASafetyPropertiesSpecification : type record (
+		FailureRate : aadlreal;
+		SafetyRelated : aadlboolean;
+	);
+	
+	FailureMode : ISO26262::FailureModeSpecification 
+		applies to ({emv2}**error propagation, {emv2}**error flow, {emv2}**error behavior event, 
+			{emv2}**error behavior state, {emv2}**error type, {emv2}**type set);
+
+	FailureModeSpecification: type record (
+		ModeName: aadlstring;
+		Distribution : aadlreal;
+		
+		-- Single Point Fault
+		Violate_SP_Satety : aadlboolean;
+		SPF_SM : aadlstring;  --Security Mechanism
+		SPF_DC : aadlreal;    --Diagnostic Coverage
+		
+		-- Multiple Point Fault
+		Violate_MP_Satety: aadlboolean;
+		MPF_SM : aadlstring;  --Security Mechanism
+		MPF_DC : aadlreal;	  --Diagnostic Coverage
+	);
 
 end ISO26262;

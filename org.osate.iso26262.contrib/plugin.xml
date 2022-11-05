@@ -5,10 +5,6 @@
    <extension
          point="org.osate.pluginsupport.aadlcontribution">
       <aadlcontribution
-            file="resources/properties/FMEDA.aadl"
-            id="org.osate.iso26262.contrib.fmeda">
-      </aadlcontribution>
-      <aadlcontribution
             file="resources/properties/ISO26262.aadl"
             id="org.osate.iso26262.contrib.iso26262">
       </aadlcontribution>
