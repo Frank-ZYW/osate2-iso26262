@@ -24,8 +24,37 @@ public class CalculationUtil {
 	}
 
 	/**
+	 * Determine if the target reaches the ASIL level
+	**/
+	public static Boolean levelReachable(FmedaTable fmedaTb) {
+		switch (fmedaTb.ASIL) {
+		case "D":
+			// SPFM ≥ 99%, LFM ≥ 90%, PMHF < 10^−8/h = 10 Fit
+			if (fmedaTb.SPFM >= 0.99 && fmedaTb.LFM >= 0.9 && fmedaTb.PMHF < 10) {
+				return true;
+			}
+			return false;
+		case "C":
+			// SPFM ≥ 97%, LFM ≥ 80%, PMHF < 10^−7/h = 100 Fit
+			if (fmedaTb.SPFM >= 0.97 && fmedaTb.LFM >= 0.8 && fmedaTb.PMHF < 100) {
+				return true;
+			}
+			return false;
+		case "B":
+			// SPFM ≥ 90%, LFM ≥ 60%, PMHF < 10^−7/h = 100 Fit
+			if (fmedaTb.SPFM >= 0.9 && fmedaTb.LFM >= 0.6 && fmedaTb.PMHF < 100) {
+				return true;
+			}
+			return false;
+		default:
+			return true;
+		}
+	}
+
+	/**
 	 * Calculate FMEDA index, includes
 	 * total Failure Rate & Safety Related Rate & NonSafety Related Rate & SPFM & LFM & PMHF
+	 * & determine if the target reaches the ASIL level
 	**/
 	public static void fmedaCalc(FmedaTable fmedaTb) {
 		fmedaTb.CalcInit();
@@ -49,6 +78,9 @@ public class CalculationUtil {
 		fmedaTb.SPFM = 1 - (fmedaTb.totalSPRF / fmedaTb.totalSafetyRelated);
 		fmedaTb.LFM = 1 - (fmedaTb.totalMPFL / (fmedaTb.totalSafetyRelated - fmedaTb.SPFM));
 		fmedaTb.PMHF = fmedaTb.totalSPRF + fmedaTb.totalMPFL;
+
+		// level reachable check
+		fmedaTb.reachASILLevel = CalculationUtil.levelReachable(fmedaTb);
 	}
 
 }

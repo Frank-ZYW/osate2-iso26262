@@ -24,6 +24,8 @@ public class FmedaTable {
 	public Double LFM;
 	public Double PMHF;
 
+	public Boolean reachASILLevel;
+
 	public FmedaTable() {
 		// default value
 		this.blockName = "unknown";
@@ -59,6 +61,7 @@ public class FmedaTable {
 		this.SPFM = Double.valueOf(0);
 		this.LFM = Double.valueOf(0);
 		this.PMHF = Double.valueOf(0);
+		this.reachASILLevel = false;
 	}
 
 	/**
