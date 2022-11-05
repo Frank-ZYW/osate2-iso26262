@@ -1,4 +1,4 @@
-package org.osate.iso26262.fmeda;
+package org.osate.iso26262.fmeda.report;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +10,9 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.emf.ecore.EObject;
 import org.osate.aadl2.modelsupport.util.AadlUtil;
+import org.osate.iso26262.fmeda.FmedaFaultMode;
+import org.osate.iso26262.fmeda.FmedaProperty;
+import org.osate.iso26262.fmeda.FmedaTable;
 import org.osate.iso26262.fmeda.util.ReportUtil;
 
 import jxl.Workbook;
@@ -20,7 +23,7 @@ import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
 
-public class FmedaReportGenerator {
+public class ExcelReportGenerator {
 
 	public FmedaTable table;
 
@@ -29,13 +32,17 @@ public class FmedaReportGenerator {
 	public WritableCellFormat headCF;
 	public WritableCellFormat bodyCF;
 	public WritableCellFormat resultCF;
+	public WritableCellFormat acceptCF;
+	public WritableCellFormat rejectCF;
 
-	public FmedaReportGenerator() throws WriteException {
+	public ExcelReportGenerator() throws WriteException {
 		this.table = null;
 		this.titleCF = ReportUtil.getTitleCellFormat();
 		this.headCF = ReportUtil.getHeadCellFormat();
 		this.bodyCF = ReportUtil.getBodyCellFormat();
 		this.resultCF = ReportUtil.getResultCellFormat();
+		this.acceptCF = ReportUtil.getAcceptCellFormat();
+		this.rejectCF = ReportUtil.getRejectCellFormat();
 	}
 
 	/**
@@ -49,9 +56,9 @@ public class FmedaReportGenerator {
 	 * Write report to hard disk
 	 * @throws IOException, WriteException
 	**/
-	public void writeReport(EObject root) throws IOException, WriteException {
+	public void writeReport(EObject target) throws IOException, WriteException {
 		// get report path
-		IPath path = ReportUtil.getReportPath(root);
+		IPath path = ReportUtil.getReportPath(target, "xls");
 		AadlUtil.makeSureFoldersExist(path);
 
 		// create report file
@@ -216,12 +223,17 @@ public class FmedaReportGenerator {
 			for (int j = 0; j < 5; j++) {
 				sheet.addCell(new Label(currentColumn++, currentRow, result.get(i * 5 + j), this.resultCF));
 			}
-			for (int k = 0; k < 8; k++) {
-				sheet.addCell(new Label(currentColumn + k, currentRow, "", this.resultCF));
+			for (int k = 0; k < 7; k++) {
+				sheet.addCell(new Label(currentColumn++, currentRow, "", this.resultCF));
 			}
+			// level reachable result
+			sheet.addCell(new Label(currentColumn, currentRow, this.table.reachASILLevel ? "Accept" : "Reject",
+					this.table.reachASILLevel ? this.acceptCF : this.rejectCF));
 			// set row height
 			sheet.setRowView(currentRow++, 350);
 		}
+		// merge cells
+		sheet.mergeCells(currentColumn, currentRow - 3, currentColumn, currentRow - 1);
 
 		return currentRow;
 	}

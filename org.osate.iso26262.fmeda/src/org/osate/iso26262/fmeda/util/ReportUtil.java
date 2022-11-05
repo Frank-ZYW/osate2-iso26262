@@ -16,7 +16,7 @@ public class ReportUtil {
 	/**
 	 * Get the save path of report file
 	**/
-	public static IPath getReportPath(EObject root) {
+	public static IPath getReportPath(EObject root, String fileExtension) {
 		String filename = null;
 
 		Resource res = root.eResource();
@@ -26,7 +26,7 @@ public class ReportUtil {
 		path = path.removeFileExtension();
 		filename = path.lastSegment() + "_fmeda";
 		path = path.removeLastSegments(1).append("/reports/fmeda/" + filename);
-		path = path.addFileExtension("xls");
+		path = path.addFileExtension(fileExtension);
 		return path;
 	}
 
@@ -85,7 +85,39 @@ public class ReportUtil {
 		WritableFont wf = new WritableFont(WritableFont.ARIAL, 11, WritableFont.BOLD, false, UnderlineStyle.NO_UNDERLINE, jxl.format.Colour.BLACK);
 
 		WritableCellFormat resultCF = new WritableCellFormat(wf);
-		resultCF.setBackground(jxl.format.Colour.TAN); // gray background
+		resultCF.setBackground(jxl.format.Colour.TAN); // tan background
+		resultCF.setBorder(jxl.format.Border.ALL, jxl.format.BorderLineStyle.NONE); // no border
+		resultCF.setAlignment(jxl.format.Alignment.CENTRE); // alignment: center
+		resultCF.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE); // vertical alignment: center
+		resultCF.setWrap(true); // auto wrap
+
+		return resultCF;
+	}
+
+	/**
+	 * Get cell format of accept
+	**/
+	public static WritableCellFormat getAcceptCellFormat() throws WriteException {
+		WritableFont wf = new WritableFont(WritableFont.ARIAL, 14, WritableFont.BOLD, false, UnderlineStyle.NO_UNDERLINE, jxl.format.Colour.BLACK);
+
+		WritableCellFormat resultCF = new WritableCellFormat(wf);
+		resultCF.setBackground(jxl.format.Colour.LIME); // lime background
+		resultCF.setBorder(jxl.format.Border.ALL, jxl.format.BorderLineStyle.NONE); // no border
+		resultCF.setAlignment(jxl.format.Alignment.CENTRE); // alignment: center
+		resultCF.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE); // vertical alignment: center
+		resultCF.setWrap(true); // auto wrap
+
+		return resultCF;
+	}
+
+	/**
+	 * Get cell format of reject
+	**/
+	public static WritableCellFormat getRejectCellFormat() throws WriteException {
+		WritableFont wf = new WritableFont(WritableFont.ARIAL, 14, WritableFont.BOLD, false, UnderlineStyle.NO_UNDERLINE, jxl.format.Colour.BLACK);
+
+		WritableCellFormat resultCF = new WritableCellFormat(wf);
+		resultCF.setBackground(jxl.format.Colour.RED); // red background
 		resultCF.setBorder(jxl.format.Border.ALL, jxl.format.BorderLineStyle.NONE); // no border
 		resultCF.setAlignment(jxl.format.Alignment.CENTRE); // alignment: center
 		resultCF.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE); // vertical alignment: center
