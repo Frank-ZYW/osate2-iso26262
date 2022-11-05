@@ -41,4 +41,11 @@ public class FmedaProperty {
 		}
 	}
 
+	/**
+	 * Check if the structure is legal
+	**/
+	public Boolean isLegal() {
+		return !this.faultModes.isEmpty();
+	}
+
 }
