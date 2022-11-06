@@ -38,8 +38,11 @@ public class CsvReportGenerator {
 	 * @throws IOException, WriteException, CoreException
 	**/
 	public void writeReport(EObject target) throws IOException, WriteException, CoreException {
+		// set BOM to support zh_cn
+		String content = "\ufeff";
+
 		// get report content
-		String content = this.titleGenerate() + this.headGenerate() + this.bodyGenerate() + this.resultGenerate();
+		content += this.titleGenerate() + this.headGenerate() + this.bodyGenerate() + this.resultGenerate();
 
 		// get report path
 		IPath path = ReportUtil.getReportPath(target, "csv");
