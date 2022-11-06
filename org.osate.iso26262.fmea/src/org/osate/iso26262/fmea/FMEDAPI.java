@@ -14,11 +14,12 @@ public class FMEDAPI {
 	public FMEDAPI(ComponentInstance ci) {
 		this.ci = ci;
 		// 准备构建FMEA数据结构
-		FmeaBuilder fb = new FmeaBuilder();
+		fb = new FmeaBuilder();
 		// 构造结构树
 		fb.Construct_structure_tree(ci);
 		// 同时构造故障网与功能网
 		fb.BuildFailureAndFuncNet(fb.root_component);
+
 	}
 
 	public List<String> Get_Safety_Goal() {
