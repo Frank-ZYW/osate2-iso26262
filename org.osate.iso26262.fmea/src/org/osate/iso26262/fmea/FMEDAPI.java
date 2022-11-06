@@ -1,7 +1,9 @@
 package org.osate.iso26262.fmea;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.ui.dialogs.Dialog;
@@ -34,6 +36,7 @@ public class FMEDAPI {
 		List<ComponentInstance> result = new ArrayList<ComponentInstance>();
 
 		boolean findsg = false;
+		Map<String, Boolean> alreadyin = new HashMap<String, Boolean>();
 
 		for (Function fci : fb.root_component.functions.values()) {
 			if (fci.funcname.equals(sg)) {
@@ -44,7 +47,10 @@ public class FMEDAPI {
 					fmi.getLeaf(leaffmlist);
 				}
 				for (FailureMode leaffmi : leaffmlist) {
-					result.add(leaffmi.ref_component.ci);
+					if (alreadyin.get(leaffmi.ref_component.ci.getFullName()) == null) {
+						result.add(leaffmi.ref_component.ci);
+						alreadyin.put(leaffmi.ref_component.ci.getFullName(), true);
+					}
 				}
 			}
 		}
