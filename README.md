@@ -12,9 +12,7 @@ from OSATE.
 
 1. Download & unzip the package from [latest release](https://github.com/Frank-ZYW/osate2-iso26262/releases).
 
-2. Install plug-in from OSATE2 (*version >= 2.11.0*) via 
-
-   `Help` -> `Install New Software` -> `ADD` -> `Local` -> choose package path -> `Add` -> select package -> `Next` -> `Finish`.![](C:\Users\Frank\Desktop\doc\imgs\install.png)
+2. Install plug-in from OSATE2 (*version >= 2.11.0*) via `Help` -> `Install New Software` -> `ADD` -> `Local` -> choose package path -> `Add` -> select package -> `Next` -> `Finish`.![](https://github.com/Frank-ZYW/osate2-iso26262/blob/main/doc/imgs/install.png)
 
 3. Trust all unsigned content -> `Restart OSATE`
 
@@ -22,4 +20,4 @@ from OSATE.
 
 Choose an ***Instance File*** or ***Component Instance*** in the AADL Navigator, then select `Analyses` -> `ISO 26262` , and then the command to execute.
 
-The output of the command (reports, etc.) is stored in the `./reports` folder in your project.![](C:\Users\Frank\Desktop\doc\imgs\use.png)
+The output of the command (reports, etc.) is stored in the `./reports` folder in your project.![](https://github.com/Frank-ZYW/osate2-iso26262/blob/main/doc/imgs/use.png)
