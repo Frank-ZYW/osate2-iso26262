@@ -30,6 +30,7 @@ import org.osate.aadl2.instance.InstanceObject;
 import org.osate.aadl2.instance.SystemInstance;
 import org.osate.aadl2.modelsupport.EObjectURIWrapper;
 import org.osate.aadl2.modelsupport.resources.OsateResourceUtil;
+import org.osate.iso26262.fmea.FMEDAPI;
 import org.osate.iso26262.fmeda.FmedaFaultMode;
 import org.osate.iso26262.fmeda.FmedaProperty;
 import org.osate.iso26262.fmeda.FmedaTable;
@@ -63,11 +64,8 @@ public class FmedaHandler extends AbstractHandler {
 
 		////////////////////////////////////
 
-//		FMEDAPI api = new FMEDAPI(target);
-//		safetyGoals = api.Get_Safety_Goal();
-		safetyGoals = new ArrayList<String>();
-		safetyGoals.add("safety ,goal, 1");
-		safetyGoals.add("safety goal 2");
+		FMEDAPI api = new FMEDAPI(target);
+		safetyGoals = api.Get_Safety_Goal();
 
 		/** empty safety goal error **/
 
@@ -107,7 +105,7 @@ public class FmedaHandler extends AbstractHandler {
 		List<ComponentInstance> ciList = new ArrayList<ComponentInstance>();
 
 		if (USE_FMEA) {
-//			ciList = api.Get_Calcul_Instance(target, SAFETY_GOAL);
+			ciList = api.Get_Calcul_Instance(target, SAFETY_GOAL);
 		} else {
 			ciList = EcoreUtil2.getAllContentsOfType(target, ComponentInstance.class);
 			// if no sub-components then add itself
