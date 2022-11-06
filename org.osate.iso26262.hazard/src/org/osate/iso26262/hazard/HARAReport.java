@@ -226,8 +226,12 @@ public class HARAReport {
 
 				PropertyExpression peVal = modalPropertyValue.getOwnedValue();
 				ListValue lv = (ListValue) peVal;
+				if (reportEnumerationOrIntegerPropertyConstantPropertyValue(
+						((RecordValue) lv.getOwnedListElements().get(0)).getOwnedFieldValues(), "SafetyCategory", null)
+						.equals("SG")) {
 				for (PropertyExpression pe : lv.getOwnedListElements()) {
 					EList<BasicPropertyAssociation> fields = ((RecordValue) pe).getOwnedFieldValues();
+
 					// for all error types/aliases in type set or the element identified in the containment clause
 //				EList<BasicPropertyAssociation> fields = ((RecordValue) modalPropertyValue.getOwnedValue()).getOwnedFieldValues();
 					if (ts != null) {
@@ -267,8 +271,10 @@ public class HARAReport {
 					}
 				}
 			}
+			}
 		}
 		report.mergecell(1, report.currow - absrows, 1, report.currow - 1);
+		report.mergecell(2, report.currow - absrows, 2, report.currow - 1);
 		return rows;
 	}
 
@@ -300,7 +306,7 @@ public class HARAReport {
 		 * We include the parent component name if not null and if this is not the root system
 		 * instance.
 		 */
-		if (reportEnumerationOrIntegerPropertyConstantPropertyValue(fields, "SafetyCategory", null).equals("SG")) {
+//		if () {
 			String Severity;
 			String Controllability;
 			String Exposure;
@@ -365,16 +371,19 @@ public class HARAReport {
 //			reportNumberUnitPropertyValue(fields, "MissionTime", report, "hr");
 
 			report.nextline();
-		}
+//		}
 	}
 
 	protected void reportASIL(String Severity, String Controllability, String Exposure, String ASIL,
 			FileExport report)
 	{
 		String Cal_ASIL = CalCulateASIL(Severity, Controllability, Exposure);
-		if(Cal_ASIL.equals(ASIL))
-		{
+		if (Cal_ASIL.equals("")) {
 			report.addcell(ASIL);
+		}
+		else if (ASIL.equals("") || Cal_ASIL.equals(ASIL))
+		{
+			report.addcell(Cal_ASIL);
 		}
 		else {
 			report.addRedcell(ASIL + "{" + Cal_ASIL + "}");

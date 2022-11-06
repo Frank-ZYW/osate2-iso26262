@@ -103,9 +103,7 @@ public class Structure {
 					mode_name = ((StringLiteral) val).getValue();
 					xref = null;
 				}
-				if (mode_name == null) {
-					mode_name = ci.getName() + "." + id;
-				}
+
 
 				xref = GetProperties.getRecordField(fields, "SafetyDescription");
 				if (xref != null) {
@@ -113,13 +111,17 @@ public class Structure {
 					funcname = ((StringLiteral) val).getValue();
 					xref = null;
 				}
-				if (funcname == null) {
-					funcname = "Function of " + ci.getName() + "." + id;
-				}
-				// get Link_Func
-				ref_func = new Function(id, funcname, this, null);
-				functions.put(id, ref_func);
+
 			}
+			if (mode_name == null) {
+				mode_name = ci.getName() + "." + id;
+			}
+			if (funcname == null) {
+				funcname = "Function of " + ci.getName() + "." + id;
+			}
+			// get Link_Func
+			ref_func = new Function(id, funcname, this, null);
+			functions.put(id, ref_func);
 			// -------------Failure_Mode----------------------------
 
 			// -------------Risk_Analysis---------------------
