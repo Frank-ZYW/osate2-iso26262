@@ -20,4 +20,6 @@ from OSATE.
 
 Choose an ***Instance File*** or ***Component Instance*** in the AADL Navigator, then select `Analyses` -> `ISO 26262` , and then the command to execute.
 
-The output of the command (reports, etc.) is stored in the `./reports` folder in your project.![](https://github.com/Frank-ZYW/osate2-iso26262/blob/main/doc/imgs/use.png)
+The output of the command (reports, etc.) is stored in the `./reports` folder in your project.
+
+![](https://github.com/Frank-ZYW/osate2-iso26262/blob/main/doc/imgs/use.png)
