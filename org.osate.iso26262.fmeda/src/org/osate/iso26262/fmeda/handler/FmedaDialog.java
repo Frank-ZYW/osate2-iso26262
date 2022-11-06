@@ -7,6 +7,7 @@ import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -22,8 +23,14 @@ public class FmedaDialog extends TitleAreaDialog {
 	private Combo safetyGoalCombo;
 
 	private String ASILLevel;
-	private String[] ASILLevels = { "A", "B", "C", "D" };
+	private String[] ASILLevels = { "D", "C", "B", "A" };
 	private Combo ASILLevelCombo;
+
+	private Button useFmeaBox;
+	private Boolean useFmea = true;
+
+	private Button csvExportBox;
+	private Boolean csvExport = false;
 
 	public FmedaDialog(Shell parentShell) {
 		super(parentShell);
@@ -47,16 +54,16 @@ public class FmedaDialog extends TitleAreaDialog {
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		Composite area = (Composite) super.createDialogArea(parent);
-		Composite container = new Composite(area, SWT.NONE);
-		GridLayout layout = new GridLayout(2, false);
 
-		container.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		container.setLayout(layout);
+		Composite comboContainer = new Composite(area, SWT.NONE);
+		GridLayout comboLayout = new GridLayout(2, false);
+		comboContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		comboContainer.setLayout(comboLayout);
 
-		Label labelSafetyGoal = new Label(container, SWT.NONE);
+		Label labelSafetyGoal = new Label(comboContainer, SWT.NONE);
 		labelSafetyGoal.setText("Select Safety Goal :   ");
 
-		safetyGoalCombo = new Combo(container, SWT.READ_ONLY | SWT.BORDER);
+		safetyGoalCombo = new Combo(comboContainer, SWT.READ_ONLY | SWT.BORDER);
 		String val[] = new String[safetyGoals.size()];
 		for (int i = 0; i < safetyGoals.size(); i++) {
 			val[i] = safetyGoals.get(i);
@@ -64,12 +71,25 @@ public class FmedaDialog extends TitleAreaDialog {
 		safetyGoalCombo.setItems(val);
 		safetyGoalCombo.select(0);
 
-		Label labelASILLevel = new Label(container, SWT.NONE);
+		Label labelASILLevel = new Label(comboContainer, SWT.NONE);
 		labelASILLevel.setText("Select ASIL Level :   ");
 
-		ASILLevelCombo = new Combo(container, SWT.READ_ONLY | SWT.BORDER);
+		ASILLevelCombo = new Combo(comboContainer, SWT.READ_ONLY | SWT.BORDER);
 		ASILLevelCombo.setItems(ASILLevels);
-		ASILLevelCombo.select(3);
+		ASILLevelCombo.select(0);
+
+		Composite buttonContainer = new Composite(area, SWT.NONE);
+		GridLayout buttonLayout = new GridLayout(1, false);
+		buttonContainer.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		buttonContainer.setLayout(buttonLayout);
+
+		useFmeaBox = new Button(buttonContainer, SWT.CHECK);
+		useFmeaBox.setText("Do analysis with FMEA (Failure Mode and Effect Analysis)");
+		useFmeaBox.setSelection(useFmea);
+
+		csvExportBox = new Button(buttonContainer, SWT.CHECK);
+		csvExportBox.setText("Export CSV report (default Excel)");
+		csvExportBox.setSelection(csvExport);
 
 		return area;
 	}
@@ -83,6 +103,8 @@ public class FmedaDialog extends TitleAreaDialog {
 	protected void okPressed() {
 		safetyGoal = safetyGoalCombo.getText();
 		ASILLevel = ASILLevelCombo.getText();
+		useFmea = useFmeaBox.getSelection();
+		csvExport = csvExportBox.getSelection();
 		super.okPressed();
 	}
 
@@ -92,6 +114,14 @@ public class FmedaDialog extends TitleAreaDialog {
 
 	public String getASILLevel() {
 		return ASILLevel;
+	}
+
+	public Boolean getUseFmea() {
+		return useFmea;
+	}
+
+	public Boolean getCsvExport() {
+		return csvExport;
 	}
 
 }

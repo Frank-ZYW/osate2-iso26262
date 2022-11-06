@@ -8,6 +8,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.emf.common.util.EList;
@@ -31,8 +32,8 @@ import org.osate.aadl2.modelsupport.EObjectURIWrapper;
 import org.osate.aadl2.modelsupport.resources.OsateResourceUtil;
 import org.osate.iso26262.fmeda.FmedaFaultMode;
 import org.osate.iso26262.fmeda.FmedaProperty;
-import org.osate.iso26262.fmeda.FmedaReportGenerator;
 import org.osate.iso26262.fmeda.FmedaTable;
+import org.osate.iso26262.fmeda.report.FmedaReportGenerator;
 import org.osate.iso26262.fmeda.util.PropertyParseUtil;
 import org.osate.ui.dialogs.Dialog;
 import org.osate.xtext.aadl2.errormodel.errorModel.ErrorBehaviorState;
@@ -45,6 +46,8 @@ public class FmedaHandler extends AbstractHandler {
 	private static String SAFETY_GOAL = null;
 	private static List<String> safetyGoals = null;
 	private static String ASIL_LEVEL = null;
+	private static Boolean USE_FMEA = null;
+	private static Boolean CSV_EXPORT = null;
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -53,23 +56,30 @@ public class FmedaHandler extends AbstractHandler {
 
 		InstanceObject object = getTarget(HandlerUtil.getCurrentSelection(event));
 		if (object == null) {
-			Dialog.showInfo("Failure Modes Effects and Diagnostic Analysis", "Please choose an instance model");
+			Dialog.showWarning("Failure Modes Effects and Diagnostic Analysis", "Please choose an instance model!");
 			return IStatus.ERROR;
 		}
 		ComponentInstance target = object instanceof ComponentInstance ? (ComponentInstance) object : object.getSystemInstance();
 
 		////////////////////////////////////
 
-		/** choose safety goal & ASIL level **/
-
+//		FMEDAPI api = new FMEDAPI(target);
+//		safetyGoals = api.Get_Safety_Goal();
 		safetyGoals = new ArrayList<String>();
-		safetyGoals.add("satety goal 1");
-		safetyGoals.add("satety goal 2");
+		safetyGoals.add("safety ,goal, 1");
+		safetyGoals.add("safety goal 2");
 
-//		safetyGoals = FMEDAPI.Get_Safety_Goal(target);
+		/** empty safety goal error **/
 
-		final Display choiceDialog = PlatformUI.getWorkbench().getDisplay();
-		choiceDialog.syncExec(() -> {
+		if (safetyGoals.isEmpty()) {
+			Dialog.showWarning("Failure Modes Effects and Diagnostic Analysis", "Target component must has at lease one safety goal!");
+			return IStatus.ERROR;
+		}
+
+		/** choose safety goal & ASIL level & report type & analysis type **/
+
+		final Display fmedaDialog = PlatformUI.getWorkbench().getDisplay();
+		fmedaDialog.syncExec(() -> {
 			IWorkbenchWindow window;
 			Shell sh;
 
@@ -82,42 +92,57 @@ public class FmedaHandler extends AbstractHandler {
 			diag.open();
 			SAFETY_GOAL = diag.getSafetyGoal();
 			ASIL_LEVEL = diag.getASILLevel();
+			USE_FMEA = diag.getUseFmea();
+			CSV_EXPORT = diag.getCsvExport();
 		});
+		// choose cancel button
+		if (SAFETY_GOAL == null) {
+			return IStatus.ERROR;
+		}
 
 		////////////////////////////////////
 
 		/** get safety-related component **/
 
-		List<ComponentInstance> ciList = EcoreUtil2.getAllContentsOfType(target, ComponentInstance.class);
-		// add itself
-		if (ciList.isEmpty()) {
-			ciList.add(target.getComponentInstance());
-		}
+		List<ComponentInstance> ciList = new ArrayList<ComponentInstance>();
 
-//		List<ComponentInstance> ciList = FMEDAPI.Get_Calcul_Instance(target, SAFETY_GOAL);
+		if (USE_FMEA) {
+//			ciList = api.Get_Calcul_Instance(target, SAFETY_GOAL);
+		} else {
+			ciList = EcoreUtil2.getAllContentsOfType(target, ComponentInstance.class);
+			// if no sub-components then add itself
+			if (ciList.isEmpty()) {
+				ciList.add(target.getComponentInstance());
+			}
+		}
 
 		FmedaTable fmedaTb = new FmedaTable();
 		fmedaTb.blockName = target.getFullName();
 		fmedaTb.safetyGoal = SAFETY_GOAL;
 		fmedaTb.ASIL = ASIL_LEVEL;
 
-		List<ComponentInstance> errorCiList = new ArrayList<ComponentInstance>();
+		/** check the legality of FmedaProperty **/
+
+		List<ComponentInstance> illegalCiList = new ArrayList<ComponentInstance>();
 
 		for (ComponentInstance ci : ciList) {
 			FmedaProperty fp = getFmedaPropertyFromComponent(ci);
-			if (fp != null) {
+			if (fp != null && fp.isLegal()) {
 				fmedaTb.addFmedaProperty(fp);
 			} else {
-//				errorCiList.add(ci);
-				continue;
+				if (USE_FMEA) {
+					illegalCiList.add(ci);
+				} else if (fp != null) {
+					illegalCiList.add(ci);
+				}
 			}
 		}
 
 		////////////////////////////////////
 
-		/** FMEDA property missing error **/
+		/** illegal FmedaProperty error **/
 
-		if (!errorCiList.isEmpty()) {
+		if (!illegalCiList.isEmpty()) {
 			final Display errorDialog = PlatformUI.getWorkbench().getDisplay();
 			errorDialog.syncExec(() -> {
 				IWorkbenchWindow window;
@@ -126,7 +151,7 @@ public class FmedaHandler extends AbstractHandler {
 				window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 				sh = window.getShell();
 
-				ErrorDialog diag = new ErrorDialog(sh, errorCiList);
+				ErrorDialog diag = new ErrorDialog(sh, illegalCiList);
 				diag.open();
 			});
 			return IStatus.ERROR;
@@ -135,7 +160,7 @@ public class FmedaHandler extends AbstractHandler {
 		/** empty table warning **/
 
 		if (fmedaTb.isEmpty()) {
-			Dialog.showWarning("Failure Modes Effects and Diagnostic Analysis", "No safety-related component under this safety goal!");
+			Dialog.showInfo("Failure Modes Effects and Diagnostic Analysis", "No safety-related component under this safety goal!");
 			return Status.OK_STATUS;
 		}
 
@@ -148,8 +173,12 @@ public class FmedaHandler extends AbstractHandler {
 		try {
 			FmedaReportGenerator reportGen = new FmedaReportGenerator();
 			reportGen.setFmedaTable(fmedaTb);
-			reportGen.writeReport(target);
-		} catch (WriteException | IOException e) {
+			if (!CSV_EXPORT) {
+				reportGen.writeExcelReport(target);
+			} else {
+				reportGen.writeCsvReport(target);
+			}
+		} catch (WriteException | IOException | CoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			Dialog.showError("Failure Modes Effects and Diagnostic Analysis", "Report generate Error!");
@@ -201,7 +230,7 @@ public class FmedaHandler extends AbstractHandler {
 
 				/** get safety properties **/
 
-				EList<BasicPropertyAssociation> spField = PropertyParseUtil.getPropertyField("FMEDA::SafetyProperties",
+				EList<BasicPropertyAssociation> spField = PropertyParseUtil.getPropertyField("ISO26262::FMEDASafetyProperties",
 						ci, state, state.getTypeSet());
 
 				if (spField != null) {
@@ -216,7 +245,7 @@ public class FmedaHandler extends AbstractHandler {
 					for (ErrorBehaviorState state_ : EMV2Util.getAllErrorBehaviorStates(ci)) {
 
 						EList<BasicPropertyAssociation> fmField = PropertyParseUtil
-								.getPropertyField("FMEDA::FailureMode", ci, state_, state_.getTypeSet());
+								.getPropertyField("ISO26262::FailureMode", ci, state_, state_.getTypeSet());
 
 						if (fmField != null) {
 							FmedaFaultMode fm = new FmedaFaultMode();

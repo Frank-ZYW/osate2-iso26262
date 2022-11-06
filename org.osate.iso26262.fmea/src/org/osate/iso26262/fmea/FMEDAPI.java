@@ -11,7 +11,7 @@ public class FMEDAPI {
 	FmeaBuilder fb;
 	ComponentInstance ci;
 
-	FMEDAPI(ComponentInstance ci) {
+	public FMEDAPI(ComponentInstance ci) {
 		this.ci = ci;
 		// 准备构建FMEA数据结构
 		FmeaBuilder fb = new FmeaBuilder();
