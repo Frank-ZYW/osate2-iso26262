@@ -2,7 +2,7 @@
 <feature
       id="org.osate.iso26262.feature"
       label="osate2-iso26262"
-      version="1.0.0.qualifier">
+      version="0.1.0.qualifier">
 
    <description url="http://www.example.com/description">
       OSATE2 plug-in that provides ISO-26262 support.
