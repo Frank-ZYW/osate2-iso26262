@@ -12,11 +12,11 @@ from OSATE.
 
 1. Download & unzip the package from [latest release](https://github.com/Frank-ZYW/osate2-iso26262/releases).
 
-2. Install plug-in from OSATE2 (*version >= 2.11.0*) via `Help` -> `Install New Software` -> `ADD` -> `Local` -> choose package path -> `Add` -> select package -> `Next` -> `Finish`.
+2. Install plug-in from OSATE2 (***version >= 2.11.0***) via `Help` -> `Install New Software` -> `ADD` -> `Local` -> choose package path -> `Add` -> select package -> `Next` -> `Finish`.
 
    ![](https://github.com/Frank-ZYW/osate2-iso26262/blob/main/doc/imgs/install.png)
 
-3. Trust all unsigned content -> `Restart OSATE`
+3. Trust all unsigned content, then restart OSATE
 
 ## Usage
 
