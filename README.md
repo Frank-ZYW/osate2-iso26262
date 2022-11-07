@@ -25,3 +25,10 @@ Choose an ***Instance File*** or ***Component Instance*** in the AADL Navigator,
 The output of the command (reports, etc.) is stored in the `./reports` folder in your project.
 
 ![](https://github.com/Frank-ZYW/osate2-iso26262/blob/main/doc/imgs/use.png)
+
+## Development
+
+If you want to contribute to the project:
+
+1. Follow [OSATE2 Developer Documentation](https://osate.org/setup-development.html) to set up a development environment uses the Eclipse Installer.
+2. Use ***Git*** to clone the project, then import into Eclipse workspace.
