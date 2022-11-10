@@ -350,7 +350,7 @@ public class HARAReport {
 			Controllability = reportEnumerationOrIntegerPropertyConstantPropertyValue(fields, "Controllability",
 					report);
 
-			reportStringProperty(fields, "Exposure", report);
+			reportStringProperty(fields, "ExposureComment", report);
 
 			Exposure = reportEnumerationOrIntegerPropertyConstantPropertyValue(fields, "Exposure", report);
 
@@ -378,12 +378,13 @@ public class HARAReport {
 			FileExport report)
 	{
 		String Cal_ASIL = CalCulateASIL(Severity, Controllability, Exposure);
-		if (Cal_ASIL.equals("")) {
+		System.out.println(ASIL + " ---- " + Cal_ASIL);
+		if (Cal_ASIL.equals(ASIL)) {
 			report.addcell(ASIL);
 		}
-		else if (ASIL.equals("") || Cal_ASIL.equals(ASIL))
+		else if (ASIL.equals(""))
 		{
-			report.addcell(Cal_ASIL);
+			report.addcell("{" + Cal_ASIL + "}");
 		}
 		else {
 			report.addRedcell(ASIL + "{" + Cal_ASIL + "}");

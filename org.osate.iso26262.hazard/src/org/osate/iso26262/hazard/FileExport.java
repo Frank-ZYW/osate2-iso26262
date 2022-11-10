@@ -66,7 +66,7 @@ public class FileExport {
 	}
 
 	public void addcell(String content) {
-		if (content == null) {
+		if (content == null || content.equals("\"\"")) {
 			content="";
 		}
 		try {
@@ -82,7 +82,7 @@ public class FileExport {
 	}
 
 	public void addRedcell(String content) {
-		if (content == null) {
+		if (content == null || content.equals("\"\"")) {
 			content = "";
 		}
 		try {

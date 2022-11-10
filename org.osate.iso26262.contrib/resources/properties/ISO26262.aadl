@@ -42,7 +42,7 @@ property set ISO26262 is
 		CompanyName: aadlstring; -- 公司名称
 		EngineeringLocation: aadlstring; -- 工程地点
 		CustomerName: aadlstring; -- 顾客名称
-		ModelYear_Program: aadlstring; -- 车型年/项目
+		ModelYearProgram: aadlstring; -- 车型年/项目
 		Subject: aadlstring; -- 项目
 		DFMEAStartData: aadlstring; -- DFMEA开始日期
 		DFMEARevisionData: aadlstring; -- DFMEA修订日期

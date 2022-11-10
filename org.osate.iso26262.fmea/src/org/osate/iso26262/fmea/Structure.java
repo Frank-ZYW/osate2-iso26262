@@ -360,7 +360,7 @@ public class Structure {
 		Property property;
 		PropertyExpression propertyValue = null;
 		BasicPropertyAssociation pa;
-		property = GetProperties.lookupPropertyDefinition(ci, "FMEA_Prop", "FMEA_Head");
+		property = GetProperties.lookupPropertyDefinition(ci, "ISO26262", "FmeaHead");
 		try {
 		propertyValue = ci.getSimplePropertyValue(property);
 	} catch (PropertyNotPresentException e) {
@@ -371,19 +371,19 @@ public class Structure {
 	RecordValue rv = (RecordValue) propertyValue;
 	EList<BasicPropertyAssociation> fields = rv.getOwnedFieldValues();
 
-		pa = GetProperties.getRecordField(fields, "Company_Name");
+	pa = GetProperties.getRecordField(fields, "CompanyName");
 		if (pa != null) {
 			head.Company_Name = ((StringLiteral) pa.getValue()).getValue();
 		}
-		pa = GetProperties.getRecordField(fields, "Engineering_Location");
+		pa = GetProperties.getRecordField(fields, "EngineeringLocation");
 		if (pa != null) {
 			head.Engineering_Location = ((StringLiteral) pa.getValue()).getValue();
 		}
-		pa = GetProperties.getRecordField(fields, "Customer_Name");
+		pa = GetProperties.getRecordField(fields, "CustomerName");
 		if (pa != null) {
 			head.Customer_Name = ((StringLiteral) pa.getValue()).getValue();
 		}
-		pa = GetProperties.getRecordField(fields, "Model_Year_Program");
+		pa = GetProperties.getRecordField(fields, "ModelYearProgram");
 		if (pa != null) {
 			head.Model_Year_Program = ((StringLiteral) pa.getValue()).getValue();
 		}
@@ -391,31 +391,31 @@ public class Structure {
 		if (pa != null) {
 			head.Subject = ((StringLiteral) pa.getValue()).getValue();
 		}
-		pa = GetProperties.getRecordField(fields, "DFMEA_Start_Data");
+		pa = GetProperties.getRecordField(fields, "DFMEAStartData");
 		if (pa != null) {
 			head.DFMEA_Start_Data = ((StringLiteral) pa.getValue()).getValue();
 		}
-		pa = GetProperties.getRecordField(fields, "DFMEA_Revision_Data");
+		pa = GetProperties.getRecordField(fields, "DFMEARevisionData");
 		if (pa != null) {
 			head.DFMEA_Revision_Data = ((StringLiteral) pa.getValue()).getValue();
 		}
-		pa = GetProperties.getRecordField(fields, "Cross_Func_Team");
+		pa = GetProperties.getRecordField(fields, "CrossFuncTeam");
 		if (pa != null) {
 			head.Cross_Func_Team = ((StringLiteral) pa.getValue()).getValue();
 		}
-		pa = GetProperties.getRecordField(fields, "DFMEA_ID");
+		pa = GetProperties.getRecordField(fields, "DFMEAID");
 		if (pa != null) {
 			head.DFMEA_ID = ((StringLiteral) pa.getValue()).getValue();
 		}
-		pa = GetProperties.getRecordField(fields, "Design_Responsibility");
+		pa = GetProperties.getRecordField(fields, "DesignResponsibility");
 		if (pa != null) {
 			head.Design_Responsibility = ((StringLiteral) pa.getValue()).getValue();
 		}
-		pa = GetProperties.getRecordField(fields, "Confidentiality_Level");
+		pa = GetProperties.getRecordField(fields, "ConfidentialityLevel");
 		if (pa != null) {
 			head.Confidentiality_Level = ((StringLiteral) pa.getValue()).getValue();
 		}
-		pa = GetProperties.getRecordField(fields, "Focus_Component");
+		pa = GetProperties.getRecordField(fields, "FocusComponent");
 		if (pa != null) {
 			head.Focus_component_name = ((StringLiteral) pa.getValue()).getValue();
 		}
