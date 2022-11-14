@@ -2,8 +2,17 @@ package org.osate.iso26262.fmea;
 
 import java.util.Collection;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
+import org.osate.aadl2.AbstractNamedValue;
+import org.osate.aadl2.BasicPropertyAssociation;
+import org.osate.aadl2.EnumerationLiteral;
+import org.osate.aadl2.IntegerLiteral;
 import org.osate.aadl2.NamedElement;
+import org.osate.aadl2.NamedValue;
+import org.osate.aadl2.PropertyExpression;
+import org.osate.aadl2.RealLiteral;
+import org.osate.aadl2.StringLiteral;
 import org.osate.aadl2.errormodel.FaultTree.Event;
 import org.osate.aadl2.errormodel.FaultTree.FaultTree;
 import org.osate.aadl2.errormodel.FaultTree.FaultTreeType;
@@ -14,8 +23,10 @@ import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.instance.InstanceObject;
 import org.osate.ui.dialogs.Dialog;
 import org.osate.xtext.aadl2.errormodel.errorModel.ErrorBehaviorState;
+import org.osate.xtext.aadl2.errormodel.errorModel.TypeSet;
 import org.osate.xtext.aadl2.errormodel.errorModel.TypeToken;
 import org.osate.xtext.aadl2.errormodel.util.EMV2Util;
+import org.osate.xtext.aadl2.properties.util.GetProperties;
 
 public class FmeaBuilder {
 
@@ -45,7 +56,7 @@ public class FmeaBuilder {
 
 		for (ComponentInstance cc : root_component.ci.getComponentInstances()) {
 			Structure t = new Structure(root_component, cc);
-			root_component.low_level_components_map.put(t.ci.getName(), t);
+			root_component.low_level_components_map.put(t.getName(), t);
 			travel_structure_tree(t);
 		}
 	}
@@ -64,33 +75,10 @@ public class FmeaBuilder {
 			FTAGenerator generator = new FTAGenerator(currentPropagationGraph);
 			FaultTree ftamodel = generator.getftaModel(root.ci, si, null, FaultTreeType.COMPOSITE_PARTS);
 			root.LinkFTAevent(ftamodel.getRoot(), root.failure_modes.get(si.getName()));
-//			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-////			System.out.println("State Name::::" + EMV2Util.getPrintName(si));
-//			TravelFTARootEvent(ftamodel.getRoot(), "");
-//			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		}
 	}
 
-//	public void BuildFuncNet(Structure root) {
-//		root.LinkFunc();
-//		for (Structure cc : root.low_level_components_map.values()) {
-//			BuildFuncNet(cc);
-//		}
-//	}
 
-//	public void BuildFailureNet(Structure root) {
-//		Collection<ErrorBehaviorState> states = EMV2Util.getAllErrorBehaviorStates(root.ci);
-//		PropagationGraph currentPropagationGraph = Util.generatePropagationGraph(root.ci.getSystemInstance(), false);
-//		for (ErrorBehaviorState si : states) {
-//			FTAGenerator generator = new FTAGenerator(currentPropagationGraph);
-//			FaultTree ftamodel = generator.getftaModel(root.ci, si, null, FaultTreeType.COMPOSITE_PARTS);
-//			root.LinkFTAevent(ftamodel.getRoot(), root.failure_modes.get(si.getName()));
-////			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//////			System.out.println("State Name::::" + EMV2Util.getPrintName(si));
-////			TravelFTARootEvent(ftamodel.getRoot(), "");
-////			System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//		}
-//	}
 
 
 	public void TravelFTARootEvent(Event event, String indent) {
@@ -212,6 +200,79 @@ public class FmeaBuilder {
 
 	public static boolean InRange(int current, int min, int max) {
 		return Math.max(min, current) == Math.min(current, max);
+	}
+
+	public static String getRecordStringProperty(EList<BasicPropertyAssociation> fields, String recname) {
+		BasicPropertyAssociation xref = GetProperties.getRecordField(fields, recname);
+		String result = null;
+		;
+		if (xref != null) {
+			PropertyExpression val = xref.getOwnedValue();
+			result = ((StringLiteral) val).getValue();
+		}
+		return result;
+	}
+
+	public static String getRecordEnumerationProperty(EList<BasicPropertyAssociation> fields, String recname) {
+		BasicPropertyAssociation xref = GetProperties.getRecordField(fields, recname);
+		String result = null;
+		;
+		if (xref != null) {
+			PropertyExpression val = xref.getOwnedValue();
+			AbstractNamedValue eval = ((NamedValue) val).getNamedValue();
+			result = ((EnumerationLiteral) eval).getName();
+		}
+		return result;
+	}
+
+	public static Double getRecordRealProperty(EList<BasicPropertyAssociation> fields, String recname) {
+		BasicPropertyAssociation xref = GetProperties.getRecordField(fields, recname);
+		Double result = null;
+		;
+		if (xref != null) {
+			PropertyExpression val = xref.getOwnedValue();
+			result = ((RealLiteral) val).getValue();
+		}
+		return result;
+	}
+
+	public static Integer getRecordIntProperty(EList<BasicPropertyAssociation> fields, String recname) {
+		BasicPropertyAssociation xref = GetProperties.getRecordField(fields, recname);
+		Integer result = null;
+		;
+		if (xref != null) {
+			PropertyExpression val = xref.getOwnedValue();
+			result = (int) ((IntegerLiteral) val).getValue();
+		}
+		return result;
+	}
+
+	public static Double getRecordUnitProperty(EList<BasicPropertyAssociation> fields, String fieldName,
+			String unit) {
+		PropertyExpression val = null;
+		Double result = null;
+		BasicPropertyAssociation xref = GetProperties.getRecordField(fields, fieldName);
+		if (xref != null) {
+			val = xref.getOwnedValue();
+
+		}
+		if (val instanceof IntegerLiteral) {
+			result = ((IntegerLiteral) val).getScaledValue(unit);
+		}
+		return result;
+
+	}
+
+	public static void Dialog(String s1, String s2) {
+		Dialog.showInfo(s1, s2);
+	}
+
+	public static String TypeSetName(TypeSet ts) {
+		String result = "";
+		if (ts != null) {
+			result = "{" + ts.getFullName() + "}";
+		}
+		return result;
 	}
 
 	public void getHead() {

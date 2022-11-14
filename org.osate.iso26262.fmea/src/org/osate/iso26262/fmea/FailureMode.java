@@ -5,30 +5,46 @@ import java.util.List;
 
 import org.eclipse.emf.common.util.EList;
 import org.osate.aadl2.BasicPropertyAssociation;
-import org.osate.aadl2.IntegerLiteral;
 import org.osate.aadl2.ListValue;
 import org.osate.aadl2.ModalPropertyValue;
+import org.osate.aadl2.NamedElement;
 import org.osate.aadl2.PropertyExpression;
 import org.osate.aadl2.RecordValue;
-import org.osate.aadl2.StringLiteral;
 import org.osate.xtext.aadl2.errormodel.errorModel.EMV2PropertyAssociation;
 import org.osate.xtext.aadl2.errormodel.errorModel.ErrorBehaviorState;
+import org.osate.xtext.aadl2.errormodel.errorModel.TypeSet;
 import org.osate.xtext.aadl2.errormodel.util.EMV2Properties;
 import org.osate.xtext.aadl2.errormodel.util.EMV2Util;
-import org.osate.xtext.aadl2.properties.util.GetProperties;
 
 public class FailureMode {
 	public String id;
 	public String name;
-	public ErrorBehaviorState failure_mode;
+	public String description;
+	public String mishap;
+	public String evironment;
+	public String verifivation;
+	public String crossreference;
+	public String comment;
+	public Double probability;
+
+	public Integer asil_serverity;
+	public Integer asil_exposure;
+	public Integer asil_controllability;
+	public String serverity_comment;
+	public String exposure_comment;
+	public String controllability_comment;
+	public ASIL asil;
+
+	public NamedElement failure_mode;
+	public TypeSet failure_mode_typeset;
 	public Structure ref_component;
 	public Function ref_func;
 	public List<FailureMode> failure_effect = new ArrayList<FailureMode>();
 	public List<FailureMode> failure_cause = new ArrayList<FailureMode>();
 
-	public Integer serverity;
-	public Integer occurrence;
-	public Integer detection;
+	public Integer fmea_serverity;
+	public Integer fmea_occurrence;
+	public Integer fmea_detection;
 	public String prevention_control;
 	public String detection_control;
 
@@ -49,40 +65,77 @@ public class FailureMode {
 	FailureMode(String id, String name, ErrorBehaviorState failure_mode, Structure ref_component, Function ref_func,
 			Integer serverity, Integer occurrence, Integer detection, String prevention_control,
 			String detection_control) {
-		System.out.println("	new FailureMode::" + EMV2Util.getPrintName(ref_component.ci) + "." + id + ":::" + name);
 
-		this.id = id;
-		this.name = name;
-		this.failure_mode = failure_mode;
 		this.ref_component = ref_component;
 		this.ref_func = ref_func;
 
-		this.serverity = serverity;
-		this.occurrence = occurrence;
-		this.detection = detection;
-		this.prevention_control = prevention_control;
-		this.detection_control = detection_control;
-		Fill_Optimizations();
 	}
 
+	FailureMode(NamedElement ci, NamedElement target, TypeSet ts) {
+
+		this.failure_mode = target;
+		this.failure_mode_typeset = ts;
+		this.id = EMV2Util.getPrintName(target) + FmeaBuilder.TypeSetName(ts);
+
+		List<EMV2PropertyAssociation> fm = EMV2Properties.getProperty("ISO26262::Hazards", ci, target, ts);
+		EMV2PropertyAssociation fma = fm.isEmpty() ? null : fm.get(0);
+		PropertyExpression fmv = EMV2Properties.getPropertyValue(fma);
+		EList<BasicPropertyAssociation> fields = fmv == null ? null
+				: ((RecordValue) ((ListValue) fmv).getOwnedListElements().get(0)).getOwnedFieldValues();
+		if (fields != null) {
+
+			this.name = FmeaBuilder.getRecordStringProperty(fields, "HazardName");
+			this.description = FmeaBuilder.getRecordStringProperty(fields, "Description");
+			this.mishap = FmeaBuilder.getRecordStringProperty(fields, "Mishap");
+			this.evironment = FmeaBuilder.getRecordStringProperty(fields, "Evironment");
+			this.verifivation = FmeaBuilder.getRecordStringProperty(fields, "VerificationMethod");
+			this.crossreference = FmeaBuilder.getRecordStringProperty(fields, "CrossReference");
+			this.comment = FmeaBuilder.getRecordStringProperty(fields, "Comment");
+			this.probability = FmeaBuilder.getRecordRealProperty(fields, "Probability");
+
+			this.asil_serverity = FmeaBuilder.getRecordIntProperty(fields, "Severity");
+			this.serverity_comment = FmeaBuilder.getRecordStringProperty(fields, "SeverityComment");
+			this.asil_exposure = FmeaBuilder.getRecordIntProperty(fields, "Exposure");
+			this.exposure_comment = FmeaBuilder.getRecordStringProperty(fields, "ExposureComment");
+			this.asil_controllability = FmeaBuilder.getRecordIntProperty(fields, "Controllability");
+			this.controllability_comment = FmeaBuilder.getRecordStringProperty(fields, "ControllabilityComment");
+			this.asil = ASIL.findName(FmeaBuilder.getRecordEnumerationProperty(fields, "ASIL"));
+		}
+		if (this.name == null) {
+			this.name = ci.getName() + "." + id;
+		}
+		fm = EMV2Properties.getProperty("ISO26262::FmeaRiskAnalysis", ci, target, ts);
+		fma = fm.isEmpty() ? null : fm.get(0);
+		fmv = EMV2Properties.getPropertyValue(fma);
+		fields = fmv == null ? null
+				: ((RecordValue) fmv).getOwnedFieldValues();
+		if (fields != null) {
+			this.fmea_serverity = FmeaBuilder.getRecordIntProperty(fields, "Severity");
+			this.fmea_occurrence = FmeaBuilder.getRecordIntProperty(fields, "Occurrence");
+			this.fmea_detection = FmeaBuilder.getRecordIntProperty(fields, "Detection");
+			this.prevention_control = FmeaBuilder.getRecordStringProperty(fields, "PC");
+			this.detection_control = FmeaBuilder.getRecordStringProperty(fields, "DC");
+		}
+		Fill_Optimizations(ci, target, ts);
+
+	}
 
 	public void Print(String indent) {
-		System.out.print(indent + "  |<-Structure::" + ref_component.ci.getName());
+		System.out.print(indent + "  |<-Structure::" + ref_component.getName());
 		System.out.print("  |id:: " + id);
-		System.out.print("  |state name:: " + EMV2Util.getPrintName(failure_mode));
 		System.out.print("  |name:: " + name);
 		System.out.print("  |ref_func:: " + ref_func.id);
-		if (serverity != null) {
-			System.out.print("  ||S:: " + serverity);
+		if (fmea_serverity != null) {
+			System.out.print("  ||S:: " + fmea_serverity);
 		}
 		if (ref_S != null) {
 			System.out.print("  ||ref_S:: " + ref_S);
 		}
-		if (occurrence != null) {
-			System.out.print("  ||O:: " + occurrence);
+		if (fmea_occurrence != null) {
+			System.out.print("  ||O:: " + fmea_occurrence);
 		}
-		if (detection != null) {
-			System.out.print("  ||D:: " + detection);
+		if (fmea_detection != null) {
+			System.out.print("  ||D:: " + fmea_detection);
 		}
 		if (myap != AP.Emp) {
 			System.out.print("  ||AP:: " + myap);
@@ -96,14 +149,14 @@ public class FailureMode {
 		if (failure_effect.size() > 0) {
 			System.out.print("  | (");
 			for (FailureMode fi : failure_effect) {
-				System.out.print(fi.ref_component.ci.getName() + "." + fi.id + " , ");
+				System.out.print(fi.ref_component.getName() + "." + fi.id + " , ");
 			}
 			System.out.print(")<<---");
 		}
 		if (failure_cause.size() > 0) {
 			System.out.print("  |--->>(");
 			for (FailureMode fi : failure_cause) {
-				System.out.print(fi.ref_component.ci.getName() + "." + fi.id + " , ");
+				System.out.print(fi.ref_component.getName() + "." + fi.id + " , ");
 			}
 			System.out.print(")");
 		}
@@ -117,11 +170,9 @@ public class FailureMode {
 		}
 	}
 
-	public void Fill_Optimizations() {
+	public void Fill_Optimizations(NamedElement ci, NamedElement target, TypeSet ts) {
 
-		List<EMV2PropertyAssociation> fm = EMV2Properties.getProperty("ISO26262::FmeaOptimization", ref_component.ci,
-				failure_mode,
-				failure_mode.getTypeSet());
+		List<EMV2PropertyAssociation> fm = EMV2Properties.getProperty("ISO26262::FmeaOptimization", ci, target, ts);
 
 		for (EMV2PropertyAssociation PA : fm) {
 			for (ModalPropertyValue modalPropertyValue : PA.getOwnedValues()) {
@@ -141,76 +192,32 @@ public class FailureMode {
 
 					if (fields != null) {
 					// get OPT_PC
-					BasicPropertyAssociation xref = GetProperties.getRecordField(fields, "OptPC");
-					if (xref != null) {
-						PropertyExpression val = xref.getOwnedValue();
-						OPT_PC = ((StringLiteral) val).getValue();
-						xref = null;
-					}
+					OPT_PC = FmeaBuilder.getRecordStringProperty(fields, "OptPC");
 
 					// get OPT_DC
-					xref = GetProperties.getRecordField(fields, "OptDC");
-					if (xref != null) {
-						PropertyExpression val = xref.getOwnedValue();
-						OPT_DC = ((StringLiteral) val).getValue();
-						xref = null;
-					}
+					OPT_DC = FmeaBuilder.getRecordStringProperty(fields, "OptDC");
 
 					// get Respons_Person
-					xref = GetProperties.getRecordField(fields, "ResponsPerson");
-					if (xref != null) {
-						PropertyExpression val = xref.getOwnedValue();
-						Respons_Person = ((StringLiteral) val).getValue();
-						xref = null;
-					}
+					Respons_Person = FmeaBuilder.getRecordStringProperty(fields, "ResponsPerson");
 
 					// get Target_Completion_Data
-					xref = GetProperties.getRecordField(fields, "TargetCompletionData");
-					if (xref != null) {
-						PropertyExpression val = xref.getOwnedValue();
-						Target_Completion_Data = ((StringLiteral) val).getValue();
-						xref = null;
-					}
+					Target_Completion_Data = FmeaBuilder.getRecordStringProperty(fields, "TargetCompletionData");
 
 					// get Status
-					xref = GetProperties.getRecordField(fields, "Status");
-					if (xref != null) {
-						PropertyExpression val = xref.getOwnedValue();
-						Status = ((StringLiteral) val).getValue();
-						xref = null;
-					}
+					Status = FmeaBuilder.getRecordStringProperty(fields, "Status");
 
 					// get Evidence
-					xref = GetProperties.getRecordField(fields, "Evidence");
-					if (xref != null) {
-						PropertyExpression val = xref.getOwnedValue();
-						Evidence = ((StringLiteral) val).getValue();
-						xref = null;
-					}
+					Evidence = FmeaBuilder.getRecordStringProperty(fields, "Evidence");
 
 					// get Completion_Data
-					xref = GetProperties.getRecordField(fields, "CompletionData");
-					if (xref != null) {
-						PropertyExpression val = xref.getOwnedValue();
-						Completion_Data = ((StringLiteral) val).getValue();
-						xref = null;
-					}
+					Completion_Data = FmeaBuilder.getRecordStringProperty(fields, "CompletionData");
 
 					// get OPT_Occurrence
-					xref = GetProperties.getRecordField(fields, "OPTOccurrence");
-					if (xref != null) {
-						PropertyExpression val = xref.getOwnedValue();
-						OPT_Occurrence = (int) ((IntegerLiteral) val).getValue();
-						xref = null;
-					}
+					OPT_Occurrence = FmeaBuilder.getRecordIntProperty(fields, "OPTOccurrence");
 
 					// get OPT_Detection
-					xref = GetProperties.getRecordField(fields, "OPTDetection");
-					if (xref != null) {
-						PropertyExpression val = xref.getOwnedValue();
-						OPT_Detection = (int) ((IntegerLiteral) val).getValue();
-						xref = null;
-					}
+					OPT_Detection = FmeaBuilder.getRecordIntProperty(fields, "OPTDetection");
+
 					optimizations.add(new Optimization(this, OPT_PC, OPT_DC, Respons_Person, Target_Completion_Data,
 							Status, Evidence, Completion_Data, OPT_Occurrence, OPT_Detection));
 
@@ -226,14 +233,14 @@ public class FailureMode {
 		if (ref_S != null) {
 			return ref_S;
 		}
-		if (serverity != null) {
-			maxS = serverity;
+		if (fmea_serverity != null) {
+			maxS = fmea_serverity;
 		}
 		for(FailureMode fi:failure_effect)
 		{
 			maxS = Math.max(maxS, fi.SearchMaxrefS());
 		}
-		if (occurrence != null && detection != null && maxS != 0) {
+		if (fmea_occurrence != null && fmea_detection != null && maxS != 0) {
 			ref_S=maxS;
 		}
 		return maxS;
@@ -241,8 +248,8 @@ public class FailureMode {
 
 	public void Cal_AP()
 	{
-		if(this.occurrence!=null&&this.detection!=null&&this.ref_S!=null) {
-			this.myap=FmeaBuilder.CalculateAp(ref_S, occurrence, detection);
+		if(this.fmea_occurrence!=null&&this.fmea_detection!=null&&this.ref_S!=null) {
+			this.myap=FmeaBuilder.CalculateAp(ref_S, fmea_occurrence, fmea_detection);
 		}
 			for (Optimization oi : this.optimizations) {
 				oi.Cal_AP();

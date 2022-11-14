@@ -11,12 +11,10 @@ public class Pair<E extends Object, F extends Object> {
 
 
 	public E getKey() {
-		// TODO Auto-generated method stub
 		return first;
 	}
 
 	public F getValue() {
-		// TODO Auto-generated method stub
 		return second;
 	}
 }

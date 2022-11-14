@@ -21,7 +21,7 @@ public class FmeaHead {
 	public String Focus_component_name;
 
 	public void Print(String indent) {
-		System.out.print(indent + "FMEA Head of \"" + ref_component.ci.getName() + "\"::");
+		System.out.print(indent + "FMEA Head of \"" + ref_component.getName() + "\"::");
 
 		if (Company_Name != null) {
 			System.out.print("  |Company_Name:: " + Company_Name);

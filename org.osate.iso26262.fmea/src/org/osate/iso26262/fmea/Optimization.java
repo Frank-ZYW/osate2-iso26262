@@ -20,13 +20,9 @@ public class Optimization {
 		this.opt_ap = opt_ap;
 	}
 
-
 	Optimization(FailureMode ref_mode, String opt_pc, String opt_dc, String respons_person,
 			String target_completion_data, String status, String evidence, String completion_data,
 			Integer opt_occurrence, Integer opt_detection) {
-
-		System.out.println("		new Optimization::");
-
 		this.ref_mode = ref_mode;
 		this.opt_pc = opt_pc;
 		this.opt_dc = opt_dc;

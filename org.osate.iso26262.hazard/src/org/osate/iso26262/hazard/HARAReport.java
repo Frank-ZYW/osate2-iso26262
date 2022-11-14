@@ -285,8 +285,7 @@ public class HARAReport {
 		String[] Heads = new String[] { "Component", "Error Model Element", "HazardName", "Description", "Mishap",
 				"Evironment", "VerificationMethod", "CrossReference", "Comment", "Probability", "SeverityComment",
 				"Severity", "ControllabilityComment", "Controllability", "ExposureComment", "Exposure", "ASIL",
-				"SafetyDescription", /* "SafetyCategory", */
-				"OperatMode", "FTTI", "SafeState", /* "MissionTime" */ };
+				"SafetyDescription", "SafetyCategory", "OperatMode", "FTTI", "SafeState", "MissionTime" };
 		for (String headtext : Heads) {
 			report.addheadcell(headtext);
 		}
@@ -360,7 +359,7 @@ public class HARAReport {
 
 			reportStringProperty(fields, "SafetyDescription", report);
 
-//			reportEnumerationOrIntegerPropertyConstantPropertyValue(fields, "SafetyCategory", report);
+			reportEnumerationOrIntegerPropertyConstantPropertyValue(fields, "SafetyCategory", report);
 
 			reportStringProperty(fields, "OperatMode", report);
 
@@ -368,7 +367,7 @@ public class HARAReport {
 
 			reportStringProperty(fields, "SafeState", report);
 
-//			reportNumberUnitPropertyValue(fields, "MissionTime", report, "hr");
+			reportNumberUnitPropertyValue(fields, "MissionTime", report, "hr");
 
 			report.nextline();
 //		}

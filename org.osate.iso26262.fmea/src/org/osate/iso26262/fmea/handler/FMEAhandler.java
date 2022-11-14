@@ -84,11 +84,6 @@ public final class FMEAhandler extends AbstractHandler {
 			FmeaBuilder fb = new FmeaBuilder();
 			// 构造结构树
 			fb.Construct_structure_tree(target);
-//			// 构造功能网
-//			fb.BuildFuncNet(fb.root_component);
-//			// 构造故障网
-//			fb.BuildFailureNet(fb.root_component);
-
 			// 同时构造故障网与功能网
 			fb.BuildFailureAndFuncNet(fb.root_component);
 			// 填充AP值

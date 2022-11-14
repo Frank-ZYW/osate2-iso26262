@@ -105,7 +105,7 @@ public class FileExport {
 	public void ReportHead() throws WriteException, MalformedURLException {
 
 		sheet.addCell(new Label(0, 0, "规划和准备（步骤1）：", normalcf));
-		sheet.addCell(new Label(1, 0, fb.focus_component.ci.getName(), normalcf));
+		sheet.addCell(new Label(1, 0, fb.focus_component.getName(), normalcf));
 		sheet.mergeCells(1, 0, 7, 0);
 		sheet.addCell(new Label(0, 1, null, normalcf));
 		sheet.mergeCells(0, 1, 7, 1);
@@ -222,13 +222,13 @@ public class FileExport {
 		// 1.下一个更高的级别
 		int row = 1;
 		int column = 0;
-		System.out.println("Struct::" + focus_structure.mystruc.ci.getName() + "  Maxrows::" + focus_structure.maxrows);
+		System.out.println("Struct::" + focus_structure.mystruc.getName() + "  Maxrows::" + focus_structure.maxrows);
 		System.out.println("Supstruc size::" + focus_structure.supstruc.size());
 		if (focus_structure.supstruc.size() > 0) {
 			for (int i = 0; i < focus_structure.supstruc.size(); i++) {
 				prefix = getprefix(focus_structure.levelmap.get(focus_structure.supstruc.get(i)) - 1, "<");
 				sheet.addCell(
-						new Label(column, absrow + row, prefix + focus_structure.supstruc.get(i).ci.getName(), normalcf));
+						new Label(column, absrow + row, prefix + focus_structure.supstruc.get(i).getName(), normalcf));
 				if (i == focus_structure.supstruc.size() - 1 && row < focus_structure.maxrows) {
 					sheet.mergeCells(column, absrow + row, column, absrow + focus_structure.maxrows);
 				}
@@ -242,7 +242,7 @@ public class FileExport {
 		// 2.焦点元素
 		row = 1;
 		column = 1;
-		sheet.addCell(new Label(column, absrow + row, focus_structure.mystruc.ci.getName(), normalcf));
+		sheet.addCell(new Label(column, absrow + row, focus_structure.mystruc.getName(), normalcf));
 		sheet.mergeCells(column, absrow + row, column, absrow + focus_structure.maxrows);
 
 		// 3.下一个较低的级别或特征
@@ -252,7 +252,8 @@ public class FileExport {
 		if (focus_structure.substruc.size() > 0) {
 			for (int i = 0; i < focus_structure.substruc.size(); i++) {
 				prefix = getprefix(focus_structure.levelmap.get(focus_structure.substruc.get(i)) - 1, ">");
-				sheet.addCell(new Label(column, absrow + row, prefix + focus_structure.substruc.get(i).ci.getName(),
+				sheet.addCell(
+						new Label(column, absrow + row, prefix + focus_structure.substruc.get(i).getName(),
 						normalcf));
 				if (i == focus_structure.substruc.size() - 1 && row < focus_structure.maxrows) {
 					sheet.mergeCells(column, absrow + row, column, absrow + focus_structure.maxrows);
@@ -361,9 +362,9 @@ public class FileExport {
 				// 1.下一个更高级别的元素或最终用户的故障后果
 				sheet.addCell(new Label(column, absrow + row, prefix + eri.superror.get(i).name, normalcf));
 				// S
-				prefix = ((eri.superror.get(i).serverity == null) ? "" : "" + eri.superror.get(i).serverity);
-				if (eri.superror.get(i).serverity != null) {
-					maxS=Math.max(maxS,eri.superror.get(i).serverity);
+				prefix = ((eri.superror.get(i).fmea_serverity == null) ? "" : "" + eri.superror.get(i).fmea_serverity);
+				if (eri.superror.get(i).fmea_serverity != null) {
+					maxS=Math.max(maxS,eri.superror.get(i).fmea_serverity);
 				}
 				sheet.addCell(new Label(column + 1, absrow + row, prefix, normalcf));
 				// SC
@@ -378,6 +379,10 @@ public class FileExport {
 		} else {
 			sheet.addCell(new Label(column, absrow + row, "", normalcf));
 			sheet.mergeCells(column, absrow + row, column, absrow + eri.maxrows);
+			sheet.addCell(new Label(column + 1, absrow + row, "", normalcf));
+			sheet.mergeCells(column + 1, absrow + row, column + 1, absrow + eri.maxrows);
+			sheet.addCell(new Label(column + 2, absrow + row, "", normalcf));
+			sheet.mergeCells(column + 2, absrow + row, column + 2, absrow + eri.maxrows);
 		}
 
 		// 2.焦点元素的故障类型
@@ -432,7 +437,7 @@ public class FileExport {
 		sheet.mergeCells(column, absrow + row, column, absrow + +row + rownums - 1);
 
 		column = 12;
-		text = fmi.occurrence == null ? "" : "" + fmi.occurrence;
+		text = fmi.fmea_occurrence == null ? "" : "" + fmi.fmea_occurrence;
 		sheet.addCell(new Label(column, absrow + row, text, normalcf));
 		sheet.mergeCells(column, absrow + row, column, absrow + +row + rownums - 1);
 
@@ -442,14 +447,14 @@ public class FileExport {
 		sheet.mergeCells(column, absrow + row, column, absrow + +row + rownums - 1);
 
 		column = 14;
-		text = fmi.detection == null ? "" : "" + fmi.detection;
+		text = fmi.fmea_detection == null ? "" : "" + fmi.fmea_detection;
 		sheet.addCell(new Label(column, absrow + row, text, normalcf));
 		sheet.mergeCells(column, absrow + row, column, absrow + +row + rownums - 1);
 
 		column = 15;
 		AP ap = null;
-		if (fmi.occurrence != null && fmi.detection != null && ref_S != null) {
-			ap = FmeaBuilder.CalculateAp(ref_S, fmi.occurrence, fmi.detection);
+		if (fmi.fmea_occurrence != null && fmi.fmea_detection != null && ref_S != null) {
+			ap = FmeaBuilder.CalculateAp(ref_S, fmi.fmea_occurrence, fmi.fmea_detection);
 		}
 		text = ap == null ? "" : "" + ap.getPrintname();
 		sheet.addCell(new Label(column, absrow + row, text, normalcf));

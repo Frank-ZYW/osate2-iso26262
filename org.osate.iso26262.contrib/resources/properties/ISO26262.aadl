@@ -23,10 +23,10 @@ property set ISO26262 is
 
 		Severity: ISO26262::SeverityLabels;
 		SeverityComment: aadlstring;
-		Controllability: ISO26262::ControllabilityLabels;
-		ControllabilityComment: aadlstring;
 		Exposure: ISO26262::ExposureLabels;
 		ExposureComment: aadlstring;
+		Controllability: ISO26262::ControllabilityLabels;
+		ControllabilityComment: aadlstring;
 		ASIL: ISO26262::ASILLabels;
 
 		SafetyDescription: aadlstring;
@@ -37,6 +37,8 @@ property set ISO26262 is
 		MissionTime: Time;
 	)applies to ({emv2}**error type, {emv2}**type set, {emv2}**error behavior state,
 		{emv2}**error propagation, {emv2}**error event, {emv2}**error flow);
+		
+	--------------------
 	
 	FmeaHead: record (
 		CompanyName: aadlstring; -- 公司名称
@@ -77,18 +79,6 @@ property set ISO26262 is
 		{emv2}**error propagation, {emv2}**error event, {emv2}**error flow);
 		
 
-	Failure_Mode: record (
-		Distribution: aadlreal;
-		-- Single Point Fault
-		Violate_SP_Satety: aadlboolean;
-		SPF_SM: aadlstring; 				--Security Mechanism
-		SPF_DC: aadlreal; 					--Diagnostic Coverage
-		-- Multiple Point Fault
-		Violate_MP_Satety: aadlboolean;
-		MPF_SM: aadlstring; 				--Security Mechanism
-		MPF_DC: aadlreal; 					--Diagnostic Coverage
-	)applies to  ({emv2}**error propagation, {emv2}**error flow, {emv2}**error behavior event,
-		{emv2}**error behavior state, {emv2}**error type, {emv2}**type set);
 		
 	--------------------
 	
