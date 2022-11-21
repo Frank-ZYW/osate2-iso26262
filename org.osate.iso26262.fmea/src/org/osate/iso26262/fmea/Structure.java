@@ -90,7 +90,6 @@ public class Structure {
 	}
 
 
-
 	public void LinkFTAevent(Event rootevent, FailureMode fm) {
 		boolean samecomponent=((ComponentInstance) rootevent.getRelatedInstanceObject()).getName().equals(ci.getName());
 		if (samecomponent) {
@@ -202,7 +201,8 @@ public class Structure {
 		try {
 			propertyValue = ci.getSimplePropertyValue(property);
 		} catch (PropertyNotPresentException e) {
-			Dialog.showInfo("getHeadPropertie", e.getLocalizedMessage());
+			propertyValue = null;
+//			Dialog.showInfo("getHeadPropertie", e.getLocalizedMessage());
 		}
 
 		if (propertyValue != null) {
@@ -233,6 +233,9 @@ public class Structure {
 
 			head.Focus_component_name = FmeaBuilder.getRecordStringProperty(fields, "FocusComponent");
 
+		}
+		if (head.Focus_component_name == null) {
+			head.Focus_component_name = this.getName();
 		}
 		return head;
 	}
