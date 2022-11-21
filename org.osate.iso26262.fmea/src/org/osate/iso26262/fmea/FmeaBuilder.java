@@ -242,6 +242,12 @@ public class FmeaBuilder {
 		;
 		if (xref != null) {
 			PropertyExpression val = xref.getOwnedValue();
+			if (val instanceof NamedValue) {
+				AbstractNamedValue eval = ((NamedValue) val).getNamedValue();
+				if (eval instanceof EnumerationLiteral) {
+					return Integer.parseInt((((EnumerationLiteral) eval).getName()).substring(1));
+				}
+			}
 			result = (int) ((IntegerLiteral) val).getValue();
 		}
 		return result;
