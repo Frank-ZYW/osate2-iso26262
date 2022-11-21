@@ -4,8 +4,8 @@ Bundle-Name: %pluginName
 Bundle-SymbolicName: org.osate.iso26262.fmeda;singleton:=true
 Bundle-Version: 2.3.0.qualifier
 Bundle-Activator: org.osate.iso26262.fmeda.Activator
-Require-Bundle: org.osate.aadl2.errormodel.faulttree;bundle-version="[6.1.0,7.0.0)",
- org.osate.aadl2.modelsupport;bundle-version="[6.1.0,7.0.0)",
+Require-Bundle: org.osate.aadl2.errormodel.faulttree;bundle-version="[6.1.0,8.0.0)",
+ org.osate.aadl2.modelsupport;bundle-version="[6.1.0,8.0.0)",
  org.osate.ui;bundle-version="[6.3.0,7.0.0)",
  org.osate.iso26262.lib;bundle-version="[1.0.0,2.0.0)",
  org.osate.iso26262.ui;bundle-version="[1.0.0,2.0.0)",

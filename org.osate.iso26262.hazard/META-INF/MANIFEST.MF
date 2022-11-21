@@ -4,10 +4,10 @@ Bundle-Name: %pluginName
 Bundle-SymbolicName: org.osate.iso26262.hazard;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.osate.iso26262.hazard.Activator
-Require-Bundle: org.osate.aadl2;bundle-version="[4.0.0,5.0.0)",
- org.osate.aadl2.errormodel.faulttree;bundle-version="[6.1.0,7.0.0)",
- org.osate.aadl2.modelsupport;bundle-version="[6.1.0,7.0.0)",
- org.osate.aadl2.instantiation;bundle-version="[2.0.0,3.0.0)",
+Require-Bundle: org.osate.aadl2;bundle-version="[4.0.0,6.0.0)",
+ org.osate.aadl2.errormodel.faulttree;bundle-version="[6.1.0,8.0.0)",
+ org.osate.aadl2.modelsupport;bundle-version="[6.1.0,8.0.0)",
+ org.osate.aadl2.instantiation;bundle-version="[2.0.0,4.0.0)",
  org.osate.iso26262.lib;bundle-version="[1.0.0,2.0.0)",
  org.osate.iso26262.ui;bundle-version="[1.0.0,2.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
