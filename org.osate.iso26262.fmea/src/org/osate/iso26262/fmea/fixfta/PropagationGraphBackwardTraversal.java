@@ -96,6 +96,14 @@ public class PropagationGraphBackwardTraversal {
 			return null;
 		}
 
+		if (component.getName().equals("obstacle_detection")
+				&& EMV2Util.getDirectionName(errorPropagation).equals("out-obstacle_position")) {
+			System.out.println("");
+		} else {
+			System.out.println(component.getName() + "." + EMV2Util.getDirectionName(errorPropagation)
+					+ EMV2Util.getDirectionName(proptype));
+		}
+
 		HashMultimap<ErrorPropagation, String> handledEOPs = HashMultimap.create();
 		boolean traverse = false;
 		boolean hasCycle = false;
@@ -952,9 +960,13 @@ public class PropagationGraphBackwardTraversal {
 	 */
 	private EObject traverseIncomingErrorPropagation(ComponentInstance component, ErrorPropagation errorPropagation,
 			TypeToken proptype, BigDecimal scale) {
-//		if (component.getName().equals("cmd")) {
-//			System.out.print("");
-//		}
+		if (component.getName().equals("speed_ctrl")
+				&& EMV2Util.getDirectionName(errorPropagation).equals("in-current_speed")) {
+			System.out.println("");
+		} else {
+			System.out.println(component.getName() + "." + EMV2Util.getDirectionName(errorPropagation)
+					+ EMV2Util.getDirectionName(proptype));
+		}
 		List<EObject> results = new LinkedList<EObject>();
 		Collection<TypeToken> filteredtypes = filterTokenThroughConstraint(errorPropagation.getTypeSet(), proptype);
 		if (filteredtypes.isEmpty()) {

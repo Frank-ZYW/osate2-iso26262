@@ -247,8 +247,15 @@ public class FaultTreeUtils {
 
 	public static Event findSharedSubtree(FaultTree ftaModel, List<EObject> subEvents, LogicOperation optype,
 			ComponentInstance component, Element ne, TypeToken type) {
+		if (ne instanceof NamedElement) {
+			String name = buildName(component, (NamedElement) ne, type);
+			Event result = findEvent(ftaModel, name);
+			if (result != null && subEvents.size() == 1
+					&& ((Event) subEvents.get(0)).getName().equals(result.getName())) {
+				return result;
+			}
+		} // FIX FTA BUG
 		for (Event event : ftaModel.getEvents()) {
-
 			if (event.getRelatedInstanceObject() == component && event.getRelatedEMV2Object() == ne
 					&& event.getRelatedErrorType() == type) {
 
