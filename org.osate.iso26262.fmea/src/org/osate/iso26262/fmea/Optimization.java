@@ -1,7 +1,7 @@
 package org.osate.iso26262.fmea;
 
 public class Optimization {
-	public FailureMode ref_mode;
+	public FailureElement ref_mode;
 	public String opt_pc;
 	public String opt_dc;
 	public String respons_person;
@@ -20,7 +20,7 @@ public class Optimization {
 		this.opt_ap = opt_ap;
 	}
 
-	Optimization(FailureMode ref_mode, String opt_pc, String opt_dc, String respons_person,
+	Optimization(FailureElement ref_mode, String opt_pc, String opt_dc, String respons_person,
 			String target_completion_data, String status, String evidence, String completion_data,
 			Integer opt_occurrence, Integer opt_detection) {
 		this.ref_mode = ref_mode;

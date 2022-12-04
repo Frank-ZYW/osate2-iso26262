@@ -21,7 +21,6 @@ import org.osate.aadl2.Classifier;
 import org.osate.aadl2.DirectionType;
 import org.osate.aadl2.Element;
 import org.osate.aadl2.NamedElement;
-import org.osate.aadl2.errormodel.FaultTree.Event;
 import org.osate.aadl2.errormodel.PropagationGraph.PropagationGraph;
 import org.osate.aadl2.errormodel.PropagationGraph.PropagationGraphPath;
 import org.osate.aadl2.errormodel.PropagationGraph.PropagationPathEnd;
@@ -96,13 +95,14 @@ public class PropagationGraphBackwardTraversal {
 			return null;
 		}
 
-		if (component.getName().equals("obstacle_detection")
-				&& EMV2Util.getDirectionName(errorPropagation).equals("out-obstacle_position")) {
-			System.out.println("");
-		} else {
-			System.out.println(component.getName() + "." + EMV2Util.getDirectionName(errorPropagation)
-					+ EMV2Util.getDirectionName(proptype));
-		}
+//		if (EMV2Util.getName(component).equals("image_acquisition")
+//				&& EMV2Util.getName(errorPropagation).equals("obstacle_detected")
+//				&& EMV2Util.getName(proptype).equals("OutOfRange")) {
+//			System.out.println("");
+//		} else {
+//			System.out.println(component.getName() + "." + EMV2Util.getDirectionName(errorPropagation)
+//					+ EMV2Util.getDirectionName(proptype));
+//		}
 
 		HashMultimap<ErrorPropagation, String> handledEOPs = HashMultimap.create();
 		boolean traverse = false;
@@ -609,8 +609,8 @@ public class PropagationGraphBackwardTraversal {
 							addSubresult(subResults, tmpresult);
 						}
 					} else if (stateResult == null) {
-						System.out
-								.println("	Add subevent ::" + FaultTreeUtils.getDescription((Event) conditionResult));
+//						System.out
+//								.println("	Add subevent ::" + FaultTreeUtils.getDescription((Event) conditionResult));
 						addSubresult(subResults, conditionResult);
 					}
 
@@ -757,8 +757,8 @@ public class PropagationGraphBackwardTraversal {
 					QualifiedErrorBehaviorState qs = sconditionElement.getQualifiedState();
 					ComponentInstance referencedInstance = EMV2Util.getLastComponentInstance(qs, component);
 					ErrorBehaviorState state = EMV2Util.getState(sconditionElement);
-					System.out.println("		#######@@@@@@@@@@@@@@@@@@@@@  CompositeErrorState name:"
-							+ referencedInstance.getName() + "." + state.getFullName());
+//					System.out.println("		#######@@@@@@@@@@@@@@@@@@@@@  CompositeErrorState name:"
+//							+ referencedInstance.getName() + "." + state.getFullName());
 					// either original type or mapped to constraint in condition or type set on state declaration
 					TypeSet referencedErrorType = (sconditionElement.getConstraint() != null)
 							? sconditionElement.getConstraint()
@@ -767,13 +767,13 @@ public class PropagationGraphBackwardTraversal {
 
 						List<EObject> subResults = new LinkedList<EObject>();
 						if (referencedErrorType == null) {
-							System.out.println("		#######@@@@@@@@@@@@@@@@@@@@@  CompositeErrorState name:"
-									+ referencedInstance.getName() + "." + state.getFullName());
+//							System.out.println("		#######@@@@@@@@@@@@@@@@@@@@@  CompositeErrorState name:"
+//									+ referencedInstance.getName() + "." + state.getFullName());
 							EObject newEvent = traverseCompositeErrorState(referencedInstance, state, null, stateOnly,
 									scale);
 							if (newEvent != null) {
-								System.out.println("		@@@@@@@@@@@@@@@@@@@@@@@@ Add CompositeErrorState event:"
-										+ FaultTreeUtils.getDescription((Event) newEvent));
+//								System.out.println("		@@@@@@@@@@@@@@@@@@@@@@@@ Add CompositeErrorState event:"
+//										+ FaultTreeUtils.getDescription((Event) newEvent));
 								addSubresult(subResults, newEvent);
 							}
 						} else {
@@ -800,8 +800,7 @@ public class PropagationGraphBackwardTraversal {
 							return postProcessXor(component, sconditionElement, type, scale, subResults);
 						}
 					}
-					return processErrorBehaviorState(referencedInstance, EMV2Util.getState(sconditionElement), type,
-							scale);
+
 				} else if (sconditionElement.getQualifiedErrorPropagationReference() != null) {
 					EMV2Path path = sconditionElement.getQualifiedErrorPropagationReference();
 					ComponentInstance referencedInstance = EMV2Util.getLastComponentInstance(path, component);
@@ -958,15 +957,16 @@ public class PropagationGraphBackwardTraversal {
 	 * @param type error type
 	 * @return EObject (can be null)
 	 */
-	private EObject traverseIncomingErrorPropagation(ComponentInstance component, ErrorPropagation errorPropagation,
+	protected EObject traverseIncomingErrorPropagation(ComponentInstance component, ErrorPropagation errorPropagation,
 			TypeToken proptype, BigDecimal scale) {
-		if (component.getName().equals("speed_ctrl")
-				&& EMV2Util.getDirectionName(errorPropagation).equals("in-current_speed")) {
-			System.out.println("");
-		} else {
-			System.out.println(component.getName() + "." + EMV2Util.getDirectionName(errorPropagation)
-					+ EMV2Util.getDirectionName(proptype));
-		}
+//		if (EMV2Util.getName(component).equals("speed_ctrl")
+//				&& EMV2Util.getName(errorPropagation).equals("current_speed")
+//				&& EMV2Util.getName(proptype).equals("OutOfRange")) {
+//			System.out.println("");
+//		} else {
+//			System.out.println(component.getName() + "." + EMV2Util.getDirectionName(errorPropagation)
+//					+ EMV2Util.getDirectionName(proptype));
+//		}
 		List<EObject> results = new LinkedList<EObject>();
 		Collection<TypeToken> filteredtypes = filterTokenThroughConstraint(errorPropagation.getTypeSet(), proptype);
 		if (filteredtypes.isEmpty()) {
@@ -1078,6 +1078,13 @@ public class PropagationGraphBackwardTraversal {
 		if (traversed || hasCycle) {
 			return null;
 		}
+		if (!results.isEmpty()) {
+			if (results.size() == 1) {
+				return results.get(0);
+			}
+			return postProcessIncomingErrorPropagation(component, errorPropagation, proptype, results, scale);
+		} // FIX FTA BUG
+
 		// we have no subresults and did not prune. Allow handling of incoming propagation as endpoint of traversal
 		return processIncomingErrorPropagation(component, errorPropagation, proptype, scale);
 	}
@@ -1131,9 +1138,8 @@ public class PropagationGraphBackwardTraversal {
 			return tt;
 		} else {
 //			System.out.println("####### 3 stateOnly=false, 继续溯因state下的event");
-			System.out
-					.println("				@@@@@@@$!!!$!!!!!! subResults.isEmpty() and traverseErrorBehaviorState:: "
-							+ component.getName() + "." + state.getName());
+//			System.out.println("				@@@@@@@$!!!$!!!!!! subResults.isEmpty() and traverseErrorBehaviorState:: "
+//							+ component.getName() + "." + state.getName());
 			EObject tt = traverseErrorBehaviorState(component, state, type, scale);
 //			System.out.println("####### 3 #######################end");
 			return tt;

@@ -14,7 +14,15 @@ public class Pair<E extends Object, F extends Object> {
 		return first;
 	}
 
+	public void setKey(E key) {
+		this.first = key;
+	}
+
 	public F getValue() {
 		return second;
+	}
+
+	public void setValue(F value) {
+		this.second = value;
 	}
 }

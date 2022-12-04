@@ -10,11 +10,14 @@ import org.osate.aadl2.ListValue;
 import org.osate.aadl2.NamedElement;
 import org.osate.aadl2.PropertyExpression;
 import org.osate.aadl2.RecordValue;
+import org.osate.aadl2.errormodel.FaultTree.Event;
+import org.osate.aadl2.instance.ComponentInstance;
+import org.osate.iso26262.fmea.fixfta.FaultTreeUtils;
 import org.osate.ui.dialogs.Dialog;
 import org.osate.xtext.aadl2.errormodel.errorModel.EMV2PropertyAssociation;
-import org.osate.xtext.aadl2.errormodel.errorModel.TypeSet;
+import org.osate.xtext.aadl2.errormodel.errorModel.ErrorTypes;
+import org.osate.xtext.aadl2.errormodel.errorModel.TypeToken;
 import org.osate.xtext.aadl2.errormodel.util.EMV2Properties;
-import org.osate.xtext.aadl2.errormodel.util.EMV2Util;
 
 public class Function {
 	public String id;
@@ -27,20 +30,22 @@ public class Function {
 
 	public Structure ref_component;
 	public NamedElement failure_mode;
-	public TypeSet failure_mode_typeset;
+	public ErrorTypes failure_mode_typeset;
 
 	public List<Function> func_effect = new ArrayList<Function>();
 	public List<Function> func_cause = new ArrayList<Function>();
-	public List<FailureMode> ref_fail_modes = new ArrayList<FailureMode>();
+	public List<FailureElement> ref_fail_modes = new ArrayList<FailureElement>();
 
-	public Function(String id, String myfunc, Structure ref_component, List<String> func_require) {
 
-		this.id = id;
-		this.ref_component = ref_component;
 
-	}
 
-	public Function(NamedElement ci, NamedElement target, TypeSet ts) {
+	public Function(Event ev) {
+		ComponentInstance ci = (ComponentInstance) ev.getRelatedInstanceObject();
+		NamedElement target = (NamedElement) ev.getRelatedEMV2Object();
+		ErrorTypes ts = null;
+		if ((TypeToken) ev.getRelatedErrorType() != null) {
+			ts = ((TypeToken) ev.getRelatedErrorType()).getType().get(0);
+		}
 
 		this.failure_mode = target;
 		this.failure_mode_typeset = ts;
@@ -60,11 +65,11 @@ public class Function {
 			this.missiontime = FmeaBuilder.getRecordUnitProperty(fields, "MissionTime", "hr");
 		}
 		if (this.funcname == null) {
-			this.funcname = "Function of " + ci.getName() + "." + EMV2Util.getPrintName(target)
-					+ FmeaBuilder.TypeSetName(ts);
+			this.funcname = "Function of " + FaultTreeUtils.getDescription(ev);
 		}
 
 	}
+
 
 	public static Function Check_Merge(Function f1, Function f2)
 	{
@@ -116,7 +121,7 @@ public class Function {
 		System.out.println("");
 		if (ref_fail_modes.size() > 0) {
 			System.out.println(indent + "\tRef_fail_modes::");
-			for (FailureMode fmi : ref_fail_modes) {
+			for (FailureElement fmi : ref_fail_modes) {
 				fmi.Print(indent + "\t\t");
 			}
 		}

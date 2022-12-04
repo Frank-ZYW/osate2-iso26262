@@ -1,9 +1,18 @@
 package org.osate.iso26262.fmea;
 
-import java.util.Collection;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.ui.statushandlers.StatusManager;
 import org.osate.aadl2.AbstractNamedValue;
 import org.osate.aadl2.BasicPropertyAssociation;
 import org.osate.aadl2.EnumerationLiteral;
@@ -15,15 +24,16 @@ import org.osate.aadl2.RealLiteral;
 import org.osate.aadl2.StringLiteral;
 import org.osate.aadl2.errormodel.FaultTree.Event;
 import org.osate.aadl2.errormodel.FaultTree.FaultTree;
-import org.osate.aadl2.errormodel.FaultTree.FaultTreeType;
 import org.osate.aadl2.errormodel.PropagationGraph.PropagationGraph;
 import org.osate.aadl2.errormodel.PropagationGraph.util.Util;
+import org.osate.aadl2.errormodel.faulttree.generation.Activator;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.instance.InstanceObject;
+import org.osate.aadl2.instance.SystemInstance;
+import org.osate.aadl2.modelsupport.util.AadlUtil;
 import org.osate.iso26262.fmea.fixfta.FTAGenerator;
+import org.osate.iso26262.fmea.fixfta.FaultTreeUtils;
 import org.osate.ui.dialogs.Dialog;
-import org.osate.xtext.aadl2.errormodel.errorModel.ErrorBehaviorState;
-import org.osate.xtext.aadl2.errormodel.errorModel.TypeSet;
 import org.osate.xtext.aadl2.errormodel.errorModel.TypeToken;
 import org.osate.xtext.aadl2.errormodel.util.EMV2Util;
 import org.osate.xtext.aadl2.properties.util.GetProperties;
@@ -33,6 +43,8 @@ public class FmeaBuilder {
 	public FmeaHead head;
 	public Structure root_component;
 	public Structure focus_component;
+	public HashMap<String, Structure> components = new HashMap<String, Structure>();
+	public FaultTree ftamodel;
 
 	public void Construct_structure_tree(ComponentInstance ci) {
 		if(ci==null)
@@ -40,11 +52,9 @@ public class FmeaBuilder {
 			System.out.println("Construct_structure_tree ::  ci=null");
 			return;
 		}
-
 		root_component = new Structure(null, ci);
+		components.put(getInstanceName(ci), root_component);
 		travel_structure_tree(root_component);
-
-
 	}
 
 	public void travel_structure_tree(Structure root_component) {
@@ -52,10 +62,9 @@ public class FmeaBuilder {
 			System.out.println("travel_instance ::   root_component=null");
 			return;
 		}
-
-
 		for (ComponentInstance cc : root_component.ci.getComponentInstances()) {
 			Structure t = new Structure(root_component, cc);
+			components.put(getInstanceName(cc), t);
 			root_component.low_level_components_map.put(t.getName(), t);
 			travel_structure_tree(t);
 		}
@@ -68,17 +77,117 @@ public class FmeaBuilder {
 		}
 	}
 
-	public void BuildFailureAndFuncNet(Structure root) {
-		Collection<ErrorBehaviorState> states = EMV2Util.getAllErrorBehaviorStates(root.ci);
-		PropagationGraph currentPropagationGraph = Util.generatePropagationGraph(root.ci.getSystemInstance(), false);
-		for (ErrorBehaviorState si : states) {
-			FTAGenerator generator = new FTAGenerator(currentPropagationGraph);
-			FaultTree ftamodel = generator.getftaModel(root.ci, si, null, FaultTreeType.COMPOSITE_PARTS);
-			root.LinkFTAevent(ftamodel.getRoot(), root.failure_modes.get(si.getName()));
+
+	public void BuildFailureAndFuncNet() {
+		// 构造故障网络
+		PropagationGraph currentPropagationGraph = Util.generatePropagationGraph(root_component.ci.getSystemInstance(), false);
+		FTAGenerator generator = new FTAGenerator(currentPropagationGraph);
+		ftamodel = generator.getAllftaModel(root_component.ci);
+
+		// 创建组件的的功能和故障
+		int count = 0;
+		for (Event ev : ftamodel.getEvents()) {
+			if (ev.getName().startsWith("Intermediate")) {
+				continue;
+			}
+			count++;
+			getFailureElement(ev);
 		}
+
+		System.out.println(
+				"$$$$$Creat Failure Element ::" + count + "\t\t Event counts :: " + ftamodel.getEvents().size());
+
+		ArrayList<Event> TopEvents = FTAGenerator.getTopEvent(ftamodel);
+		for (Event ev : TopEvents) {
+			System.out.println("&&&&&&& Top Event :: " + FaultTreeUtils.getDescription(ev));
+		}
+
+		// 遍历故障网络 创建并连接故障
+		for (Event ev : TopEvents) {
+			for (Event sub : ev.getSubEvents()) {
+				linkFailure(ev, sub, getFailureElement(ev).ref_func);
+			}
+
+		}
+
+		// 遍历故障网 标记故障类型
+		for (Structure si : components.values()) {
+			for (FailureElement fei : si.failure_modes.values()) {
+				fei.markCause();
+				fei.markEffect();
+			}
+		}
+
+
 	}
 
+	public void linkFailure(Event top, Event ev,Function topfunc) {
+		if (ev.getName().startsWith("Intermediate")) {
+			for (Event sub : ev.getSubEvents()) {
+				linkFailure(top, sub,topfunc);
+			}
+			return;
+		}
+		FailureElement fm = getFailureElement(top);
+		FailureElement tfm = getFailureElement(ev);
+		if (fm.failure_cause.contains(tfm)) {
+			return;
+		}
+		fm.failure_cause.add(tfm);
+		tfm.failure_effect.add(fm);
 
+
+		if (fm.ref_func != null && tfm.ref_func != null) {
+			if (!fm.ref_func.func_cause.contains(tfm.ref_func)) {
+				fm.ref_func.func_cause.add(tfm.ref_func);
+				tfm.ref_func.func_effect.add(fm.ref_func);
+			}
+		}
+
+		Function ref_func=null;
+		if(topfunc==null)
+		{
+			ref_func = tfm.ref_func;
+
+		} else if (tfm.ref_func == null) {
+			ref_func = topfunc;
+		} else {
+			if (!topfunc.func_cause.contains(tfm.ref_func)) {
+				topfunc.func_cause.add(tfm.ref_func);
+				tfm.ref_func.func_effect.add(topfunc);
+			}
+			ref_func = tfm.ref_func;
+		}
+
+
+
+//		System.out.println("add Error link::  " + fm.ref_component.getName() + ".{" + fm.id + "} \t-->\t"
+//				+ tfm.ref_component.getName() + ".{" + tfm.id + "}");
+		System.out.println("add Error link::  " + FaultTreeUtils.getDescription(top) + "\t-->\t"
+				+ FaultTreeUtils.getDescription(ev));
+		for (Event sub : ev.getSubEvents()) {
+			linkFailure(ev, sub, ref_func);
+		}
+
+	}
+
+	public FailureElement getFailureElement(Event ev) {
+		FailureElement result = null;
+		if (ev.getName().startsWith("Intermediate")) {
+			return result;
+		}
+
+		ComponentInstance io = (ComponentInstance) ev.getRelatedInstanceObject();
+		String failurename = ev.getName();
+		Structure si = components.get(getInstanceName(io));
+		if (si.failure_modes.containsKey(failurename)) {
+			result = si.failure_modes.get(failurename);
+		} else {
+			result = si.creatFailureElement(ev);
+		}
+		return result;
+
+	}
 
 
 	public void TravelFTARootEvent(Event event, String indent) {
@@ -102,7 +211,7 @@ public class FmeaBuilder {
 	}
 
 	public void FillAP(Structure root) {
-		for (FailureMode fi : root.failure_modes.values()) {
+		for (FailureElement fi : root.failure_modes.values()) {
 			fi.SearchMaxrefS();
 			fi.Cal_AP();
 		}
@@ -202,6 +311,14 @@ public class FmeaBuilder {
 		return Math.max(min, current) == Math.min(current, max);
 	}
 
+	public static String getInstanceName(ComponentInstance ci) {
+		String result = ci instanceof SystemInstance
+				? ci.getComponentClassifier().getName().replaceAll("::", "_").replaceAll("\\.", "_")
+				: ci.getComponentInstancePath();
+		return result;
+
+	}
+
 	public static String getRecordStringProperty(EList<BasicPropertyAssociation> fields, String recname) {
 		BasicPropertyAssociation xref = GetProperties.getRecordField(fields, recname);
 		String result = null;
@@ -216,7 +333,6 @@ public class FmeaBuilder {
 	public static String getRecordEnumerationProperty(EList<BasicPropertyAssociation> fields, String recname) {
 		BasicPropertyAssociation xref = GetProperties.getRecordField(fields, recname);
 		String result = null;
-		;
 		if (xref != null) {
 			PropertyExpression val = xref.getOwnedValue();
 			AbstractNamedValue eval = ((NamedValue) val).getNamedValue();
@@ -273,21 +389,44 @@ public class FmeaBuilder {
 		Dialog.showInfo(s1, s2);
 	}
 
-	public static String TypeSetName(TypeSet ts) {
-		String result = "";
-		if (ts != null) {
-			result = "{" + ts.getFullName() + "}";
-		}
-		return result;
-	}
-
 	public void getHead() {
-//		focus_component = root_component.Findstructure(focus_component_name);
-//		head = focus_component.getHeadPropertie();
-
 		head = root_component.getHeadPropertie();
-		focus_component = root_component.Findstructure(head.Focus_component_name);
+		if (!components.containsKey(head.Focus_component_name)) {
+			Dialog.showInfo("FmeaHead:FocusComponent", "Can't found Instance name : " + head.Focus_component_name);
+			head.Focus_component_name = getInstanceName(root_component.ci);
+		}
+		focus_component = components.get(head.Focus_component_name);
 	}
+
+	public void updateFocusComponent(String componentname) {
+		if (!components.containsKey(componentname)) {
+			Dialog.showInfo("updateFocusComponent", "Can't found Instance name : " + componentname);
+			componentname = getInstanceName(root_component.ci);
+		}
+		focus_component = components.get(componentname);
+		head.Focus_component_name = componentname;
+	}
+
+	public URI saveFaultTree() {
+		URI ftaURI = EcoreUtil.getURI(ftamodel.getInstanceRoot())
+				.trimFragment()
+				.trimFileExtension()
+				.trimSegments(1)
+				.appendSegment("reports")
+				.appendSegment("fta")
+				.appendSegment(ftamodel.getName())
+				.appendFileExtension("faulttree");
+		AadlUtil.makeSureFoldersExist(new Path(ftaURI.toPlatformString(true)));
+		Resource res = ftamodel.getInstanceRoot().eResource().getResourceSet().createResource(ftaURI);
+		res.getContents().add(ftamodel);
+		try {
+			res.save(null);
+		} catch (IOException e) {
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e));
+		}
+		return EcoreUtil.getURI(ftamodel);
+	}
+
 
 
 }

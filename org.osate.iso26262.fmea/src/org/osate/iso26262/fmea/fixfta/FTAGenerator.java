@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
+import org.osate.aadl2.DirectionType;
 import org.osate.aadl2.Element;
 import org.osate.aadl2.NamedElement;
 import org.osate.aadl2.errormodel.FaultTree.Event;
@@ -38,7 +39,6 @@ import org.osate.xtext.aadl2.errormodel.util.EMV2Util;
 
 public class FTAGenerator extends PropagationGraphBackwardTraversal {
 	private FaultTree ftaModel;
-	private HashMap<Event, Boolean> traversal = new HashMap<Event, Boolean>();
 
 	public FTAGenerator(PropagationGraph currentPropagationGraph) {
 		super(currentPropagationGraph);
@@ -95,7 +95,7 @@ public class FTAGenerator extends PropagationGraphBackwardTraversal {
 			}
 
 //			--------------DeBUG addition--------
-			flattenGates(ftaRootEvent);
+//			flattenGates(ftaRootEvent);
 //			cleanupXORGates(ftaRootEvent);
 //			flattenGates(ftaRootEvent);
 //			ftaRootEvent = optimizeGates(ftaRootEvent);
@@ -141,133 +141,187 @@ public class FTAGenerator extends PropagationGraphBackwardTraversal {
 		return ftaModel;
 	}
 
-	public FaultTree getAllftaModel(ComponentInstance rootComponent, NamedElement rootStateOrPropagation,
-			TypeToken rootComponentType) {
+	public FaultTree getAllftaModel(ComponentInstance rootComponent) {
 		FaultTreeType faultTreeType = FaultTreeType.FAULT_TRACE;
 		if (ftaModel == null) {
-			Event ftaRootEvent = null;
-			String errorMsg = "";
+//			Event ftaRootEvent = null;
 			ftaModel = FaultTreeFactory.eINSTANCE.createFaultTree();
-			ftaModel.setName(FaultTreeUtils.buildName(rootComponent, rootStateOrPropagation, rootComponentType));
+			String name;
+			name = rootComponent instanceof SystemInstance
+					? rootComponent.getComponentClassifier().getQualifiedName().replaceAll("::", "_").replaceAll("\\.", "_")
+							: rootComponent.getComponentInstancePath();
+			ftaModel.setName(name + "_fault_net");
 			ftaModel.setInstanceRoot(rootComponent);
 			ftaModel.setFaultTreeType(faultTreeType);
 
+			List<ComponentInstance> instances = new ArrayList<ComponentInstance>();
 			List<NamedElement> errorStateOrPropagations = new ArrayList<NamedElement>();
 			List<TypeToken> errorTypes = new ArrayList<TypeToken>();
-			Collection<ErrorBehaviorState> states = EMV2Util.getAllErrorBehaviorStates(rootComponent);
-			if (!states.isEmpty()) {
-				ErrorBehaviorState head = states.iterator().next();
-				for (ErrorBehaviorState ebs : states) {
-					if (ebs != head) {
-						errorStateOrPropagations.add(ebs);
-						errorTypes.add(null);
+			List<ComponentInstance> clist = rootComponent.getAllComponentInstances();
+			for (ComponentInstance ci : clist) {
+				Collection<ErrorBehaviorState> states = EMV2Util.getAllErrorBehaviorStates(ci);
+				if (!states.isEmpty()) {
+					ErrorBehaviorState head = states.iterator().next();
+					for (ErrorBehaviorState ebs : states) {
+						if (ebs != head) {
+							instances.add(ci);
+							errorStateOrPropagations.add(ebs);
+							errorTypes.add(null);
+						}
+					}
+				}
+				for (ErrorPropagation opc : EMV2Util
+						.getAllOutgoingErrorPropagations(ci.getComponentClassifier())) {
+					EList<TypeToken> result = EMV2TypeSetUtil.flattenTypesetElements(opc.getTypeSet());
+					for (TypeToken tt : result) {
+						instances.add(ci);
+						errorStateOrPropagations.add(opc);
+						errorTypes.add(tt);
+					}
+				}
+				for (ErrorPropagation opc : EMV2Util
+						.getAllIncomingErrorPropagations(ci.getComponentClassifier())) {
+					EList<TypeToken> result = EMV2TypeSetUtil.flattenTypesetElements(opc.getTypeSet());
+					for (TypeToken tt : result) {
+						instances.add(ci);
+						errorStateOrPropagations.add(opc);
+						errorTypes.add(tt);
 					}
 				}
 			}
 
-			for (ErrorPropagation opc : EMV2Util
-					.getAllOutgoingErrorPropagations(rootComponent.getComponentClassifier())) {
-				EList<TypeToken> result = EMV2TypeSetUtil.flattenTypesetElements(opc.getTypeSet());
-				for (TypeToken tt : result) {
-					errorStateOrPropagations.add(opc);
-					errorTypes.add(tt);
-				}
-			}
 
-			String longName = null;
 			List<Event> ftaRootEvents = new ArrayList<Event>();
 			for (int i = 0; i < errorStateOrPropagations.size(); i++) {
-				rootStateOrPropagation = errorStateOrPropagations.get(i);
-				rootComponentType = errorTypes.get(i);
-
-				if (rootStateOrPropagation instanceof ErrorBehaviorState) {
-					if (faultTreeType.equals(FaultTreeType.COMPOSITE_PARTS)) {
-						ftaRootEvent = (Event) traverseCompositeErrorStateOnly(rootComponent,
-								(ErrorBehaviorState) rootStateOrPropagation, rootComponentType, BigOne);
-
-					} else {
-						ftaRootEvent = (Event) traverseCompositeErrorState(rootComponent,
-								(ErrorBehaviorState) rootStateOrPropagation, rootComponentType, BigOne);
-					}
-				} else {
-					if (faultTreeType.equals(FaultTreeType.COMPOSITE_PARTS)) {
-						errorMsg = "Select error state for composite parts fault tree";
-						ftaRootEvent = FaultTreeUtils.createIntermediateEvent(ftaModel, rootComponent,
-								rootStateOrPropagation, rootComponentType);
-						ftaModel.setMessage(errorMsg);
-						ftaModel.setRoot(ftaRootEvent);
-						return ftaModel;
-					} else {
-						ftaRootEvent = (Event) traverseOutgoingErrorPropagation(rootComponent,
-								(ErrorPropagation) rootStateOrPropagation, rootComponentType, BigOne);
-					}
-				}
-				if (ftaRootEvent == null) {
-					ftaRootEvent = FaultTreeUtils.createIntermediateEvent(ftaModel, rootComponent,
-							rootStateOrPropagation, rootComponentType);
-				}
-
-				longName = FaultTreeUtils.buildName(rootComponent, rootStateOrPropagation, rootComponentType);
-				if (ftaRootEvent.getSubEvents().isEmpty() && !ftaRootEvent.getName().equals(longName)) {
-					Event topEvent = FaultTreeUtils.createIntermediateEvent(ftaModel, rootComponent,
-							rootStateOrPropagation, rootComponentType);
-					topEvent.getSubEvents().add(ftaRootEvent);
-					ftaRootEvent = topEvent;
-				}
-				ftaRootEvents.add(ftaRootEvent);
+				Event subresult = getonetree(instances.get(i), errorStateOrPropagations.get(i), errorTypes.get(i));
+				ftaRootEvents.add(subresult);
 			}
-			Event ROOT= FaultTreeUtils.createUniqueIntermediateEvent(ftaModel, rootComponent,rootStateOrPropagation, rootComponentType);
-			ROOT.getSubEvents().addAll(ftaRootEvents);
-			ftaRootEvent = ROOT;
+
 //			--------------DeBUG addition--------
-			flattenGates(ftaRootEvent);
-//			cleanupXORGates(ftaRootEvent);
-//			flattenGates(ftaRootEvent);
-//			ftaRootEvent = optimizeGates(ftaRootEvent);
-//			flattenGates(ftaRootEvent);
-//			cleanupXORGates(ftaRootEvent);
-			TravelFTARootEvent(ftaRootEvent, "");
+//			Event ROOT = FaultTreeUtils.createUniqueIntermediateEvent(ftaModel, rootComponent, null, null);
+
+//			TravelFTARootEvent(ftaRootEvent, "");
 //			--------------DeBUG addition--------
-			if (!faultTreeType.equals(FaultTreeType.FAULT_TRACE)
-					&& !faultTreeType.equals(FaultTreeType.COMPOSITE_PARTS)) {
-				flattenGates(ftaRootEvent);
-				System.out.println("flattenGates===================================================");
-				cleanupXORGates(ftaRootEvent);
-//			xformXORtoOR(emftaRootEvent);
-				if (faultTreeType.equals(FaultTreeType.FAULT_TREE)) {
-					flattenGates(ftaRootEvent);
-					ftaRootEvent = optimizeGates(ftaRootEvent);
-					flattenGates(ftaRootEvent);
-				}
-				// remove gate with single event from root
-				if (ftaRootEvent.getSubEvents().size() == 1) {
-					Event subevent = ftaRootEvent.getSubEvents().get(0);
-					if (subevent.getType() == EventType.INTERMEDIATE) {
-						subevent.setName(ftaRootEvent.getName());
-						subevent.setMessage(ftaRootEvent.getMessage());
-						subevent.setRelatedInstanceObject(ftaRootEvent.getRelatedInstanceObject());
-						subevent.setRelatedErrorType(ftaRootEvent.getRelatedErrorType());
-						subevent.setRelatedEMV2Object(ftaRootEvent.getRelatedEMV2Object());
-						ftaRootEvent = subevent;
-					}
-				}
-				if (faultTreeType.equals(FaultTreeType.MINIMAL_CUT_SET)) {
-					ftaRootEvent = minimalCutSet(ftaRootEvent);
-				}
-			}
 			System.out.println("===================================================");
-//			TravelFTARootEventTree(ftaRootEvent);
-			ftaRootEvent.setName(longName);
-			ftaModel.setRoot(ftaRootEvent);
-			FaultTreeUtils.removeEventOrphans(ftaModel);
+			ftaModel.setRoot(null);
+			ArrayList<Event> TopEvents = getTopEvent(ftaModel);
+			for (Event event : TopEvents) {
+				flattenGates(event);
+			}
+			removeRedundantRootEvent(TopEvents);
+			redoCount(ftaModel, TopEvents);
+//			removeEventOrphans(ftaModel);
 			FaultTreeUtils.fillProbabilities(ftaModel);
-			FaultTreeUtils.computeProbabilities(ftaModel.getRoot());
+			for (Event event : TopEvents) {
+				FaultTreeUtils.computeProbabilities(event);
+			}
+
 		}
 		return ftaModel;
 	}
 
+	private Event getonetree(ComponentInstance rootComponent, NamedElement rootStateOrPropagation,
+			TypeToken rootComponentType) {
+		Event result = null;
+		if (rootStateOrPropagation instanceof ErrorBehaviorState) {
+			result = (Event) traverseCompositeErrorState(rootComponent, (ErrorBehaviorState) rootStateOrPropagation,
+					rootComponentType, BigOne);
+		} else {
+			ErrorPropagation ep =(ErrorPropagation)rootStateOrPropagation;
+			if (ep.getDirection() == DirectionType.OUT) {
+				result = (Event) traverseOutgoingErrorPropagation(rootComponent, (ErrorPropagation) rootStateOrPropagation,
+						rootComponentType, BigOne);
+			} else if (ep.getDirection() == DirectionType.IN) {
+				result = (Event) traverseIncomingErrorPropagation(rootComponent,
+						(ErrorPropagation) rootStateOrPropagation, rootComponentType, BigOne);
+			}
+		}
+		if (result == null) {
+			result = FaultTreeUtils.createIntermediateEvent(ftaModel, rootComponent, rootStateOrPropagation,
+					rootComponentType);
+		}
 
-	public void TravelFTARootEvent(Event event, String indent) {
+		String longName = FaultTreeUtils.buildName(rootComponent, rootStateOrPropagation, rootComponentType);
+		if (result.getSubEvents().isEmpty() && !result.getName().equals(longName)) {
+			Event topEvent = FaultTreeUtils.createIntermediateEvent(ftaModel, rootComponent, rootStateOrPropagation,
+					rootComponentType);
+			topEvent.getSubEvents().add(result);
+			result = topEvent;
+		}
+		return result;
+	}
+
+	public void removeRedundantRootEvent(ArrayList<Event> TopEvents) {
+		HashMap<Event, Boolean> visited = new HashMap<Event, Boolean>();
+		for (Event ev : ftaModel.getEvents()) {
+			ev.setReferenceCount(0);
+			markNonTopEvent(ev, visited);
+		}
+		ArrayList<Event> newTopEvents = new ArrayList<>(ftaModel.getEvents());
+		newTopEvents.removeAll(visited.keySet());
+		newTopEvents.removeAll(TopEvents);
+
+		for (Event ev : newTopEvents) {
+			System.out.println("#### removeRedundantRootEvent :: " + FaultTreeUtils.getDescription(ev));
+		}
+
+		ftaModel.getEvents().removeAll(newTopEvents);
+	}
+
+	public void redoCount(FaultTree ftaModel, ArrayList<Event> TopEvents) {
+		for (Event ev : ftaModel.getEvents()) {
+			ev.setReferenceCount(0);
+		}
+		for (Event ev : TopEvents) {
+			System.out.println("%%%%%%%% Top Event :: " + FaultTreeUtils.getDescription(ev));
+			doCount(ev);
+		}
+	}
+
+
+	public static ArrayList<Event> getTopEvent(FaultTree ftaModel) {
+		HashMap<Event, Boolean> visited = new HashMap<Event, Boolean>();
+		for (Event ev : ftaModel.getEvents()) {
+			markNonTopEvent(ev,visited);
+		}
+		ArrayList<Event> TopEvents = new ArrayList<>(ftaModel.getEvents());
+		TopEvents.removeAll(visited.keySet());
+		return TopEvents;
+	}
+
+	public static void markNonTopEvent(Event ev, HashMap<Event, Boolean> visited) {
+		for (Event subev : ev.getSubEvents()) {
+			if (!visited.containsKey(subev)) {
+				visited.put(subev, true);
+				markNonTopEvent(subev, visited);
+			}
+		}
+	}
+
+	public void doCount(Event ev) {
+		ev.setReferenceCount(ev.getReferenceCount() + 1);
+		for (Event subev : ev.getSubEvents()) {
+			doCount(subev);
+		}
+	}
+
+	public static void removeEventOrphans(FaultTree ftaModel) {
+		ArrayList<Event> TopEvents = getTopEvent(ftaModel);
+		List<Event> toRemove = new LinkedList<Event>();
+		for (Event ev : TopEvents) {
+			if (ev.getReferenceCount() == 1 && ev.getSubEvents().isEmpty()) {
+				toRemove.add(ev);
+			}
+		}
+		for (Event ev : toRemove) {
+			System.out.println("%%%%%%%% Orphan TopEvents To Remove :: " + FaultTreeUtils.getDescription(ev));
+		}
+		ftaModel.getEvents().removeAll(toRemove);
+		TopEvents.removeAll(toRemove);
+	}
+
+
+//	public void TravelFTARootEvent(Event event, String indent) {
 //		InstanceObject io = (InstanceObject) event.getRelatedInstanceObject();
 //		EObject nne = event.getRelatedEMV2Object();
 //		NamedElement ne = null;
@@ -285,39 +339,21 @@ public class FTAGenerator extends PropagationGraphBackwardTraversal {
 //		System.out.println(indent + "RelatedErrorType		:::::::" + EMV2Util.getPrintName(type));
 //		System.out.println(indent + "Probability 			:::::::" + event.getProbability());
 
-		System.out.println(indent + FaultTreeUtils.getDescription(event) + " --- " + event.getName() + " - "
-				+ event.getSubEventLogic());
-		traversal.put(event, true);
-		for (Event ei : event.getSubEvents()) {
-			if (!traversal.containsKey(ei)) {
-				TravelFTARootEvent(ei, indent + "\t");
-			}
-			else {
-				System.out.println(indent + "\t!!!!!!Circle!!!!!!!!::" + FaultTreeUtils.getDescription(ei) + " --- "
-						+ ei.getName() + " - " + ei.getSubEventLogic());
-			}
-		}
-	}
-
-//	public void TravelFTARootEventTree(Event event, String indent) {
-//		InstanceObject io = (InstanceObject) event.getRelatedInstanceObject();
-//		EObject nne = event.getRelatedEMV2Object();
-//		NamedElement ne = null;
-//		String text = null;
-////		System.out.print("[");
-//		TypeToken type = (TypeToken) event.getRelatedErrorType();
-//		if (nne instanceof NamedElement) {
-//			ne = (NamedElement) nne;
-//		}
-//		text = event.getType().getName() + "::" + (ne == null ? "NoName" : EMV2Util.getPrintName(ne)) + "("
-//				+ getinstancename(nne) + (type == null ? "" : ("{" + EMV2Util.getPrintName(type) + "}")) + ")on\""
-//				+ (io == null ? "NoObject" : io.getName()) + "\"--" + event.getSubEventLogic().getName();
-//		System.out.println(indent + text);
+//		private HashMap<Event, Boolean> traversal = new HashMap<Event, Boolean>();
+//		System.out.println(indent + FaultTreeUtils.getDescription(event) + " --- " + event.getName() + " - "
+//				+ event.getSubEventLogic());
+//		traversal.put(event, true);
 //		for (Event ei : event.getSubEvents()) {
-//			TravelFTARootEventTree(ei, indent + "\t\t");
+//			if (!traversal.containsKey(ei)) {
+//				TravelFTARootEvent(ei, indent + "\t");
+//			}
+//			else {
+//				System.out.println(indent + "\t!!!!!!Circle!!!!!!!!::" + FaultTreeUtils.getDescription(ei) + " --- "
+//						+ ei.getName() + " - " + ei.getSubEventLogic());
+//			}
 //		}
-////		System.out.println("]");
 //	}
+
 
 	public String getinstancename(EObject a) {
 		String result = null;
@@ -359,7 +395,7 @@ public class FTAGenerator extends PropagationGraphBackwardTraversal {
 		if (combined != null) {
 			return combined;
 		}
-		System.out.println("##### finalizeAsXOrEvents #####");
+		System.out.println("\t##### finalizeAsXOrEvents #####");
 		combined = FaultTreeUtils.createIntermediateEvent(ftaModel, component, el, type);
 		combined.setSubEventLogic(LogicOperation.XOR);
 		for (Object seobj : subEvents) {
@@ -378,30 +414,33 @@ public class FTAGenerator extends PropagationGraphBackwardTraversal {
 		if (combined != null) {
 			return combined;
 		}
-		System.out.println("##### finalizeAsOrEvents #####");
+		System.out.println("\t##### finalizeAsOrEvents #####");
+
 		combined = FaultTreeUtils.createIntermediateEvent(ftaModel, component, ne, type);
 		combined.setSubEventLogic(LogicOperation.OR);
 
-		for (Object seobj : subEvents) {
-			combined.getSubEvents().add((Event) seobj);
-		}
-		return combined;
-	}
 
-	private Event finalizeAsUniqueOrEvents(ComponentInstance component, Element ne, TypeToken type,
-			List<EObject> subEvents) {
-		if (subEvents.size() == 0) {
-			return null;
-		}
-		System.out.println("##### finalizeAsUniqueOrEvents #####");
-		Event combined = FaultTreeUtils.createUniqueIntermediateEvent(ftaModel, component, ne, type);
-		combined.setSubEventLogic(LogicOperation.OR);
 
 		for (Object seobj : subEvents) {
 			combined.getSubEvents().add((Event) seobj);
 		}
 		return combined;
 	}
+
+//	private Event finalizeAsUniqueOrEvents(ComponentInstance component, Element ne, TypeToken type,
+//			List<EObject> subEvents) {
+//		if (subEvents.size() == 0) {
+//			return null;
+//		}
+//		System.out.println("\t##### finalizeAsUniqueOrEvents #####");
+//		Event combined = FaultTreeUtils.createUniqueIntermediateEvent(ftaModel, component, ne, type);
+//		combined.setSubEventLogic(LogicOperation.OR);
+//
+//		for (Object seobj : subEvents) {
+//			combined.getSubEvents().add((Event) seobj);
+//		}
+//		return combined;
+//	}
 
 	private Event finalizeAsOrMoreEvents(ComponentInstance component, Element ne, TypeToken type,
 			List<EObject> subEvents) {
@@ -413,7 +452,7 @@ public class FTAGenerator extends PropagationGraphBackwardTraversal {
 		if (combined != null) {
 			return combined;
 		}
-		System.out.println("##### finalizeAsOrMoreEvents #####");
+		System.out.println("\t##### finalizeAsOrMoreEvents #####");
 		combined = FaultTreeUtils.createIntermediateEvent(ftaModel, component, ne, type);
 		combined.setSubEventLogic(LogicOperation.KORMORE);
 
@@ -436,7 +475,7 @@ public class FTAGenerator extends PropagationGraphBackwardTraversal {
 		if (combined != null) {
 			return combined;
 		}
-		System.out.println("##### finalizeAsAndEvents #####");
+		System.out.println("\t##### finalizeAsAndEvents #####");
 		combined = FaultTreeUtils.createIntermediateEvent(ftaModel, component, ne, type);
 		combined.setSubEventLogic(LogicOperation.AND);
 
@@ -447,24 +486,24 @@ public class FTAGenerator extends PropagationGraphBackwardTraversal {
 		return combined;
 	}
 
-	private Event finalizeAsPriorityAndEvents(ComponentInstance component, Element ne, TypeToken type,
-			List<EObject> subEvents, String eventname) {
-		if (subEvents.size() == 0) {
-			return null;
-		}
-		Event combined = FaultTreeUtils.findSharedSubtree(ftaModel, subEvents, LogicOperation.PRIORITY_AND, component,
-				ne, type);
-		if (combined != null) {
-			return combined;
-		}
-		combined = FaultTreeUtils.createIntermediateEvent(ftaModel, component, ne, type);
-		combined.setSubEventLogic(LogicOperation.PRIORITY_AND);
-		for (Object seobj : subEvents) {
-			Event se = (Event) seobj;
-			combined.getSubEvents().add(se);
-		}
-		return combined;
-	}
+//	private Event finalizeAsPriorityAndEvents(ComponentInstance component, Element ne, TypeToken type,
+//			List<EObject> subEvents, String eventname) {
+//		if (subEvents.size() == 0) {
+//			return null;
+//		}
+//		Event combined = FaultTreeUtils.findSharedSubtree(ftaModel, subEvents, LogicOperation.PRIORITY_AND, component,
+//				ne, type);
+//		if (combined != null) {
+//			return combined;
+//		}
+//		combined = FaultTreeUtils.createIntermediateEvent(ftaModel, component, ne, type);
+//		combined.setSubEventLogic(LogicOperation.PRIORITY_AND);
+//		for (Object seobj : subEvents) {
+//			Event se = (Event) seobj;
+//			combined.getSubEvents().add(se);
+//		}
+//		return combined;
+//	}
 
 	/*************
 	 * Optimizations
@@ -512,6 +551,7 @@ public class FTAGenerator extends PropagationGraphBackwardTraversal {
 		EList<Event> subEvents = event.getSubEvents();
 		List<Event> toAdd = new LinkedList<Event>();
 		List<Event> toRemove = new LinkedList<Event>();
+
 		for (Event se : subEvents) {
 			if (!se.getSubEvents().isEmpty() && se.getSubEventLogic() == mygate
 					&& FaultTreeUtils.getDescription(se).equals(FaultTreeUtils.getDescription(event))) {// FIX FTA BUG

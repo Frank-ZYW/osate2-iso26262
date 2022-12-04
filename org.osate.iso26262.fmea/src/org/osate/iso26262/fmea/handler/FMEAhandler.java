@@ -24,23 +24,35 @@
 
 package org.osate.iso26262.fmea.handler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.xtext.ui.editor.outline.IOutlineNode;
+import org.eclipse.xtext.ui.util.ResourceUtil;
 import org.osate.aadl2.ComponentImplementation;
+import org.osate.aadl2.errormodel.faulttree.util.SiriusUtil;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.instance.SystemInstance;
 import org.osate.aadl2.instantiation.InstantiateModel;
 import org.osate.iso26262.fmea.FmeaBuilder;
 import org.osate.iso26262.fmea.export.FileExport;
+import org.osate.iso26262.fmea.fixfta.FTAGenerator;
 
 
 public final class FMEAhandler extends AbstractHandler {
+	static String selectfocusname;
+	static Boolean showfailurenet = false;
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -58,7 +70,7 @@ public final class FMEAhandler extends AbstractHandler {
 //		}
 //
 
-
+		// 获取Instance对象
 //		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 		IStructuredSelection selection = (IStructuredSelection) HandlerUtil.getCurrentSelection(event);
 		IOutlineNode node = (IOutlineNode) selection.getFirstElement();
@@ -77,27 +89,72 @@ public final class FMEAhandler extends AbstractHandler {
 					return null;
 				}
 			}
-
 			ComponentInstance target = rootInstance;
-			System.out.println("Start!!!!!");
 			// 准备构建FMEA数据结构
 			FmeaBuilder fb = new FmeaBuilder();
 			// 构造结构树
 			fb.Construct_structure_tree(target);
-			// 同时构造故障网与功能网
-			fb.BuildFailureAndFuncNet(fb.root_component);
-			// 填充AP值
-			fb.FillAP(fb.root_component);
-			// 打印数据结构
-			fb.Print_Structure(fb.root_component, "");
-
 			// 从关注组件中获取表头
 			fb.getHead();
+			// ---- 窗口初始化 ----
+			List<String> componentnamelist = new ArrayList<String>();
+			for (ComponentInstance ci : fb.root_component.ci.getAllComponentInstances()) {
+				componentnamelist.add(FmeaBuilder.getInstanceName(ci));
+			}
+			selectfocusname = fb.head.Focus_component_name;
+//			showfailurenet = true;
+//			FileExport.ONLY_FAILUREMODES = true;
+//			FileExport.ONLY_FINAL_FAILURE = false;
+//			FileExport.SHOW_INSTANCE_NAME = true;
+			// 窗口展示
+			final Display d = PlatformUI.getWorkbench().getDisplay();
+			d.syncExec(() -> {
+				IWorkbenchWindow window;
+				Shell sh;
 
-			// 准备文件输出
-			FileExport fe = new FileExport();
-			fe.ExportFMEAreport(fb);
-			System.out.println("FINISH!!AAAAAa");
+				window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+				sh = window.getShell();
+
+				FmeaDialog diag = new FmeaDialog(sh);
+				diag.setFocusComponents(componentnamelist);
+				diag.setfocusComponent(selectfocusname);
+				diag.setonlyfailuremodes(FileExport.ONLY_FAILUREMODES);
+				diag.setonlyfinalfailure(FileExport.ONLY_FINAL_FAILURE);
+				diag.setshowinstancename(FileExport.SHOW_INSTANCE_NAME);
+				diag.setisGraphicView(showfailurenet);
+				diag.setTarget("'" + FmeaBuilder.getInstanceName(target) + "'");
+
+				diag.open();
+				selectfocusname = diag.getFocusComponent();
+				FileExport.ONLY_FAILUREMODES = diag.getonlyfailuremodes();
+				FileExport.ONLY_FINAL_FAILURE = diag.getonlyfinalfailure();
+				FileExport.SHOW_INSTANCE_NAME = diag.getshowinstancename();
+				showfailurenet = diag.getisGraphicView();
+			});
+			if (FmeaDialog.OKpressed) {
+				// 同时构造故障网与功能网
+				fb.BuildFailureAndFuncNet();
+				// 填充AP值
+				fb.FillAP(fb.root_component);
+				// 打印数据结构
+				fb.Print_Structure(fb.root_component, "");
+				// 更新焦点组件
+				fb.updateFocusComponent(selectfocusname);
+				// 准备文件输出
+				FileExport fe = new FileExport();
+				fe.ExportFMEAreport(fb);
+				System.out.println("FMEA FINISH!!");
+
+				if (showfailurenet) {
+					FTAGenerator.removeEventOrphans(fb.ftamodel);
+					fb.saveFaultTree();
+					SiriusUtil.INSTANCE.autoOpenModel(fb.ftamodel,
+							ResourceUtil.getFile(target.eResource()).getProject(),
+							"viewpoint:/org.osate.aadl2.errormodel.faulttree.design/FaultTree", "IconicFaultTree",
+							"Fault Tree");
+
+				}
+			}
 			return Status.OK_STATUS;
 		});
 		return Status.error("error");

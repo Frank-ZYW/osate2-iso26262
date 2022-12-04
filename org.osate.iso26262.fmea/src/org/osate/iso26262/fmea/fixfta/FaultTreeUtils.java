@@ -148,8 +148,8 @@ public class FaultTreeUtils {
 		newEvent.setRelatedEMV2Object(namedElement);
 		newEvent.setRelatedErrorType(type);
 //		System.out.println("### Create BasicEvent  ::  " + name);
-		System.out.println("### Create BasicEvent  ::  " + FaultTreeUtils.getDescription(newEvent) + " --- "
-				+ newEvent.getName() + " - " + newEvent.getSubEventLogic());
+		System.out.println("### Create BasicEvent         ::  " + FaultTreeUtils.getDescription(newEvent) + " \t---\t "
+				+ newEvent.getName() + " \t-\t " + newEvent.getSubEventLogic());
 		return newEvent;
 	}
 
@@ -174,8 +174,8 @@ public class FaultTreeUtils {
 		newEvent.setRelatedEMV2Object(namedElement);
 		newEvent.setRelatedErrorType(type);
 //		System.out.println("### Create BasicEvent  ::  " + name);
-		System.out.println("### Create BasicEvent  ::  " + FaultTreeUtils.getDescription(newEvent) + " --- "
-				+ newEvent.getName() + " - " + newEvent.getSubEventLogic());
+		System.out.println("### Create BasicEvent  ::  " + FaultTreeUtils.getDescription(newEvent) + " \t---\t "
+				+ newEvent.getName() + " \t-\t " + newEvent.getSubEventLogic());
 		return newEvent;
 	}
 
@@ -231,8 +231,8 @@ public class FaultTreeUtils {
 		newEvent.setRelatedInstanceObject(component);
 		newEvent.setRelatedEMV2Object(element);
 		newEvent.setRelatedErrorType(type);
-		System.out.println("### Create IntermediateEvent  ::  " + FaultTreeUtils.getDescription(newEvent) + " --- "
-				+ newEvent.getName() + " - " + newEvent.getSubEventLogic());
+		System.out.println("### Create IntermediateEvent  ::  " + FaultTreeUtils.getDescription(newEvent) + " \t---\t "
+				+ newEvent.getName() + " \t-\t " + newEvent.getSubEventLogic());
 		return newEvent;
 	}
 
@@ -353,7 +353,7 @@ public class FaultTreeUtils {
 		description = "";
 		if (errorModelArtifact instanceof ErrorSource) {
 			ErrorSource errorSource = (ErrorSource) errorModelArtifact;
-			description = (type != null ? "{" + EMV2Util.getName(type) + "} from " : "") + "error source '"
+			description += (type != null ? "{" + EMV2Util.getName(type) + "} from " : "") + "error source '"
 					+ EMV2Util.getName(errorSource) + "'";
 		}
 
@@ -380,12 +380,12 @@ public class FaultTreeUtils {
 				boundaryLabel = "undeveloped";
 			}
 			if (type != null) {
-				description = "{" + EMV2Util.getName(type) + "}";
+				description += "{" + EMV2Util.getName(type) + "}";
 				if (!boundaryLabel.isEmpty()) {
 					description += " from " + boundaryLabel;
 				}
 			} else {
-				description = boundaryLabel;
+				description += boundaryLabel;
 			}
 		}
 
@@ -409,9 +409,9 @@ public class FaultTreeUtils {
 			}
 
 			if (event.getSubEventLogic() == LogicOperation.KORMORE) {
-				description = "'" + event.getSubEventLogic() + "' with k =" + event.getK() + opcontext;
+				description += "'" + event.getSubEventLogic() + "' with k =" + event.getK() + opcontext;
 			} else {
-				description = "'" + event.getSubEventLogic() + "'" + opcontext;
+				description += "'" + event.getSubEventLogic() + "'" + opcontext;
 			}
 		}
 

@@ -1,10 +1,9 @@
 package org.osate.iso26262.fmea.export;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-import org.osate.iso26262.fmea.FailureMode;
+import org.osate.iso26262.fmea.FailureElement;
 import org.osate.iso26262.fmea.Function;
 
 public class Func_item {
@@ -13,13 +12,13 @@ public class Func_item {
 	Function myfunc;
 	List<Function> supfunc = new ArrayList<Function>();
 	List<Function> subfunc = new ArrayList<Function>();
-	public HashMap<Function, Integer> levelmap = new HashMap<Function, Integer>();
+	List<Integer> suplevelmap = new ArrayList<Integer>();
+	List<Integer> sublevelmap = new ArrayList<Integer>();
 	List<Error_item> erroritems = new ArrayList<Error_item>();
 	Integer maxrows;
 
 	Func_item(Function fi) {
 		myfunc = fi;
-		levelmap.put(myfunc, 0);
 
 		for (Function fii : myfunc.func_effect) {
 			Build_supfunc(fii, 1);
@@ -35,7 +34,7 @@ public class Func_item {
 		if(not_Layer_overflow(suplevel,level))
 		{
 			supfunc.add(fi);
-			levelmap.put(fi, level);
+			suplevelmap.add(level);
 			for(Function fii:fi.func_effect)
 			{
 				Build_supfunc(fii, level + 1);
@@ -47,7 +46,7 @@ public class Func_item {
 	void Build_subfunc(Function fi, int level) {
 		if (not_Layer_overflow(sublevel, level)) {
 			subfunc.add(fi);
-			levelmap.put(fi, level);
+			sublevelmap.add(level);
 			for (Function fii : fi.func_cause) {
 				Build_subfunc(fii, level + 1);
 			}
@@ -55,7 +54,7 @@ public class Func_item {
 	}
 
 	void Build_Erroritem() {
-		for (FailureMode fmi : myfunc.ref_fail_modes) {
+		for (FailureElement fmi : myfunc.ref_fail_modes) {
 			erroritems.add(new Error_item(fmi));
 		}
 	}

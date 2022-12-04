@@ -14,12 +14,14 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.osate.aadl2.instance.ComponentInstance;
+import org.osate.aadl2.instance.SystemInstance;
 import org.osate.aadl2.modelsupport.resources.OsateResourceUtil;
 import org.osate.aadl2.modelsupport.util.AadlUtil;
 import org.osate.iso26262.fmea.AP;
-import org.osate.iso26262.fmea.FailureMode;
+import org.osate.iso26262.fmea.FailureElement;
 import org.osate.iso26262.fmea.FmeaBuilder;
 import org.osate.iso26262.fmea.Optimization;
+import org.osate.ui.dialogs.Dialog;
 
 import jxl.CellView;
 import jxl.Workbook;
@@ -34,6 +36,10 @@ import jxl.write.biff.RowsExceededException;
 
 public class FileExport {
 
+	public static boolean ONLY_FINAL_FAILURE = false;
+	public static boolean ONLY_FAILUREMODES = false;
+	public static boolean SHOW_INSTANCE_NAME = false;
+
 	EObject root;
 	String fileExtension = "xls";
 
@@ -45,6 +51,7 @@ public class FileExport {
 
 	WritableCellFormat headcf;
 	WritableCellFormat normalcf;
+	WritableCellFormat repeatedcf;
 	Struc_item focus_structure;
 
 	public void ExportFMEAreport(FmeaBuilder fb) {
@@ -66,12 +73,13 @@ public class FileExport {
 			Report_Structure();
 			// 输出3-6步
 			Report_Remaining();
-
 			// 最后调整
 			Adj_Column_Width();
 			// 写文件
 			workbook.write();
 			workbook.close();
+			Dialog.showInfo("Failure Mode and Effect Analysis", "FMEA report generation complete");
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (WriteException e) {
@@ -96,6 +104,13 @@ public class FileExport {
 		normalcf.setAlignment(jxl.format.Alignment.LEFT); // 水平靠左
 		normalcf.setVerticalAlignment(jxl.format.VerticalAlignment.TOP);// 垂直靠上
 		normalcf.setWrap(true);// 自动换行
+
+		repeatedcf = new WritableCellFormat(wf); // 单元格定义
+		repeatedcf.setBackground(jxl.format.Colour.RED); // 红色底纹
+		repeatedcf.setBorder(jxl.format.Border.ALL, jxl.format.BorderLineStyle.THIN);// 细边框
+		repeatedcf.setAlignment(jxl.format.Alignment.LEFT); // 水平靠左
+		repeatedcf.setVerticalAlignment(jxl.format.VerticalAlignment.TOP);// 垂直靠上
+		repeatedcf.setWrap(true);// 自动换行
 
 		focus_structure = new Struc_item(fb.focus_component);
 
@@ -296,7 +311,10 @@ public class FileExport {
 		int column = 3;
 		if (fci.supfunc.size() > 0) {
 			for (int i = 0; i < fci.supfunc.size(); i++) {
-				prefix = getprefix(fci.levelmap.get(fci.supfunc.get(i)) - 1, "<");
+				prefix = getprefix(fci.suplevelmap.get(i) - 1, "<");
+				if (SHOW_INSTANCE_NAME) {
+					prefix += "\"" + fci.supfunc.get(i).ref_component.getName() + "\"";
+				}
 				sheet.addCell(new Label(column, absrow + row, prefix + fci.supfunc.get(i).funcname, normalcf));
 				if (i == fci.supfunc.size() - 1 && row < fci.maxrows) {
 					sheet.mergeCells(column, absrow + row, column, absrow + fci.maxrows);
@@ -320,7 +338,10 @@ public class FileExport {
 		System.out.println("		Subfunc size::" + fci.subfunc.size());
 		if (fci.subfunc.size() > 0) {
 			for (int i = 0; i < fci.subfunc.size(); i++) {
-				prefix = getprefix(fci.levelmap.get(fci.subfunc.get(i)) - 1, ">");
+				prefix = getprefix(fci.sublevelmap.get(i) - 1, ">");
+				if (SHOW_INSTANCE_NAME) {
+					prefix += "\"" + fci.subfunc.get(i).ref_component.getName() + "\"";
+				}
 				sheet.addCell(new Label(column, absrow + row, prefix + fci.subfunc.get(i).funcname, normalcf));
 				if (i == fci.subfunc.size() - 1 && row < fci.maxrows) {
 					sheet.mergeCells(column, absrow + row, column, absrow + fci.maxrows);
@@ -358,9 +379,16 @@ public class FileExport {
 		System.out.println("				Superror size::" + eri.superror.size());
 		if (eri.superror.size() > 0) {
 			for (int i = 0; i < eri.superror.size(); i++) {
-				prefix = getprefix(eri.levelmap.get(eri.superror.get(i)) - 1, "<");
+				prefix = getprefix(eri.suplevelmap.get(i) - 1, "<");
+				if (SHOW_INSTANCE_NAME) {
+					prefix += "\"" + eri.superror.get(i).ref_component.getName() + "\"";
+				}
+				WritableCellFormat formate = normalcf;
 				// 1.下一个更高级别的元素或最终用户的故障后果
-				sheet.addCell(new Label(column, absrow + row, prefix + eri.superror.get(i).name, normalcf));
+				if (eri.suprepeated.get(i) == true) {
+					formate = repeatedcf;
+				}
+				sheet.addCell(new Label(column, absrow + row, prefix + eri.superror.get(i).name, formate));
 				// S
 				prefix = ((eri.superror.get(i).fmea_serverity == null) ? "" : "" + eri.superror.get(i).fmea_serverity);
 				if (eri.superror.get(i).fmea_serverity != null) {
@@ -398,8 +426,15 @@ public class FileExport {
 		if (eri.suberror.size() > 0) {
 			for (int i = 0; i < eri.suberror.size(); i++) {
 				int rows = Math.max(eri.suberror.get(i).optimizations.size(), 1);
-				prefix = getprefix(eri.levelmap.get(eri.suberror.get(i)) - 1, ">");
-				sheet.addCell(new Label(column, absrow + row, prefix + eri.suberror.get(i).name, normalcf));
+				prefix = getprefix(eri.sublevelmap.get(i) - 1, ">");
+				if (SHOW_INSTANCE_NAME) {
+					prefix += "\"" + eri.suberror.get(i).ref_component.getName() + "\"";
+				}
+				WritableCellFormat formate = normalcf;
+				if (eri.subrepeated.get(i) == true) {
+					formate = repeatedcf;
+				}
+				sheet.addCell(new Label(column, absrow + row, prefix + eri.suberror.get(i).name, formate));
 				if (rows >= 2) {
 					sheet.mergeCells(column, absrow + row, column, absrow + row + rows - 1);
 				} else if (i == eri.suberror.size() - 1 && row < eri.maxrows) {
@@ -414,7 +449,7 @@ public class FileExport {
 
 		if (eri.suberror.size() > 0) {
 			for (int i = 0; i < eri.suberror.size(); i++) {
-				FailureMode fmi = eri.suberror.get(i);
+				FailureElement fmi = eri.suberror.get(i);
 				int rownums = eri.rowandrownums.get(i).getValue();
 				Report_Risk(fmi, absrow, rownums, maxS == 0 ? null : maxS);
 				absrow = absrow + rownums;
@@ -428,7 +463,7 @@ public class FileExport {
 
 	}
 
-	public void Report_Risk(FailureMode fmi, int absrow, int rownums, Integer ref_S)
+	public void Report_Risk(FailureElement fmi, int absrow, int rownums, Integer ref_S)
 			throws RowsExceededException, WriteException {
 		int row = 1;
 		int column = 11;
@@ -571,7 +606,6 @@ public class FileExport {
 		list.removeAll(notadj);
 		cellView.setAutosize(true); // 设置自动大小
 		for (int i : list) {
-			System.out.println("::" + i);
 			sheet.setColumnView(i, cellView);
 		}
 	}
@@ -587,7 +621,10 @@ public class FileExport {
 		IPath path = OsateResourceUtil.toIFile(uri).getFullPath();
 		path = path.removeFileExtension();
 //		filename = path.lastSegment() + "__" + reporttype;
-		filename = root.getName() + "__" + reporttype;
+//		filename = root.getName() + "_" + reporttype;
+		filename = root instanceof SystemInstance
+				? root.getComponentClassifier().getName().replaceAll("::", "-").replaceAll("\\.", "-")
+				: root.getComponentInstancePath().replaceAll("::", "-").replaceAll("\\.", "-");
 		path = path.removeLastSegments(1).append("/reports/" + reporttype + "/" + filename);
 		path = path.addFileExtension(fileExtension);
 		AadlUtil.makeSureFoldersExist(path);

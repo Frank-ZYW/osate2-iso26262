@@ -147,7 +147,7 @@ public class FileExport {
 			normalcf.setWrap(true);// 自动换行
 
 			redcf = new WritableCellFormat(wf); // 单元格定义
-			redcf.setBackground(jxl.format.Colour.RED); // 黄色底纹
+			redcf.setBackground(jxl.format.Colour.RED); // 红色底纹
 			redcf.setBorder(jxl.format.Border.ALL, jxl.format.BorderLineStyle.THIN);// 细边框
 			redcf.setAlignment(jxl.format.Alignment.LEFT); // 水平靠左
 			redcf.setVerticalAlignment(jxl.format.VerticalAlignment.TOP);// 垂直靠上
