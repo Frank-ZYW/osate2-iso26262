@@ -223,7 +223,7 @@ public class FmeaBuilder {
 	public static AP CalculateAp(Integer S, Integer O, Integer D) {
 		if(!(InRange(S,1,10)&&InRange(O,1,10)&&InRange(D,1,10)))
 		{
-			Dialog.showInfo("Fill_failure_modes", "Range Error::  S-"+S+"  O-"+O+" D-"+D);
+			Dialog.showInfo("Fill_failure_modes", "Range Error::  S-" + S + "  O-" + O + " D-" + D + ".");
 			return null;
 		}
 		if (O == 1 || S == 1) {
@@ -302,7 +302,7 @@ public class FmeaBuilder {
 			}
 			return AP.Low;
 		}
-		Dialog.showInfo("Fill_failure_modes", "No judgment::  S-" + S + "  O-" + O + " D-" + D);
+		Dialog.showInfo("Fill_failure_modes", "No judgment::  S-" + S + "  O-" + O + " D-" + D + ".");
 		return null;
 
 	}
@@ -392,7 +392,8 @@ public class FmeaBuilder {
 	public void getHead() {
 		head = root_component.getHeadPropertie();
 		if (!components.containsKey(head.Focus_component_name)) {
-			Dialog.showInfo("FmeaHead:FocusComponent", "Can't found Instance name : " + head.Focus_component_name);
+			Dialog.showInfo("FmeaHead:FocusComponent",
+					"Can't found Instance name : " + head.Focus_component_name + ".");
 			head.Focus_component_name = getInstanceName(root_component.ci);
 		}
 		focus_component = components.get(head.Focus_component_name);
@@ -400,7 +401,7 @@ public class FmeaBuilder {
 
 	public void updateFocusComponent(String componentname) {
 		if (!components.containsKey(componentname)) {
-			Dialog.showInfo("updateFocusComponent", "Can't found Instance name : " + componentname);
+			Dialog.showInfo("updateFocusComponent", "Can't found Instance name : " + componentname + ".");
 			componentname = getInstanceName(root_component.ci);
 		}
 		focus_component = components.get(componentname);

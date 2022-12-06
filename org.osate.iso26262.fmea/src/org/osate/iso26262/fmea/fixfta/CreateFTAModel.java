@@ -116,8 +116,7 @@ public class CreateFTAModel {
 		PropagationGraph currentPropagationGraph = Util.generatePropagationGraph(selection.getSystemInstance(), false);
 		FTAGenerator generator = new FTAGenerator(currentPropagationGraph);
 		// ↓↓↓↓↓↓↓↓↓ 生成FTA模型 若startpoint是state，则errorType==null
-//		FaultTree ftamodel = generator.getftaModel(selection, errorStateOrPropagation, errorType, faultTreeType);
-		FaultTree ftamodel = generator.getAllftaModel(selection);
+		FaultTree ftamodel = generator.getftaModel(selection, errorStateOrPropagation, errorType, faultTreeType);
 		// ↑↑↑↑↑↑↑↑↑↑↑↑↑
 		String rootname = ftamodel.getName() + (faultTreeType.equals(FaultTreeType.MINIMAL_CUT_SET) ? "_cutset"
 				: (faultTreeType.equals(FaultTreeType.FAULT_TRACE) ? "_trace"

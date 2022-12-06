@@ -78,7 +78,7 @@ public class FileExport {
 			// 写文件
 			workbook.write();
 			workbook.close();
-			Dialog.showInfo("Failure Mode and Effect Analysis", "FMEA report generation complete");
+			Dialog.showInfo("Failure Mode and Effect Analysis", "FMEA report generation complete!");
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -625,6 +625,7 @@ public class FileExport {
 		filename = root instanceof SystemInstance
 				? root.getComponentClassifier().getName().replaceAll("::", "-").replaceAll("\\.", "-")
 				: root.getComponentInstancePath().replaceAll("::", "-").replaceAll("\\.", "-");
+		filename += "_" + reporttype;
 		path = path.removeLastSegments(1).append("/reports/" + reporttype + "/" + filename);
 		path = path.addFileExtension(fileExtension);
 		AadlUtil.makeSureFoldersExist(path);

@@ -83,10 +83,7 @@ public class FTAGenerator extends PropagationGraphBackwardTraversal {
 						rootComponentType);
 			}
 
-//			TravelFTARootEventTree(ftaRootEvent, "");
-
 			String longName = FaultTreeUtils.buildName(rootComponent, rootStateOrPropagation, rootComponentType);
-			System.out.println("				longName::" + longName);
 			if (ftaRootEvent.getSubEvents().isEmpty() && !ftaRootEvent.getName().equals(longName)) {
 				Event topEvent = FaultTreeUtils.createIntermediateEvent(ftaModel, rootComponent, rootStateOrPropagation,
 						rootComponentType);
@@ -94,19 +91,9 @@ public class FTAGenerator extends PropagationGraphBackwardTraversal {
 				ftaRootEvent = topEvent;
 			}
 
-//			--------------DeBUG addition--------
-//			flattenGates(ftaRootEvent);
-//			cleanupXORGates(ftaRootEvent);
-//			flattenGates(ftaRootEvent);
-//			ftaRootEvent = optimizeGates(ftaRootEvent);
-//			flattenGates(ftaRootEvent);
-//			cleanupXORGates(ftaRootEvent);
-//			--------------DeBUG addition--------
 			if (!faultTreeType.equals(FaultTreeType.FAULT_TRACE)
 					&& !faultTreeType.equals(FaultTreeType.COMPOSITE_PARTS)) {
 				flattenGates(ftaRootEvent);
-				System.out.println("flattenGates===================================================");
-//				TravelFTARootEventTree(ftaRootEvent, "");
 				cleanupXORGates(ftaRootEvent);
 //			xformXORtoOR(emftaRootEvent);
 				if (faultTreeType.equals(FaultTreeType.FAULT_TREE)) {
@@ -130,8 +117,6 @@ public class FTAGenerator extends PropagationGraphBackwardTraversal {
 					ftaRootEvent = minimalCutSet(ftaRootEvent);
 				}
 			}
-			System.out.println("===================================================");
-//			TravelFTARootEventTree(ftaRootEvent);
 			ftaRootEvent.setName(longName);
 			ftaModel.setRoot(ftaRootEvent);
 			FaultTreeUtils.removeEventOrphans(ftaModel);
@@ -788,6 +773,7 @@ public class FTAGenerator extends PropagationGraphBackwardTraversal {
 	 * @param rootevent
 	 * @return Event original or new root event
 	 */
+	@SuppressWarnings("unused")
 	private void xformXORtoOR(Event rootevent) {
 		if (rootevent.getSubEvents().isEmpty()) {
 			return;
@@ -1265,12 +1251,14 @@ public class FTAGenerator extends PropagationGraphBackwardTraversal {
 	@Override
 	protected EObject postProcessErrorBehaviorState(ComponentInstance component, ErrorBehaviorState state,
 			TypeToken type, List<EObject> subResults, BigDecimal scale) {
-		String name = FaultTreeUtils.buildName(component, state, type);
-		Event found = FaultTreeUtils.findEvent(ftaModel, name);
+//----  FIX FTA BUG
+//		String name = FaultTreeUtils.buildName(component, state, type);
+//		Event found = FaultTreeUtils.findEvent(ftaModel, name);
 //		if (found != null) {
 //			return null;
 //		}
 //		Event result = finalizeAsUniqueOrEvents(component, state, type, subResults);
+//----  FIX FTA BUG
 		Event result = finalizeAsOrEvents(component, state, type, subResults);
 		return result;
 	}

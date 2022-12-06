@@ -67,11 +67,6 @@ public class Structure {
 		fmi.ref_component = this;
 		failure_modes.put(fmi.id, fmi);
 
-		if ((ev.getRelatedEMV2Object() instanceof ErrorPropagation)
-				&& ((ErrorPropagation) ev.getRelatedEMV2Object()).getDirection() == DirectionType.OUT) {
-			System.out.println("");
-		}
-
 		if (!(ev.getRelatedEMV2Object() instanceof ErrorPropagation)
 				|| ((ErrorPropagation) ev.getRelatedEMV2Object()).getDirection() != DirectionType.IN) {
 			Function fi = new Function(ev);
@@ -90,7 +85,6 @@ public class Structure {
 			}
 			fmi.ref_func = reff;
 		}
-
 		System.out.println("%% new Failure Element of : " + this.getName() + " ::: " + fmi.name);
 		return fmi;
 	}

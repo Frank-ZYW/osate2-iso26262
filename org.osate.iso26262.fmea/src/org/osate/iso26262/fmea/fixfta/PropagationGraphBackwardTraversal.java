@@ -443,16 +443,10 @@ public class PropagationGraphBackwardTraversal {
 		if (state == null) {
 			return null;
 		}
-//		System.out.println("------------begin");
 		List<EObject> subResults = new LinkedList<EObject>();
 		Collection<ErrorBehaviorTransition> transitions = EMV2Util.getAllErrorBehaviorTransitions(component);
 		BigDecimal combinedscale = inscale;
 
-//		for (ErrorBehaviorTransition ebt : transitions) {
-//			System.out.println(
-//					"****** ErrorBehaviorTransition :" + ebt.getFullName() + " -- " + ebt.getSource().getFullName()
-//							+ " -> " + ebt.getTarget().getFullName() + "||" + ebt.getTargetToken());
-//		}
 		for (ErrorBehaviorTransition ebt : transitions) {
 			ConditionExpression conditionExpression = null;
 			BigDecimal branchscale = BigOne;
@@ -578,12 +572,10 @@ public class PropagationGraphBackwardTraversal {
 					if (!(sameState || ebt.isAllStates())) {
 
 						if (newtypes.isEmpty()) {
-//							System.out.println("	 ^^^ 1");
 							stateResult = traverseErrorBehaviorState(component, ebt.getSource(), null, combinedscale);
 						} else {
 							List<EObject> subsubResults = new LinkedList<EObject>();
 							for (TypeToken typeToken : newtypes) {
-//								System.out.println("	 ^^^ 2");
 								EObject newEvent = traverseErrorBehaviorState(component, state, typeToken,
 										combinedscale);
 								if (newEvent != null) {
@@ -619,9 +611,7 @@ public class PropagationGraphBackwardTraversal {
 		}
 
 		if (!subResults.isEmpty()) {
-//			System.out.println("		*** 1");
 			EObject tt = postProcessErrorBehaviorState(component, state, type, subResults, combinedscale);
-//			System.out.println("------------end");
 			return tt;
 		}
 		// subResults is empty if state without incoming transition triggered by error events or incoming propagations
@@ -629,15 +619,12 @@ public class PropagationGraphBackwardTraversal {
 		if (transitions.isEmpty()) {
 			// we cannot trace back to an error event triggering a transition
 			// give the opportunity to present the error state as Event
-//			System.out.println("		*** 2");
 			EObject tt = traverseCompositeErrorStateOnly(component, state, type, inscale);// processErrorBehaviorState(component, state, type);
-//			System.out.println("------------end");
+
 			return tt;
 		} else {
 			// we have found an operational error state (no incoming transitions with error events)
 			// Do not include
-//			System.out.println("		*** 3");
-//			System.out.println("------------end");
 			return null;
 		}
 	}
@@ -655,7 +642,7 @@ public class PropagationGraphBackwardTraversal {
 	 */
 	public EObject processCondition(ComponentInstance component, ConditionExpression condition, TypeToken type,
 			BigDecimal scale, boolean stateOnly) {
-//		System.out.println("$$$$$$   processCondition $$begin");
+
 		// Mapping of AND expression
 		if (condition instanceof AndExpression) {
 			preProcessAnd(component, condition, type, scale);
@@ -668,7 +655,6 @@ public class PropagationGraphBackwardTraversal {
 					addSubresult(subResults, res);
 				}
 			}
-//			System.out.println("$$$$$$   processCondition $$end--------AND");
 			return postProcessAnd(component, condition, type, subResults, scale);
 
 		}
@@ -687,7 +673,6 @@ public class PropagationGraphBackwardTraversal {
 					}
 				}
 			}
-//			System.out.println("$$$$$$   processCondition $$end--------ALL");
 			return postProcessAnd(component, condition, type, subResults, scale);
 		}
 
@@ -703,7 +688,6 @@ public class PropagationGraphBackwardTraversal {
 					addSubresult(subResults, res);
 				}
 			}
-//			System.out.println("$$$$$$   processCondition $$end--------XOR");
 			return postProcessXor(component, condition, type, scale, subResults);
 		}
 
@@ -721,7 +705,6 @@ public class PropagationGraphBackwardTraversal {
 						addSubresult(subResults, res);
 					}
 				}
-//				System.out.println("$$$$$$   processCondition $$end--------OR");
 				return postProcessOr(component, condition, type, subResults, scale);
 
 			} else {
@@ -733,7 +716,6 @@ public class PropagationGraphBackwardTraversal {
 						addSubresult(subResults, res);
 					}
 				}
-//				System.out.println("$$$$$$   processCondition $$end--------ORMORE");
 				return postProcessOrMore(component, condition, type, subResults, scale);
 			}
 		}
@@ -757,8 +739,6 @@ public class PropagationGraphBackwardTraversal {
 					QualifiedErrorBehaviorState qs = sconditionElement.getQualifiedState();
 					ComponentInstance referencedInstance = EMV2Util.getLastComponentInstance(qs, component);
 					ErrorBehaviorState state = EMV2Util.getState(sconditionElement);
-//					System.out.println("		#######@@@@@@@@@@@@@@@@@@@@@  CompositeErrorState name:"
-//							+ referencedInstance.getName() + "." + state.getFullName());
 					// either original type or mapped to constraint in condition or type set on state declaration
 					TypeSet referencedErrorType = (sconditionElement.getConstraint() != null)
 							? sconditionElement.getConstraint()
@@ -767,13 +747,9 @@ public class PropagationGraphBackwardTraversal {
 
 						List<EObject> subResults = new LinkedList<EObject>();
 						if (referencedErrorType == null) {
-//							System.out.println("		#######@@@@@@@@@@@@@@@@@@@@@  CompositeErrorState name:"
-//									+ referencedInstance.getName() + "." + state.getFullName());
 							EObject newEvent = traverseCompositeErrorState(referencedInstance, state, null, stateOnly,
 									scale);
 							if (newEvent != null) {
-//								System.out.println("		@@@@@@@@@@@@@@@@@@@@@@@@ Add CompositeErrorState event:"
-//										+ FaultTreeUtils.getDescription((Event) newEvent));
 								addSubresult(subResults, newEvent);
 							}
 						} else {
@@ -788,9 +764,6 @@ public class PropagationGraphBackwardTraversal {
 								}
 							}
 						}
-
-//						System.out.println(
-//								"$$$$$$   processCondition $$end--------sconditionElement.getQualifiedState() ");
 						if (subResults.isEmpty()) {
 							return processErrorBehaviorState(referencedInstance, EMV2Util.getState(sconditionElement),
 									type, scale);
@@ -822,8 +795,6 @@ public class PropagationGraphBackwardTraversal {
 								addSubresult(subResults, newEvent);
 							}
 						}
-//						System.out.println(
-//								"$$$$$$   processCondition $$end--------sconditionElement.getQualifiedErrorPropagationReference() ");
 						if (subResults.isEmpty()) {
 							return processIncomingErrorPropagation(referencedInstance, ep, type, scale);
 						} else if (subResults.size() == 1) {
@@ -884,8 +855,6 @@ public class PropagationGraphBackwardTraversal {
 								}
 
 							}
-//							System.out.println(
-//									"$$$$$$   processCondition $$end--------errorModelElement instanceof ErrorEvent ");
 							if (subResults.isEmpty()) {
 								return null;
 							} else if (subResults.size() == 1) {
@@ -929,8 +898,6 @@ public class PropagationGraphBackwardTraversal {
 							}
 						}
 					}
-//					System.out.println(
-//							"$$$$$$   processCondition $$end--------errorModelElement instanceof ErrorPropagation");
 					if (subResults.isEmpty()) {
 						return null;
 					} else if (subResults.size() == 1) {
@@ -1069,13 +1036,14 @@ public class PropagationGraphBackwardTraversal {
 			}
 			st.removeVisitedToken(errorPropagation, type);
 			if (didProp) {
-				traversed = true;
+				traversed = true; // FIX FTA BUG
 			}
 		}
 		if (!subResults.isEmpty()) {
 			return postProcessIncomingErrorPropagation(component, errorPropagation, proptype, subResults, scale);
 		}
-		if (traversed || hasCycle) {
+//		if ( traversed || hasCycle) {
+		if (!traversed || hasCycle) {// FIX FTA BUG
 			return null;
 		}
 		if (!results.isEmpty()) {
@@ -1107,7 +1075,6 @@ public class PropagationGraphBackwardTraversal {
 
 	public EObject traverseCompositeErrorState(ComponentInstance component, ErrorBehaviorState state, TypeToken type,
 			boolean stateOnly, BigDecimal scale) {
-//		System.out.println("#####################################begin");
 		preProcessCompositeErrorStates(component, state, type, scale);
 		List<EObject> subResults = new LinkedList<EObject>();
 		// should only match one composite state declaration.
@@ -1123,25 +1090,14 @@ public class PropagationGraphBackwardTraversal {
 		}
 
 		if (!subResults.isEmpty()) {
-
-//			System.out.println(
-//					"####### 1 subResults.isEmpty()=false，添加子event，用or连接   subResult.size()::" + subResults.size());
-
 			EObject tt = postProcessCompositeErrorStates(component, state, type, subResults, scale);
-//			System.out.println("####### 1 #######################end");
 			return tt;
 		}
 		if (stateOnly) {
-//			System.out.println("####### 2 stateOnly=true, 创建根state event");
 			EObject tt = processErrorBehaviorState(component, state, type, scale);
-//			System.out.println("####### 2 #######################end");
 			return tt;
 		} else {
-//			System.out.println("####### 3 stateOnly=false, 继续溯因state下的event");
-//			System.out.println("				@@@@@@@$!!!$!!!!!! subResults.isEmpty() and traverseErrorBehaviorState:: "
-//							+ component.getName() + "." + state.getName());
 			EObject tt = traverseErrorBehaviorState(component, state, type, scale);
-//			System.out.println("####### 3 #######################end");
 			return tt;
 		}
 	}

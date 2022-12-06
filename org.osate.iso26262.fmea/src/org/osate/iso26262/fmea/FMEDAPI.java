@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.osate.aadl2.errormodel.FaultTree.Event;
+import org.osate.aadl2.errormodel.FaultTree.FaultTree;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.ui.dialogs.Dialog;
 
@@ -55,11 +56,11 @@ public class FMEDAPI {
 		List<ComponentInstance> result = new ArrayList<ComponentInstance>(componentset);
 		if (findsg == false) {
 			Dialog.showInfo("Get_Calcul_Instance",
-					"Can't find Safety Goal \"" + sg + "\" in Component \"" + ci.getName() + "\"");
+					"Can't find Safety Goal \"" + sg + "\" in Component \"" + ci.getName() + "\".");
 			return null;
 		}
 		if (result.size() == 0) {
-			Dialog.showInfo("Get_Calcul_Instance", "Can't find related sub component in Safety Goal \"" + sg + "\"");
+			Dialog.showInfo("Get_Calcul_Instance", "Can't find related sub component in Safety Goal \"" + sg + "\".");
 			return null;
 		}
 		return result;
@@ -88,11 +89,11 @@ public class FMEDAPI {
 		List<ComponentInstance> result = new ArrayList<ComponentInstance>(componentset);
 		if (findsg == false) {
 			Dialog.showInfo("Get_Calcul_Instance",
-					"Can't find Safety Goal \"" + sg + "\" in Component \"" + ci.getName() + "\"");
+					"Can't find Safety Goal \"" + sg + "\" in Component \"" + ci.getName() + "\".");
 			return null;
 		}
 		if (result.size() == 0) {
-			Dialog.showInfo("Get_Calcul_Instance", "Can't find related sub component in Safety Goal \"" + sg + "\"");
+			Dialog.showInfo("Get_Calcul_Instance", "Can't find related sub component in Safety Goal \"" + sg + "\".");
 			return null;
 		}
 		return result;
@@ -100,7 +101,6 @@ public class FMEDAPI {
 
 	// new 2
 	public List<Event> Get_Calcul_Event(String sg) {
-
 		boolean findsg = false;
 		Set<FailureElement> failureset = new HashSet<FailureElement>();
 		Set<Event> eventset = new HashSet<Event>();
@@ -121,14 +121,19 @@ public class FMEDAPI {
 		List<Event> result = new ArrayList<Event>(eventset);
 		if (findsg == false) {
 			Dialog.showInfo("Get_Calcul_Instance",
-					"Can't find Safety Goal \"" + sg + "\" in Component \"" + ci.getName() + "\"");
+					"Can't find Safety Goal \"" + sg + "\" in Component \"" + ci.getName() + "\".");
 			return null;
 		}
 		if (result.size() == 0) {
-			Dialog.showInfo("Get_Calcul_Instance", "Can't find related sub component in Safety Goal \"" + sg + "\"");
+			Dialog.showInfo("Get_Calcul_Instance", "Can't find related sub component in Safety Goal \"" + sg + "\".");
 			return null;
 		}
 		return result;
+	}
+
+	// get
+	public FaultTree getFaultTree() {
+		return fb.ftamodel;
 	}
 
 }

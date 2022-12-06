@@ -1,7 +1,6 @@
 package org.osate.iso26262.fmea;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.emf.common.util.EList;
@@ -13,7 +12,6 @@ import org.osate.aadl2.RecordValue;
 import org.osate.aadl2.errormodel.FaultTree.Event;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.iso26262.fmea.fixfta.FaultTreeUtils;
-import org.osate.ui.dialogs.Dialog;
 import org.osate.xtext.aadl2.errormodel.errorModel.EMV2PropertyAssociation;
 import org.osate.xtext.aadl2.errormodel.errorModel.ErrorTypes;
 import org.osate.xtext.aadl2.errormodel.errorModel.TypeToken;
@@ -127,23 +125,6 @@ public class Function {
 		}
 	}
 
-
-
-	public List<String> SplitFuncRequire(String func_require) {
-
-		if (func_require == null) {
-			return null;
-		}
-
-		List<String> requirelist = Arrays.asList(func_require.split("\\.")); // 分割字符串.
-		if (requirelist.size() > 1) {
-			return requirelist;
-		} else {
-			Dialog.showInfo("SplitFuncRequire", "No ‘.’ character to split");
-			return null;
-
-		}
-	}
 
 }
 

@@ -147,7 +147,6 @@ public class FaultTreeUtils {
 		newEvent.setRelatedInstanceObject(component);
 		newEvent.setRelatedEMV2Object(namedElement);
 		newEvent.setRelatedErrorType(type);
-//		System.out.println("### Create BasicEvent  ::  " + name);
 		System.out.println("### Create BasicEvent         ::  " + FaultTreeUtils.getDescription(newEvent) + " \t---\t "
 				+ newEvent.getName() + " \t-\t " + newEvent.getSubEventLogic());
 		return newEvent;
@@ -173,7 +172,6 @@ public class FaultTreeUtils {
 		newEvent.setRelatedInstanceObject(conni);
 		newEvent.setRelatedEMV2Object(namedElement);
 		newEvent.setRelatedErrorType(type);
-//		System.out.println("### Create BasicEvent  ::  " + name);
 		System.out.println("### Create BasicEvent  ::  " + FaultTreeUtils.getDescription(newEvent) + " \t---\t "
 				+ newEvent.getName() + " \t-\t " + newEvent.getSubEventLogic());
 		return newEvent;
@@ -293,15 +291,6 @@ public class FaultTreeUtils {
 
 		event.setAssignedProbability(
 				new BigDecimal(EMV2Properties.getProbability(io, ne, type), MathContext.UNLIMITED));
-
-//		//
-//		System.out.println("RelatedInstanceObject:::::::" + io.getName());
-//		System.out.println("RelatedEMV2Object:::::::" + ne.getName());
-//		System.out.println("RelatedErrorType:::::::" + EMV2Util.getPrintName(type));
-//		System.out.println("Event Name :::::::" + event.getName());
-//		System.out.println("Probability :::::::" + event.getProbability().toString());
-//		System.out.println("==================================");
-//		//
 	}
 
 	public static String getName(ComponentInstance component) {

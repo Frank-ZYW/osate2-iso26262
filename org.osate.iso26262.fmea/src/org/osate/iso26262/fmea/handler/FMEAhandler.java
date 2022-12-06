@@ -30,6 +30,7 @@ import java.util.List;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -48,6 +49,7 @@ import org.osate.aadl2.instantiation.InstantiateModel;
 import org.osate.iso26262.fmea.FmeaBuilder;
 import org.osate.iso26262.fmea.export.FileExport;
 import org.osate.iso26262.fmea.fixfta.FTAGenerator;
+import org.osate.ui.dialogs.Dialog;
 
 
 public final class FMEAhandler extends AbstractHandler {
@@ -59,7 +61,7 @@ public final class FMEAhandler extends AbstractHandler {
 
 //		InstanceObject object = getTarget(HandlerUtil.getCurrentSelection(event));
 //		if (object == null) {
-//			Dialog.showInfo("Fault Tree Analysis", "Please choose an instance model");
+//			Dialog.showInfo("Fault Tree Analysis", "Please choose an instance model!");
 //			return IStatus.ERROR;
 //		}
 //		SystemInstance si = object.getSystemInstance();
@@ -88,6 +90,10 @@ public final class FMEAhandler extends AbstractHandler {
 					e.printStackTrace();
 					return null;
 				}
+			}
+			if (rootInstance == null) {
+				Dialog.showInfo("InstantiateModel Error", "The model was not instantiated successfully.");
+				return IStatus.ERROR;
 			}
 			ComponentInstance target = rootInstance;
 			// 准备构建FMEA数据结构
