@@ -291,6 +291,9 @@ public class FTAGenerator extends PropagationGraphBackwardTraversal {
 	}
 
 	public static void removeEventOrphans(FaultTree ftaModel) {
+		if (ftaModel == null) {
+			return;
+		}
 		ArrayList<Event> TopEvents = getTopEvent(ftaModel);
 		List<Event> toRemove = new LinkedList<Event>();
 		for (Event ev : TopEvents) {

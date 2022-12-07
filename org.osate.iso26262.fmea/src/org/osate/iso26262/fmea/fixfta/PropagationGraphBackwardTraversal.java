@@ -443,6 +443,13 @@ public class PropagationGraphBackwardTraversal {
 		if (state == null) {
 			return null;
 		}
+
+//		if (EMV2Util.getName(component).equals("cmd")) {
+//			System.out.println("");
+//		} else {
+//			System.out.println(component.getName());
+//		}
+
 		List<EObject> subResults = new LinkedList<EObject>();
 		Collection<ErrorBehaviorTransition> transitions = EMV2Util.getAllErrorBehaviorTransitions(component);
 		BigDecimal combinedscale = inscale;
@@ -567,7 +574,6 @@ public class PropagationGraphBackwardTraversal {
 				// do not traverse back in same state
 				// we also do not traverse back if left is allstates.
 				if (conditionResult != null) {
-
 					EObject stateResult = null;
 					if (!(sameState || ebt.isAllStates())) {
 
@@ -926,9 +932,9 @@ public class PropagationGraphBackwardTraversal {
 	 */
 	protected EObject traverseIncomingErrorPropagation(ComponentInstance component, ErrorPropagation errorPropagation,
 			TypeToken proptype, BigDecimal scale) {
-//		if (EMV2Util.getName(component).equals("speed_ctrl")
-//				&& EMV2Util.getName(errorPropagation).equals("current_speed")
-//				&& EMV2Util.getName(proptype).equals("OutOfRange")) {
+//		if (FaultTreeUtils.getName(component).equals("sub2.cmd")
+//				&& EMV2Util.getName(errorPropagation).equals("processor")
+//				&& EMV2Util.getName(proptype).equals("HardwareFailure")) {
 //			System.out.println("");
 //		} else {
 //			System.out.println(component.getName() + "." + EMV2Util.getDirectionName(errorPropagation)
@@ -939,11 +945,11 @@ public class PropagationGraphBackwardTraversal {
 		if (filteredtypes.isEmpty()) {
 			return null;
 		}
-		boolean traversed = false;
+//		boolean traversed = false;
 		boolean hasCycle = false;
 		List<EObject> subResults = new LinkedList<EObject>();
 		for (TypeToken type : filteredtypes) {
-			boolean didProp = false;
+//			boolean didProp = false;
 			// we want to track cycles.
 			// we do that by tagging the feature instance of the error propagation with the error type (as token)
 			ErrorModelState st = null;
@@ -975,7 +981,7 @@ public class PropagationGraphBackwardTraversal {
 					if (ces != null && contains(ces.getTypeTokenConstraint(), type)) { // XXX filter type
 						EObject result = processConnectionErrorSource(ppr.getConnection(), ces, type, scale);
 						addSubresult(subResults, result);
-						didProp = true;
+//						didProp = true;
 					}
 					ComponentInstance contextCI = ppr.getConnection().getComponentInstance();
 					TypeTransformationSet tts = EMV2Util.getAllTypeTransformationSet(contextCI);
@@ -992,13 +998,13 @@ public class PropagationGraphBackwardTraversal {
 								EObject result = traverseOutgoingErrorPropagation(componentSource, propagationSource,
 										ntype, scale);
 								addSubresult(subResults, result);
-								didProp = true;
+//								didProp = true;
 							}
 						} else {
 							EObject result = traverseOutgoingErrorPropagation(componentSource, propagationSource, type,
 									scale);
 							addSubresult(subResults, result);
-							didProp = true;
+//							didProp = true;
 						}
 						// source of connection
 						newtype = reverseMapTypeTokenToSource(type, tts);
@@ -1009,13 +1015,13 @@ public class PropagationGraphBackwardTraversal {
 								EObject result = traverseOutgoingErrorPropagation(componentSource, propagationSource,
 										ntype, scale);
 								addSubresult(subResults, result);
-								didProp = true;
+//								didProp = true;
 							}
 						} else {
 							EObject result = traverseOutgoingErrorPropagation(componentSource, propagationSource, type,
 									scale);
 							if (!addSubresult(subResults, result)) {
-								didProp = true;
+//								didProp = true;
 							}
 						}
 					}
@@ -1027,31 +1033,34 @@ public class PropagationGraphBackwardTraversal {
 					// we have an external incoming propagation
 					EObject result = processIncomingErrorPropagation(componentSource, propagationSource, type, scale);
 					addSubresult(subResults, result);
-					didProp = true;
+//					didProp = true;
 				} else {
 					EObject result = traverseOutgoingErrorPropagation(componentSource, propagationSource, type, scale);
 					addSubresult(subResults, result);
-					didProp = true;
+//					didProp = true;
 				}
 			}
 			st.removeVisitedToken(errorPropagation, type);
-			if (didProp) {
-				traversed = true; // FIX FTA BUG
-			}
+//			if (didProp) {
+//				traversed = true; // FIX FTA BUG
+//			}
 		}
 		if (!subResults.isEmpty()) {
 			return postProcessIncomingErrorPropagation(component, errorPropagation, proptype, subResults, scale);
 		}
-//		if ( traversed || hasCycle) {
-		if (!traversed || hasCycle) {// FIX FTA BUG
-			return null;
-		}
+//		if ( traversed || hasCycle) {// FIX FTA BUG
+//			return null;
+//		}
 		if (!results.isEmpty()) {
 			if (results.size() == 1) {
 				return results.get(0);
 			}
 			return postProcessIncomingErrorPropagation(component, errorPropagation, proptype, results, scale);
 		} // FIX FTA BUG
+
+		if (hasCycle) {// FIX FTA BUG
+			return null;
+		}
 
 		// we have no subresults and did not prune. Allow handling of incoming propagation as endpoint of traversal
 		return processIncomingErrorPropagation(component, errorPropagation, proptype, scale);
