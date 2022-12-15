@@ -1,80 +1,75 @@
 property set ISO26262 is
-	with EMV2;
 
-	SeverityLabels: type enumeration (S0, S1, S2, S3);
-	ControllabilityLabels: type enumeration (C0, C1, C2, C3);
-	ExposureLabels: type enumeration (E0, E1, E2, E3, E4);
-	ASILLabels: type enumeration (QM, A, B, C, D);
-	SafetyRequireCategory: type enumeration (SG, FSR, TSR, HSR, SSR);
-	
-	OccurrenceDistribution: EMV2::DistributionSpecification
-	  applies to ({emv2}**error propagation, {emv2}**error flow, {emv2}**error behavior event,
-		{emv2}**error behavior state, {emv2}**error type, {emv2}**type set);
-		
+	SeverityLabels: type enumeration (S0, S1, S2, S3);                  -- Severity Labels: Can be used with ISO26262::Hazards
+	ControllabilityLabels: type enumeration (C0, C1, C2, C3);			-- Controllability Labels: Can be used with ISO26262::Hazards
+	ExposureLabels: type enumeration (E0, E1, E2, E3, E4);				-- Exposure Labels: Can be used with ISO26262::Hazards
+	ASILLabels: type enumeration (QM, A, B, C, D);						-- ASIL Labels: Can be used with ISO26262::Hazards
+	SafetyRequireCategory: type enumeration (SG, FSR, TSR, HSR, SSR);	-- SafetyRequire Labels: Can be used with ISO26262::Hazards
+	   	
 	Hazards:  list of record (
-		HazardName: aadlstring;
-		Description: aadlstring;
-		Mishap: aadlstring;
-		Evironment: aadlstring;
-		VerificationMethod: aadlstring;
-		CrossReference: aadlstring;
-		Comment: aadlstring;
-		Probability: aadlreal 0.0 .. 1.0;
+		HazardName: aadlstring;								-- name of a hazard / name of a failure mode in FMEA
+		Description: aadlstring;							-- description of a hazard
+		Mishap: aadlstring;									-- description of a hazard event ( hazard event = hazard + environment )
+		Environment: aadlstring;							-- environmental description of a hazard event
+		VerificationMethod: aadlstring;						-- verification method for handling hazards
+		CrossReference: aadlstring;							-- cross reference to an external document
+		Comment: aadlstring;								-- additional information about the hazard
+		Probability: aadlreal 0.0 .. 1.0;					-- probability of failure mode occurrence
 
-		Severity: ISO26262::SeverityLabels;
-		SeverityComment: aadlstring;
-		Exposure: ISO26262::ExposureLabels;
-		ExposureComment: aadlstring;
-		Controllability: ISO26262::ControllabilityLabels;
-		ControllabilityComment: aadlstring;
-		ASIL: ISO26262::ASILLabels;
+		Severity: ISO26262::SeverityLabels;					-- severity index in ISO26262
+		SeverityComment: aadlstring;						-- additional information about the severity
+		Exposure: ISO26262::ExposureLabels;					-- exposure index in ISO26262
+		ExposureComment: aadlstring;						-- additional information about the exposure
+		Controllability: ISO26262::ControllabilityLabels;	-- controllability index in ISO26262
+		ControllabilityComment: aadlstring;					-- additional information about the controllability
+		ASIL: ISO26262::ASILLabels;							-- automotive Safety Integration Level
 
-		SafetyDescription: aadlstring;
-		SafetyCategory: ISO26262::SafetyRequireCategory;
-		OperatMode: aadlstring;
-		FTTI: Time;
-		SafeState: aadlstring;
-		MissionTime: Time;
+		SafetyDescription: aadlstring;						-- description of safety requirements in ISO26262 / function description in FMEA
+		SafetyCategory: ISO26262::SafetyRequireCategory;	-- safety requirements in ISO 26262
+		OperatMode: aadlstring;								-- conditions of functional state that arise from the use and application of an item or element.
+		FTTI: Time;											-- fault tolerant time interval
+		SafeState: aadlstring;								-- operating mode, in case of a failure, of an item without an unreasonable level of risk.
+		MissionTime: Time;									-- mission time to calculate safety goal's failure rate (in the case of hardware, for hardware random failure rate PMHF)
 	)applies to ({emv2}**error type, {emv2}**type set, {emv2}**error behavior state,
 		{emv2}**error propagation, {emv2}**error event, {emv2}**error flow);
 		
 	--------------------
 	
 	FmeaHead: record (
-		CompanyName: aadlstring; -- 公司名称
-		EngineeringLocation: aadlstring; -- 工程地点
-		CustomerName: aadlstring; -- 顾客名称
-		ModelYearProgram: aadlstring; -- 车型年/项目
-		Subject: aadlstring; -- 项目
-		DFMEAStartData: aadlstring; -- DFMEA开始日期
-		DFMEARevisionData: aadlstring; -- DFMEA修订日期
-		CrossFuncTeam: aadlstring; -- 跨功能团队
-		DFMEAID: aadlstring; -- DFMEA编号
-		DesignResponsibility: aadlstring; -- 设计责任
-		ConfidentialityLevel: aadlstring; -- 保密等级
-		FocusComponent: aadlstring; -- 焦点元素
+		CompanyName: aadlstring; 						-- company name 		
+		EngineeringLocation: aadlstring; 				-- engineering location 	
+		CustomerName: aadlstring; 						-- customer name 			
+		ModelYearProgram: aadlstring; 					-- model years/programs 	
+		Subject: aadlstring; 							-- subject				 	
+		DFMEAStartData: aadlstring; 					-- DFMEA start date 		
+		DFMEARevisionData: aadlstring; 					-- DFMEA revision date 	
+		CrossFuncTeam: aadlstring; 						-- cross-functional team 
+		DFMEAID: aadlstring; 							-- DFMEA ID number 		
+		DesignResponsibility: aadlstring; 				-- design responsibility	
+		ConfidentialityLevel: aadlstring; 				-- confidentiality level 	
+		FocusComponent: aadlstring; 					-- focus component		
 	)applies to (all);
 	
-	FmeaRiskAnalysis: record (
-		Severity: aadlinteger 1 .. 10;
-		PC: aadlstring;
-		Occurrence: aadlinteger 1 .. 10;
-		DC: aadlstring;
-		Detection: aadlinteger 1 .. 10;
+	FmeaRiskAnalysis: record (	
+		Severity: aadlinteger 1 .. 10;					-- severity of failure effect 
+		PC: aadlstring;									-- current prevention control of failure cause 
+		Occurrence: aadlinteger 1 .. 10;				-- occurrence of failure cause 
+		DC: aadlstring;									-- current detection control of failure cause/failure mode
+		Detection: aadlinteger 1 .. 10;					-- detection of failure cause/failure mode
 	)applies to ({emv2}**error type, {emv2}**type set, {emv2}**error behavior state,
 		{emv2}**error propagation, {emv2}**error event, {emv2}**error flow);
 
 	FmeaOptimization: list of record (
-		OptPC: aadlstring;
-		OptDC: aadlstring;
-		ResponsPerson: aadlstring;
-		TargetCompletionData: aadlstring;
-		Status: aadlstring;
-		Evidence: aadlstring;
-		CompletionData: aadlstring;
-		OptOccurrence: aadlinteger 1 .. 10;
-		OptDetection: aadlinteger 1 .. 10;
-		Notes: aadlstring;
+		OptPC: aadlstring;								-- DFMEA optimized preventive action 
+		OptDC: aadlstring;								-- DFMEA optimized detection action 
+		ResponsPerson: aadlstring;						-- responsible person's name
+		TargetCompletionData: aadlstring;				-- target completion date
+		Status: aadlstring;								-- status
+		Evidence: aadlstring;							-- action taken with pointer to evidence
+		CompletionData: aadlstring;						-- completion date
+		OptOccurrence: aadlinteger 1 .. 10;				-- optimized occurrence
+		OptDetection: aadlinteger 1 .. 10;				-- optimized detection
+		Notes: aadlstring;								-- notes
 	)applies to ({emv2}**error type, {emv2}**type set, {emv2}**error behavior state,
 		{emv2}**error propagation, {emv2}**error event, {emv2}**error flow);
 		

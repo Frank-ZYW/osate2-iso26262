@@ -27,7 +27,7 @@ public class FailureElement {
 	public String name;
 	public String description;
 	public String mishap;
-	public String evironment;
+	public String environment;
 	public String verifivation;
 	public String crossreference;
 	public String comment;
@@ -98,7 +98,7 @@ public class FailureElement {
 			this.name = FmeaBuilder.getRecordStringProperty(fields, "HazardName");
 			this.description = FmeaBuilder.getRecordStringProperty(fields, "Description");
 			this.mishap = FmeaBuilder.getRecordStringProperty(fields, "Mishap");
-			this.evironment = FmeaBuilder.getRecordStringProperty(fields, "Evironment");
+			this.environment = FmeaBuilder.getRecordStringProperty(fields, "Environment");
 			this.verifivation = FmeaBuilder.getRecordStringProperty(fields, "VerificationMethod");
 			this.crossreference = FmeaBuilder.getRecordStringProperty(fields, "CrossReference");
 			this.comment = FmeaBuilder.getRecordStringProperty(fields, "Comment");
@@ -275,6 +275,11 @@ public class FailureElement {
 
 	public void getCauseLeaf(Set<FailureElement> failureset)
 	{
+		if (this.ref_component.getName().equals("Cruise_control_i")) {
+			System.out.println(this.ref_component.getName());
+		} else {
+			System.out.println(this.ref_component.getName());
+		}
 		if (!failureset.contains(this)) {
 			if (isFinalCause() && isFailureMode()) {
 				failureset.add(this);
