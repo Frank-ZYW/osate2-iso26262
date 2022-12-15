@@ -283,7 +283,7 @@ public class HARAReport {
 	protected void reportHeading(FileExport report) {
 
 		String[] Heads = new String[] { "Component", "Error Model Element", "HazardName", "Description", "Mishap",
-				"Evironment", "VerificationMethod", "CrossReference", "Comment", "Probability", "SeverityComment",
+				"Environment", "VerificationMethod", "CrossReference", "Comment", "Probability", "SeverityComment",
 				"Severity", "ControllabilityComment", "Controllability", "ExposureComment", "Exposure", "ASIL",
 				"SafetyDescription", "SafetyCategory", "OperatMode", "FTTI", "SafeState", "MissionTime" };
 		for (String headtext : Heads) {
@@ -330,7 +330,7 @@ public class HARAReport {
 
 			reportStringProperty(fields, "Mishap", report);
 
-			reportStringProperty(fields, "Evironment", report);
+			reportStringProperty(fields, "Environment", report);
 
 			reportStringProperty(fields, "VerificationMethod", report);
 

@@ -53,7 +53,9 @@ public class FMEDAPI {
 				break;
 			}
 		}
+		componentset.remove(ci);
 		List<ComponentInstance> result = new ArrayList<ComponentInstance>(componentset);
+
 		if (findsg == false) {
 			Dialog.showInfo("Get_Calcul_Instance",
 					"Can't find Safety Goal \"" + sg + "\" in Component \"" + ci.getName() + "\".");

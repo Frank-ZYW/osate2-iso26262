@@ -106,7 +106,7 @@ public class FileExport {
 		normalcf.setWrap(true);// 自动换行
 
 		repeatedcf = new WritableCellFormat(wf); // 单元格定义
-		repeatedcf.setBackground(jxl.format.Colour.RED); // 红色底纹
+		repeatedcf.setBackground(jxl.format.Colour.GRAY_25); // 灰色底纹
 		repeatedcf.setBorder(jxl.format.Border.ALL, jxl.format.BorderLineStyle.THIN);// 细边框
 		repeatedcf.setAlignment(jxl.format.Alignment.LEFT); // 水平靠左
 		repeatedcf.setVerticalAlignment(jxl.format.VerticalAlignment.TOP);// 垂直靠上
