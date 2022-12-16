@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.emf.common.util.URI;
@@ -57,10 +58,10 @@ public class FileExport {
 	public void ExportFMEAreport(FmeaBuilder fb) {
 		this.fb = fb;
 		// 创建文件
-		String pathname = getReportPathName("FMEA", fb.focus_component.ci);
-		file = new File(pathname);
+		file = getReportPathName("FMEA", fb.focus_component.ci);
+//		file = new File(pathname);
 		try {
-			file.createNewFile();
+//			file.createNewFile();
 			// 创建工作簿
 			workbook = Workbook.createWorkbook(file);
 			// 创建sheet
@@ -81,8 +82,10 @@ public class FileExport {
 			Dialog.showInfo("Failure Mode and Effect Analysis", "FMEA report generation complete!");
 
 		} catch (IOException e) {
+			Dialog.showInfo("IOException e", e.toString());
 			e.printStackTrace();
 		} catch (WriteException e) {
+			Dialog.showInfo("WriteException e", e.toString());
 			e.printStackTrace();
 		}
 
@@ -612,7 +615,7 @@ public class FileExport {
 
 
 
-	public String getReportPathName(String reporttype, ComponentInstance root) {
+	public File getReportPathName(String reporttype, ComponentInstance root) {
 
 		String filename = null;
 		reporttype = reporttype.replaceAll(" ", "");
@@ -620,8 +623,7 @@ public class FileExport {
 		URI uri = res.getURI();
 		IPath path = OsateResourceUtil.toIFile(uri).getFullPath();
 		path = path.removeFileExtension();
-//		filename = path.lastSegment() + "__" + reporttype;
-//		filename = root.getName() + "_" + reporttype;
+
 		filename = root instanceof SystemInstance
 				? root.getComponentClassifier().getName().replaceAll("::", "-").replaceAll("\\.", "-")
 				: root.getComponentInstancePath().replaceAll("::", "-").replaceAll("\\.", "-");
@@ -629,10 +631,18 @@ public class FileExport {
 		path = path.removeLastSegments(1).append("/reports/" + reporttype + "/" + filename);
 		path = path.addFileExtension(fileExtension);
 		AadlUtil.makeSureFoldersExist(path);
-		String relative_pathname = path.toString();
-		String prj_abs_path = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
 
-		return prj_abs_path + relative_pathname;
+		// create report file
+		IFile ifile = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
+		File file = ifile.getLocation().toFile();
+		try {
+			file.createNewFile();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			Dialog.showInfo("IOException e", e.toString());
+			e.printStackTrace();
+		}
+		return file;
 	}
 
 
