@@ -27,16 +27,23 @@ package org.osate.iso26262.hazard.handler;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
-import org.eclipse.xtext.ui.editor.outline.IOutlineNode;
-import org.osate.aadl2.ComponentImplementation;
 import org.osate.aadl2.instance.ComponentInstance;
-import org.osate.aadl2.instance.SystemInstance;
-import org.osate.aadl2.instantiation.InstantiateModel;
+import org.osate.aadl2.instance.InstanceObject;
+import org.osate.aadl2.modelsupport.EObjectURIWrapper;
+import org.osate.aadl2.modelsupport.resources.OsateResourceUtil;
 import org.osate.iso26262.hazard.HARAReport;
+import org.osate.ui.dialogs.Dialog;
 
 
 public final class HARAhandler extends AbstractHandler {
@@ -44,26 +51,35 @@ public final class HARAhandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
-//		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
-		IStructuredSelection selection = (IStructuredSelection) HandlerUtil.getCurrentSelection(event);
-		IOutlineNode node = (IOutlineNode) selection.getFirstElement();
-		node.readOnly(state -> {
-			SystemInstance rootInstance = null;
-			EObject selectedObject = state;
-			if (selectedObject instanceof SystemInstance) {
-				rootInstance = (SystemInstance) selectedObject;
-			}
-			if (selectedObject instanceof ComponentImplementation) {
-				try {
-					rootInstance = InstantiateModel
-							.buildInstanceModelFile((ComponentImplementation) selectedObject);
-				} catch (Exception e) {
-					e.printStackTrace();
-					return null;
-				}
-			}
+////		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
+//		IStructuredSelection selection = (IStructuredSelection) HandlerUtil.getCurrentSelection(event);
+//		IOutlineNode node = (IOutlineNode) selection.getFirstElement();
+//		node.readOnly(state -> {
+//			SystemInstance rootInstance = null;
+//			EObject selectedObject = state;
+//			if (selectedObject instanceof SystemInstance) {
+//				rootInstance = (SystemInstance) selectedObject;
+//			}
+//			if (selectedObject instanceof ComponentImplementation) {
+//				try {
+//					rootInstance = InstantiateModel
+//							.buildInstanceModelFile((ComponentImplementation) selectedObject);
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//					return null;
+//				}
+//			}
+//
+//			ComponentInstance target = rootInstance;
 
-			ComponentInstance target = rootInstance;
+		InstanceObject object = getTarget(HandlerUtil.getCurrentSelection(event));
+		if (object == null) {
+			Dialog.showWarning("Hazard Assessment", "Please choose an instance model!");
+			return IStatus.ERROR;
+			}
+		ComponentInstance target = object instanceof ComponentInstance ? (ComponentInstance) object
+				: object.getSystemInstance();
+
 			System.out.println("Start!!!!!");
 
 			HARAReport report = new HARAReport();
@@ -71,9 +87,38 @@ public final class HARAhandler extends AbstractHandler {
 
 			System.out.println("FINISH!!");
 
-		return Status.OK_STATUS;
-		});
+			Dialog.showInfo("Hazard Assessment", "Hazard report generation complete!");
+
+//		return Status.OK_STATUS;
+//		});
 		return Status.error("error");
+	}
+
+	private InstanceObject getTarget(ISelection currentSelection) {
+		if (currentSelection instanceof IStructuredSelection) {
+			IStructuredSelection iss = (IStructuredSelection) currentSelection;
+			if (iss.size() == 1) {
+				Object obj = iss.getFirstElement();
+				if (obj instanceof InstanceObject) {
+					return (InstanceObject) obj;
+				}
+				if (obj instanceof EObjectURIWrapper) {
+					EObject eObject = new ResourceSetImpl().getEObject(((EObjectURIWrapper) obj).getUri(), true);
+					if (eObject instanceof InstanceObject) {
+						return (InstanceObject) eObject;
+					}
+				}
+				if (obj instanceof IFile) {
+					URI uri = OsateResourceUtil.toResourceURI((IFile) obj);
+					Resource res = new ResourceSetImpl().getResource(uri, true);
+					EList<EObject> rl = res.getContents();
+					if (!rl.isEmpty()) {
+						return (InstanceObject) rl.get(0);
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 

@@ -58,7 +58,7 @@ public class FileExport {
 	public void ExportFMEAreport(FmeaBuilder fb) {
 		this.fb = fb;
 		// 创建文件
-		file = getReportPathName("FMEA", fb.focus_component.ci);
+		file = getReportPathName("fmea", fb.focus_component.ci);
 //		file = new File(pathname);
 		try {
 //			file.createNewFile();
@@ -450,10 +450,16 @@ public class FileExport {
 			sheet.mergeCells(column, absrow + row, column, absrow + eri.maxrows);
 		}
 
+
 		if (eri.suberror.size() > 0) {
+			int rowcounter = 0;
 			for (int i = 0; i < eri.suberror.size(); i++) {
 				FailureElement fmi = eri.suberror.get(i);
 				int rownums = eri.rowandrownums.get(i).getValue();
+				if (i == eri.suberror.size() - 1) {
+					rownums = eri.maxrows - rowcounter;
+				}
+				rowcounter += rownums;
 				Report_Risk(fmi, absrow, rownums, maxS == 0 ? null : maxS);
 				absrow = absrow + rownums;
 			}
@@ -627,7 +633,9 @@ public class FileExport {
 		filename = root instanceof SystemInstance
 				? root.getComponentClassifier().getName().replaceAll("::", "-").replaceAll("\\.", "-")
 				: root.getComponentInstancePath().replaceAll("::", "-").replaceAll("\\.", "-");
+		filename += "_of_" + path.lastSegment();
 		filename += "_" + reporttype;
+
 		path = path.removeLastSegments(1).append("/reports/" + reporttype + "/" + filename);
 		path = path.addFileExtension(fileExtension);
 		AadlUtil.makeSureFoldersExist(path);

@@ -46,7 +46,7 @@ public class HARAReport {
 
 
 	public void doHARAReport(SystemInstance si) {
-		FileExport report = new FileExport("HARA", si);
+		FileExport report = new FileExport("hazard", si);
 
 
 		report.prepare();
@@ -226,9 +226,9 @@ public class HARAReport {
 
 				PropertyExpression peVal = modalPropertyValue.getOwnedValue();
 				ListValue lv = (ListValue) peVal;
-				if (reportEnumerationOrIntegerPropertyConstantPropertyValue(
-						((RecordValue) lv.getOwnedListElements().get(0)).getOwnedFieldValues(), "SafetyCategory", null)
-						.equals("SG")) {
+//				if (reportEnumerationOrIntegerPropertyConstantPropertyValue(
+//						((RecordValue) lv.getOwnedListElements().get(0)).getOwnedFieldValues(), "SafetyCategory", null)
+//						.equals("SG")) {
 				for (PropertyExpression pe : lv.getOwnedListElements()) {
 					EList<BasicPropertyAssociation> fields = ((RecordValue) pe).getOwnedFieldValues();
 
@@ -271,7 +271,7 @@ public class HARAReport {
 					}
 				}
 			}
-			}
+//			}
 		}
 		report.mergecell(1, report.currow - absrows, 1, report.currow - 1);
 		report.mergecell(2, report.currow - absrows, 2, report.currow - 1);
@@ -311,13 +311,15 @@ public class HARAReport {
 			String Exposure;
 			String ASIL;
 
-			String componentName = ci.getName();
+			String componentName = ci instanceof SystemInstance
+					? ((SystemInstance) ci).getComponentClassifier()
+							.getName()
+							.replaceAll("::", "_")
+							.replaceAll("\\.", "_")
+					: ci.getComponentInstancePath();
 			if ((ci.getContainingComponentInstance() != null)
 					&& (ci.getContainingComponentInstance() != ci.getSystemInstance())) {
 				componentName = ci.getContainingComponentInstance().getName() + "/" + componentName;
-			}
-			if (ci instanceof SystemInstance) {
-				componentName = "Root system";
 			}
 			// component name & error propagation name/type
 			report.addcell(componentName);

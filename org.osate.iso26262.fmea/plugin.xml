@@ -22,7 +22,7 @@
             class="org.osate.iso26262.fmea.handler.FMEAhandler"
             commandId="org.osate.iso26262.fmea.command">
          <enabledWhen>
-            <reference definitionId="org.osate.ui.definition.instanceAnalysisCommandEnabled"/>
+            <reference definitionId="org.osate.ui.definition.isInstanceFileOrComponentInstanceSelected"/>
          </enabledWhen>
       </handler>
    </extension>

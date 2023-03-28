@@ -6,14 +6,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.osate.aadl2.instance.InstanceObject;
+import org.osate.aadl2.instance.ComponentInstance;
+import org.osate.aadl2.instance.SystemInstance;
 import org.osate.aadl2.modelsupport.resources.OsateResourceUtil;
 import org.osate.aadl2.modelsupport.util.AadlUtil;
+import org.osate.ui.dialogs.Dialog;
 
 import jxl.CellView;
 import jxl.Workbook;
@@ -45,8 +48,8 @@ public class FileExport {
 	int curcolumn;
 	int currow;
 
-	FileExport(String reporttype, InstanceObject root) {
-		pathname = getReportPathName(reporttype, root);
+	FileExport(String reporttype, ComponentInstance root) {
+		file = getReportPathName(reporttype, root);
 	}
 
 	public void setSuffix(String suffix) {
@@ -123,8 +126,8 @@ public class FileExport {
 		try {
 			curcolumn = 0;
 			currow = 0;
-			file = new File(pathname);
-			file.createNewFile();
+//			file = new File(pathname);
+//			file.createNewFile();
 			// 创建工作簿
 			workbook = Workbook.createWorkbook(file);
 			// 创建sheet
@@ -197,7 +200,7 @@ public class FileExport {
 	}
 
 
-	public String getReportPathName(String reporttype, InstanceObject root) {
+	public File getReportPathName(String reporttype, ComponentInstance root) {
 
 		String filename = null;
 		reporttype = reporttype.replaceAll(" ", "");
@@ -205,15 +208,36 @@ public class FileExport {
 		URI uri = res.getURI();
 		IPath path = OsateResourceUtil.toIFile(uri).getFullPath();
 		path = path.removeFileExtension();
-//		filename = path.lastSegment() + "__" + reporttype;
-		filename = root.getName() + "__" + reporttype;
+
+		filename = root instanceof SystemInstance
+				? root.getComponentClassifier().getName().replaceAll("::", "-").replaceAll("\\.", "-")
+				: root.getComponentInstancePath().replaceAll("::", "-").replaceAll("\\.", "-");
+		filename += "_of_" + path.lastSegment();
+		filename += "_" + reporttype;
 		path = path.removeLastSegments(1).append("/reports/" + reporttype + "/" + filename);
 		path = path.addFileExtension(fileExtension);
 		AadlUtil.makeSureFoldersExist(path);
-		String relative_pathname = path.toString();
-		String prj_abs_path = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
 
-		return prj_abs_path + relative_pathname;
+		// create report file
+		IFile ifile = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
+		File file = ifile.getLocation().toFile();
+		try {
+			file.createNewFile();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			Dialog.showInfo("IOException e", e.toString());
+			e.printStackTrace();
+		}
+		return file;
+////		filename = path.lastSegment() + "__" + reporttype;
+//		filename = root.getName() + "__" + reporttype;
+//		path = path.removeLastSegments(1).append("/reports/" + reporttype + "/" + filename);
+//		path = path.addFileExtension(fileExtension);
+//		AadlUtil.makeSureFoldersExist(path);
+//		String relative_pathname = path.toString();
+//		String prj_abs_path = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
+//
+//		return prj_abs_path + relative_pathname;
 	}
 
 
