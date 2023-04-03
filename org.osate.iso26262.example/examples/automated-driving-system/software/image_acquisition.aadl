@@ -44,7 +44,7 @@ annex EMV2 {**
 				  SafetyDescription=>"Output obstacle detection data";]) applies to  obstacle_detected.ItemOmission; 
 		ISO26262::hazards =>([ HazardName =>"Invalid obstacle detection data";
 				  SafetyDescription=>"Output obstacle detection data";]) applies to  obstacle_detected.OutOfRange; 	
-		ISO26262::FMEDASafetyProperties => [FailureRate => 0.01; SafetyRelated => false;] applies to FmedaState;	
+		ISO26262::FMEDASafetyProperties => [FailureRate => 1.0; SafetyRelated => false;] applies to FmedaState;	
 		ISO26262::FailureMode => [	ModeName => "Unable to handle and output the correct speed";
 				  	  			 	Distribution => 100.0;
 				  	  				Violate_SP_Satety => false;

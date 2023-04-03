@@ -86,12 +86,12 @@ annex EMV2 {**
 				  SafetyDescription=>"Able to give the correct acceleration command to the accelerator";]) applies to  speed_cmd.ItemOmission;
 		ISO26262::hazards =>([ HazardName =>"Loss of warning information";
 				  SafetyDescription=>"Able to send warning information in emergency situations";]) applies to  warning.ItemOmission;
-		ISO26262::FMEDASafetyProperties => [FailureRate => 0.01; SafetyRelated => false;] applies to FmedaState;	
+		ISO26262::FMEDASafetyProperties => [FailureRate => 1.0; SafetyRelated => true;] applies to FmedaState;	
 		ISO26262::FailureMode => [	ModeName => "Unable to handle and output the correct speed";
 				  	  			 	Distribution => 100.0;
-				  	  				Violate_SP_Satety => false;
---				  	  				SPF_SM => "SM2";
---					  				SPF_DC => 95.0;
+				  	  				Violate_SP_Satety => true;
+				  	  				SPF_SM => "SM2";
+					  				SPF_DC => 95.0;
 				 	  				Violate_MP_Satety => false;
 				  				] applies to FailStop;								 	
 		EMV2::OccurrenceDistribution => [ ProbabilityValue => 0.5e-5 ; Distribution => Poisson;] applies to Failure;

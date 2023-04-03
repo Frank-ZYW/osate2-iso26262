@@ -45,7 +45,7 @@ annex EMV2 {**
 				  SafetyDescription=>"Determines whether there is an actual obstacle on the road";]) applies to  FailStop;
 		ISO26262::hazards =>([ HazardName =>"Loss of obstacle_position";
 				  SafetyDescription=>"Output the obstacle position";]) applies to  obstacle_position.ItemOmission; 
-		ISO26262::FMEDASafetyProperties => [FailureRate => 0.01; SafetyRelated => false;] applies to FmedaState;	
+		ISO26262::FMEDASafetyProperties => [FailureRate => 2.0; SafetyRelated => false;] applies to FmedaState;	
 		ISO26262::FailureMode => [	ModeName => "Unable to handle and output the correct speed";
 				  	  			 	Distribution => 100.0;
 				  	  				Violate_SP_Satety => false;

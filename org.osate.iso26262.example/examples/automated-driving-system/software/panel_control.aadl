@@ -46,12 +46,12 @@ annex EMV2 {**
 				  SafetyDescription=>"Output the desired speed";]) applies to  desired_speed.OutOfRange;
 		ISO26262::hazards =>([ HazardName =>"Invalid tire pressure";
 				  SafetyDescription=>"Output the  tire pressure";]) applies to  tire_pressure_out.OutOfRange;  
-		ISO26262::FMEDASafetyProperties => [FailureRate => 0.01; SafetyRelated => false;] applies to FmedaState;	
+		ISO26262::FMEDASafetyProperties => [FailureRate => 1.0; SafetyRelated => true;] applies to FmedaState;	
 		ISO26262::FailureMode => [	ModeName => "Unable to handle and output the correct speed";
 				  	  			 	Distribution => 100.0;
-				  	  				Violate_SP_Satety => false;
---				  	  				SPF_SM => "SM2";
---					  				SPF_DC => 95.0;
+				  	  				Violate_SP_Satety => true;
+				  	  				SPF_SM => "SM2";
+					  				SPF_DC => 95.0;
 				 	  				Violate_MP_Satety => false;
 				  				] applies to FailStop;
 		EMV2::OccurrenceDistribution => [ ProbabilityValue => 0.5e-5 ; Distribution => Poisson;] applies to ef5;
