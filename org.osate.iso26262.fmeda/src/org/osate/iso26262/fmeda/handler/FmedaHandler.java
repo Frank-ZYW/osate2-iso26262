@@ -38,6 +38,7 @@ import org.osate.iso26262.fmeda.report.FmedaReportGenerator;
 import org.osate.iso26262.fmeda.util.PropertyParseUtil;
 import org.osate.ui.dialogs.Dialog;
 import org.osate.xtext.aadl2.errormodel.errorModel.ErrorBehaviorState;
+import org.osate.xtext.aadl2.errormodel.errorModel.ErrorPropagation;
 import org.osate.xtext.aadl2.errormodel.util.EMV2Util;
 
 import jxl.write.WriteException;
@@ -105,7 +106,7 @@ public class FmedaHandler extends AbstractHandler {
 		List<ComponentInstance> ciList = new ArrayList<ComponentInstance>();
 
 		if (USE_FMEA) {
-			ciList = api.Get_Calcul_Instance(target, SAFETY_GOAL);
+			ciList = api.Get_Calcul_Instance(SAFETY_GOAL);
 		} else {
 			ciList = EcoreUtil2.getAllContentsOfType(target, ComponentInstance.class);
 			// if no sub-components then add itself
@@ -246,17 +247,18 @@ public class FmedaHandler extends AbstractHandler {
 								.getPropertyField("ISO26262::FailureMode", ci, state_, state_.getTypeSet());
 
 						if (fmField != null) {
-							FmedaFaultMode fm = new FmedaFaultMode();
+							FmedaFaultMode fm = getFmedaFaultMode(fmField, state_.getFullName());
+							fp.addFmedaFaultMode(fm);
+						}
+					}
 
-							fm.modeName = PropertyParseUtil.getStringProperty(fmField, "modename", state_.getFullName());
-							fm.distribution = PropertyParseUtil.getDoubleProperty(fmField, "distribution", 0.0);
-							fm.hasSPF = PropertyParseUtil.getBooleanProperty(fmField, "violate_sp_satety", false);
-							fm.spf_SM = PropertyParseUtil.getStringProperty(fmField, "spf_sm", "none");
-							fm.spf_DC = PropertyParseUtil.getDoubleProperty(fmField, "spf_dc", 0.0);
-							fm.hasMPF = PropertyParseUtil.getBooleanProperty(fmField, "violate_mp_satety", false);
-							fm.mpf_SM = PropertyParseUtil.getStringProperty(fmField, "mpf_sm", "none");
-							fm.mpf_DC = PropertyParseUtil.getDoubleProperty(fmField, "mpf_dc", 0.0);
+					for (ErrorPropagation ep : EMV2Util.getAllOutgoingErrorPropagations(ci.getComponentClassifier())) {
 
+						EList<BasicPropertyAssociation> fmField = PropertyParseUtil
+								.getPropertyField("ISO26262::FailureMode", ci, ep, ep.getTypeSet());
+
+						if (fmField != null) {
+							FmedaFaultMode fm = getFmedaFaultMode(fmField, ep.getFullName());
 							fp.addFmedaFaultMode(fm);
 						}
 					}
@@ -264,6 +266,24 @@ public class FmedaHandler extends AbstractHandler {
 			}
 		}
 		return fp;
+	}
+
+	/**
+	 * Get FMEDA fault mode
+	**/
+	private FmedaFaultMode getFmedaFaultMode(EList<BasicPropertyAssociation> fmField, String defaultModeName) {
+		FmedaFaultMode fm = new FmedaFaultMode();
+
+		fm.modeName = PropertyParseUtil.getStringProperty(fmField, "modename", defaultModeName);
+		fm.distribution = PropertyParseUtil.getDoubleProperty(fmField, "distribution", 0.0);
+		fm.hasSPF = PropertyParseUtil.getBooleanProperty(fmField, "violate_sp_satety", false);
+		fm.spf_SM = PropertyParseUtil.getStringProperty(fmField, "spf_sm", "none");
+		fm.spf_DC = PropertyParseUtil.getDoubleProperty(fmField, "spf_dc", 0.0);
+		fm.hasMPF = PropertyParseUtil.getBooleanProperty(fmField, "violate_mp_satety", false);
+		fm.mpf_SM = PropertyParseUtil.getStringProperty(fmField, "mpf_sm", "none");
+		fm.mpf_DC = PropertyParseUtil.getDoubleProperty(fmField, "mpf_dc", 0.0);
+
+		return fm;
 	}
 
 }
