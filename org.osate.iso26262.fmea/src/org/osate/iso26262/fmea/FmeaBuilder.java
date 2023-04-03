@@ -130,16 +130,12 @@ public class FmeaBuilder {
 		}
 		FailureElement fm = getFailureElement(top);
 		FailureElement tfm = getFailureElement(ev);
-		if (fm.failure_cause.contains(tfm)) {
-			return;
-		}
-		fm.failure_cause.add(tfm);
-		tfm.failure_effect.add(fm);
 
-
-		if (fm.ref_func != null && tfm.ref_func != null) {
+		if (fm.ref_func != null && tfm.ref_func != null && tfm.ref_func != fm.ref_func) {
 			if (!fm.ref_func.func_cause.contains(tfm.ref_func)) {
 				fm.ref_func.func_cause.add(tfm.ref_func);
+			}
+			if (!tfm.ref_func.func_effect.contains(fm.ref_func)) {
 				tfm.ref_func.func_effect.add(fm.ref_func);
 			}
 		}
@@ -152,12 +148,20 @@ public class FmeaBuilder {
 		} else if (tfm.ref_func == null) {
 			ref_func = topfunc;
 		} else {
-			if (!topfunc.func_cause.contains(tfm.ref_func)) {
+			if (!topfunc.func_cause.contains(tfm.ref_func) && topfunc != tfm.ref_func) {
 				topfunc.func_cause.add(tfm.ref_func);
+			}
+			if (!tfm.ref_func.func_effect.contains(topfunc) && topfunc != tfm.ref_func) {
 				tfm.ref_func.func_effect.add(topfunc);
 			}
 			ref_func = tfm.ref_func;
 		}
+
+		if (fm.failure_cause.contains(tfm)) {
+			return;
+		}
+		fm.failure_cause.add(tfm);
+		tfm.failure_effect.add(fm);
 
 
 

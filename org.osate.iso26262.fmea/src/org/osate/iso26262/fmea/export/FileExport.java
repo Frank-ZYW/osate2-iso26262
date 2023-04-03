@@ -39,7 +39,7 @@ public class FileExport {
 
 	public static boolean ONLY_FINAL_FAILURE = false;
 	public static boolean ONLY_FAILUREMODES = false;
-	public static boolean SHOW_INSTANCE_NAME = false;
+	public static boolean SHOW_INSTANCE_NAME = true;
 
 	EObject root;
 	String fileExtension = "xls";
@@ -316,7 +316,7 @@ public class FileExport {
 			for (int i = 0; i < fci.supfunc.size(); i++) {
 				prefix = getprefix(fci.suplevelmap.get(i) - 1, "<");
 				if (SHOW_INSTANCE_NAME) {
-					prefix += "\"" + fci.supfunc.get(i).ref_component.getName() + "\"";
+					prefix += "\"" + fci.supfunc.get(i).ref_component.getName() + "\": ";
 				}
 				sheet.addCell(new Label(column, absrow + row, prefix + fci.supfunc.get(i).funcname, normalcf));
 				if (i == fci.supfunc.size() - 1 && row < fci.maxrows) {
@@ -343,7 +343,7 @@ public class FileExport {
 			for (int i = 0; i < fci.subfunc.size(); i++) {
 				prefix = getprefix(fci.sublevelmap.get(i) - 1, ">");
 				if (SHOW_INSTANCE_NAME) {
-					prefix += "\"" + fci.subfunc.get(i).ref_component.getName() + "\"";
+					prefix += "\"" + fci.subfunc.get(i).ref_component.getName() + "\": ";
 				}
 				sheet.addCell(new Label(column, absrow + row, prefix + fci.subfunc.get(i).funcname, normalcf));
 				if (i == fci.subfunc.size() - 1 && row < fci.maxrows) {
@@ -384,7 +384,7 @@ public class FileExport {
 			for (int i = 0; i < eri.superror.size(); i++) {
 				prefix = getprefix(eri.suplevelmap.get(i) - 1, "<");
 				if (SHOW_INSTANCE_NAME) {
-					prefix += "\"" + eri.superror.get(i).ref_component.getName() + "\"";
+					prefix += "\"" + eri.superror.get(i).ref_component.getName() + "\": ";
 				}
 				WritableCellFormat formate = normalcf;
 				// 1.下一个更高级别的元素或最终用户的故障后果
@@ -431,7 +431,7 @@ public class FileExport {
 				int rows = Math.max(eri.suberror.get(i).optimizations.size(), 1);
 				prefix = getprefix(eri.sublevelmap.get(i) - 1, ">");
 				if (SHOW_INSTANCE_NAME) {
-					prefix += "\"" + eri.suberror.get(i).ref_component.getName() + "\"";
+					prefix += "\"" + eri.suberror.get(i).ref_component.getName() + "\": ";
 				}
 				WritableCellFormat formate = normalcf;
 				if (eri.subrepeated.get(i) == true) {

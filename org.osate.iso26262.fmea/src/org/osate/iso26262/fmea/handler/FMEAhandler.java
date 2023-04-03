@@ -59,7 +59,7 @@ import org.osate.ui.dialogs.Dialog;
 
 public final class FMEAhandler extends AbstractHandler {
 	static String selectfocusname;
-	static Boolean showfailurenet = false;
+	static Boolean showfailurenet = true;
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {

@@ -3,6 +3,7 @@ package org.osate.iso26262.fmea;
 import java.util.HashMap;
 
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EObject;
 import org.osate.aadl2.BasicPropertyAssociation;
 import org.osate.aadl2.DirectionType;
 import org.osate.aadl2.Property;
@@ -11,6 +12,8 @@ import org.osate.aadl2.RecordValue;
 import org.osate.aadl2.errormodel.FaultTree.Event;
 import org.osate.aadl2.instance.ComponentInstance;
 import org.osate.aadl2.properties.PropertyNotPresentException;
+import org.osate.iso26262.fmea.fixfta.FaultTreeUtils;
+import org.osate.xtext.aadl2.errormodel.errorModel.ErrorBehaviorState;
 import org.osate.xtext.aadl2.errormodel.errorModel.ErrorPropagation;
 import org.osate.xtext.aadl2.properties.util.GetProperties;
 
@@ -61,14 +64,17 @@ public class Structure {
 
 
 	public FailureElement creatFailureElement(Event ev) {
+		if (FaultTreeUtils.getDescription(ev).toLowerCase().contains("fmedastate")) {
+			return null;
+		}
 
 		FailureElement fmi = new FailureElement(ev);
 
 		fmi.ref_component = this;
 		failure_modes.put(fmi.id, fmi);
-
-		if (!(ev.getRelatedEMV2Object() instanceof ErrorPropagation)
-				|| ((ErrorPropagation) ev.getRelatedEMV2Object()).getDirection() != DirectionType.IN) {
+		EObject failure_object = ev.getRelatedEMV2Object();
+		if (failure_object instanceof ErrorBehaviorState || (failure_object instanceof ErrorPropagation
+						&& ((ErrorPropagation) failure_object).getDirection() == DirectionType.OUT)) {
 			Function fi = new Function(ev);
 			fi.ref_component = this;
 			Function reff = null;

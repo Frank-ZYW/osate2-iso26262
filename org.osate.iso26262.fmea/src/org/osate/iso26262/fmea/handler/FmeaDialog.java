@@ -30,10 +30,10 @@ public class FmeaDialog extends TitleAreaDialog {
 	private Boolean onlyfailuremodes = false;
 
 	private Button showinstancenameBox;
-	private Boolean showinstancename = true;
+	private Boolean showinstancename = false;
 
 	private Button graphicViewBox;
-	private Boolean isGraphicView = true;
+	private Boolean isGraphicView = false;
 
 	public static Boolean OKpressed = false;
 

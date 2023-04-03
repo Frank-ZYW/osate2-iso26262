@@ -275,11 +275,7 @@ public class FailureElement {
 
 	public void getCauseLeaf(Set<FailureElement> failureset)
 	{
-		if (this.ref_component.getName().equals("Cruise_control_i")) {
-			System.out.println(this.ref_component.getName());
-		} else {
-			System.out.println(this.ref_component.getName());
-		}
+
 		if (!failureset.contains(this)) {
 			if (isFinalCause() && isFailureMode()) {
 				failureset.add(this);
