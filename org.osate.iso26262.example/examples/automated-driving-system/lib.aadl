@@ -1,0 +1,23 @@
+package lib
+public
+      annex EMV2 {**
+
+		error behavior FailStop
+		events
+			Failure : error event ;
+		states
+			Operational : initial state ;
+			FmedaState: state;
+			FailStop : state ;
+		transitions
+			FailureTransition : Operational -[ Failure ]-> FailStop ;
+		end behavior ;
+		
+		error behavior empty
+		states
+			FmedaState: state;
+		end behavior ;
+
+      **};
+
+end lib;

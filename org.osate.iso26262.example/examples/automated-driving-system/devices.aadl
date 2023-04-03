@@ -1,0 +1,522 @@
+package aadlbook::devices
+
+public
+
+with aadlbook::icd;
+with aadlbook::platform;
+with emv2;
+
+-----------------------------------
+--  Camera and Object Detection  --
+-----------------------------------
+
+device camera
+features
+	picture : out data port aadlbook::icd::picture;
+flows
+	f0 : flow source picture;
+properties 
+	Period => 200ms;
+	compute_execution_time => 20 ms .. 50 ms;
+annex EMV2 {**
+	use types 		ErrorLibrary;
+	use behavior  	lib::empty;
+
+	error propagations
+		picture : out propagation {ItemOmission};
+	flows
+		ef0 : error source picture{ItemOmission};
+	end propagations;
+
+	properties
+  		ISO26262::hazards =>([ HazardName =>"Loss of picture from the camera";
+				  			   SafetyDescription=>"Sends the raw picture to a software component";
+				  			   SafetyCategory=>FSR;
+				  			   Comment=>"Would impact the detection of obstacle if the radar is not working as well";]) applies to picture.itemomission; 
+		ISO26262::FmeaRiskAnalysis=>[ PC=>"NONE";
+									  Occurrence=>7;
+									  DC=>"NONE";
+									  Detection=>10;] applies to picture.itemomission;					 											 	
+		ISO26262::FmeaOptimization=>([ OptPC=>"Automatic calibration of the camera";
+		  							   OptDC=>"Real-time monitoring";
+									   ResponsPerson=>"David";
+									   TargetCompletionData=>"2023/3/15";
+									   Status=>"in progress";
+									   OPTOccurrence=>5;
+									   OPTDetection=>6;]) applies to picture.itemomission;
+		ISO26262::FMEDASafetyProperties => [FailureRate => 2.0; SafetyRelated => true;] applies to FmedaState;
+		ISO26262::FailureMode => [ ModeName => "Loss of picture from the camera";
+				  	  			   Distribution => 100.0;
+				  	  			   Violate_SP_Satety => false;
+--				  	  			   SPF_SM => "SM2";
+--					  			   SPF_DC => 99.0;
+				 	  			   Violate_MP_Satety => true;
+				 	  			   MPF_SM => "SM3";
+					  			   MPF_DC => 90.0;
+				  				] applies to picture.itemomission;
+	    emv2::occurrencedistribution => [ probabilityValue => 0.01e-4 ; Distribution => Poisson;] applies to picture.itemomission;
+**};	
+end camera;
+
+device camera0 extends camera
+annex EMV2 {**
+	properties
+		ISO26262::FailureMode => [ ModeName => "Loss of picture from the camera";
+				  	  			   Distribution => 100.0;
+				  	  			   Violate_SP_Satety => true;
+--				  	  			   SPF_SM => "SM2";
+--					  			   SPF_DC => 99.0;
+				 	  			   Violate_MP_Satety => false;
+--				 	  			   MPF_SM => "SM3";
+--					  			   MPF_DC => 90.0;
+				  				] applies to picture.itemomission;
+**};
+end camera0;
+
+device radar
+features
+	distance_estimate : out data port aadlbook::icd::obstacle_position.i;
+flows
+	f0 : flow source distance_estimate;
+properties 
+	Period => 10ms;
+	compute_execution_time => 6 ms .. 8 ms;
+annex EMV2 {**
+	use types 		ErrorLibrary;
+	use behavior  	lib::empty;
+
+	error propagations
+		distance_estimate : out propagation {ItemOmission,OutOfRange};
+	flows
+		ef0 : error source distance_estimate{ItemOmission,OutOfRange};
+	end propagations;
+
+	properties
+  		ISO26262::hazards =>([ HazardName =>"Loss of information from the Radar";
+				  SafetyDescription=>"Detects an obstacle on the road";
+				  SafetyCategory=>FSR;
+				   Comment=>"Error if both the camera and the radar does not send any value";]) applies to  distance_estimate.ItemOmission; 
+  		ISO26262::hazards =>([ HazardName =>"Invalid distance sent by the radar";
+		  		  SafetyDescription=>"Detects an obstacle on the road";
+		  		  SafetyCategory=>FSR;
+		  		   Comment=>"First occurrences of invalid data Should be handled by the distance estimator.";]) applies to  distance_estimate.OutOfRange; 
+		ISO26262::FmeaRiskAnalysis=>[	PC=>"NONE";
+									 	Occurrence=>6;
+									 	DC=>"NONE";
+									 	Detection=>7;] applies to distance_estimate.ItemOmission;					 											 	
+		ISO26262::FmeaOptimization=>([OptPC=>"Automatic calibration of the camera";
+		  								OptDC=>"Real-time monitoring";
+									 	ResponsPerson=>"David";
+									 	TargetCompletionData=>"2023/3/15";
+									 	Status=>"in progress";
+									 	OPTOccurrence=>3;
+									 	OPTDetection=>4;]) applies to distance_estimate.ItemOmission;
+		ISO26262::FmeaRiskAnalysis=>[	PC=>"NONE";
+									 	Occurrence=>6;
+									 	DC=>"NONE";
+									 	Detection=>7;] applies to distance_estimate.OutOfRange;					 											 	
+		ISO26262::FmeaOptimization=>([OptPC=>"Data redundancy";
+		  								OptDC=>"Fault diagnosis";
+									 	ResponsPerson=>"David";
+									 	TargetCompletionData=>"2023/3/15";
+									 	Status=>"in progress";
+									 	OPTOccurrence=>3;
+									 	OPTDetection=>4;]) applies to distance_estimate.OutOfRange;	
+		ISO26262::FMEDASafetyProperties => [FailureRate =>2.0; SafetyRelated => true;] applies to FmedaState;
+		ISO26262::FailureMode => [	ModeName => "Loss of information from the Radar";
+				  	  			 	Distribution => 50.0;
+				  	  				Violate_SP_Satety => false;
+--				  	  				SPF_SM => "SM2";
+--					  				SPF_DC => 99.0;
+				 	  				Violate_MP_Satety => true;
+				 	  				MPF_SM => "SM3";
+					  				MPF_DC => 90.0;
+				  				] applies to distance_estimate.ItemOmission;		
+		ISO26262::FailureMode => [	ModeName => "Invalid distance sent by the radar";
+				  	  			 	Distribution => 50.0;
+				  	  				Violate_SP_Satety => false;
+--				  	  				SPF_SM => "SM2";
+--					  				SPF_DC => 99.0;
+				 	  				Violate_MP_Satety => true;
+				 	  				MPF_SM => "SM3";
+					  				MPF_DC => 90.0;
+				  				]applies to distance_estimate.OutOfRange;	  
+		EMV2::OccurrenceDistribution => [ ProbabilityValue => 0.5e-5 ; Distribution => Poisson;] applies to ef0.ItemOmission;
+		EMV2::OccurrenceDistribution => [ ProbabilityValue => 0.5e-5 ; Distribution => Poisson;] applies to ef0.OutOfRange;
+**};
+end radar;
+ 
+---------------------
+--  Speed Sensors  --
+---------------------
+
+device speed_sensor
+features
+	speed : out data port aadlbook::icd::speed;
+flows
+	f0 : flow source speed;
+annex EMV2 {**
+	use types 		ErrorLibrary;
+	use behavior  	lib::empty;
+	error propagations
+		speed : out propagation {ItemOmission,OutOfRange};
+	flows
+		ef0 : error source speed{ItemOmission,OutOfRange};
+	end propagations;
+
+	properties
+		EMV2::OccurrenceDistribution => [ ProbabilityValue => 0.5e-5 ; Distribution => Poisson;] applies to speed.ItemOmission;
+		EMV2::OccurrenceDistribution => [ ProbabilityValue => 0.5e-5 ; Distribution => Poisson;] applies to speed.OutOfRange;
+**};
+end speed_sensor; 
+
+device speed_wheel_sensor extends speed_sensor
+properties
+	Period => 10ms;
+	compute_execution_time => 6 ms .. 9 ms;
+annex EMV2 {**
+	properties
+  		ISO26262::hazards =>([ HazardName =>"Invalid value from wheel sensor";
+				  SafetyDescription=>"Indicates the vehicle speed";
+				  SafetyCategory=>FSR;
+				   Comment=>"The speed sensor sends invalid value. This should be then discovered and handled by the speed controller.";]) applies to  speed.OutOfRange; 
+  		ISO26262::hazards =>([ HazardName =>"Loss of speed from wheel sensor";
+		  		  SafetyDescription=>"Indicates the vehicle speed";
+		  		  SafetyCategory=>FSR;
+		  		   Comment=>"The sensor does not sendn any speed, might be an error if all sensors does not send a consistent value";]) applies to  speed.ItemOmission;
+		ISO26262::FmeaRiskAnalysis=>[	PC=>"NONE";
+									 	Occurrence=>6;
+									 	DC=>"NONE";
+									 	Detection=>7;] applies to speed.OutOfRange;					 											 	
+		ISO26262::FmeaOptimization=>([OptPC=>"Data redundancy";
+		  								OptDC=>"Fault diagnosis";
+									 	ResponsPerson=>"David";
+									 	TargetCompletionData=>"2023/3/15";
+									 	Status=>"in progress";
+									 	OPTOccurrence=>3;
+									 	OPTDetection=>4;]) applies to speed.OutOfRange;
+		ISO26262::FmeaRiskAnalysis=>[	PC=>"NONE";
+									 	Occurrence=>6;
+									 	DC=>"NONE";
+									 	Detection=>7;] applies to speed.ItemOmission;					 											 	
+		ISO26262::FmeaOptimization=>([OptPC=>"Data redundancy";
+		  								OptDC=>"Fault diagnosis";
+									 	ResponsPerson=>"David";
+									 	TargetCompletionData=>"2023/3/15";
+									 	Status=>"in progress";
+									 	OPTOccurrence=>3;
+									 	OPTDetection=>4;]) applies to speed.ItemOmission;  
+		ISO26262::FMEDASafetyProperties => [FailureRate => 5.0; SafetyRelated => true;] applies to FmedaState;									 	
+		ISO26262::FailureMode => [	ModeName => "Invalid value from wheel sensor";
+				  	  			 	Distribution => 50.0;
+				  	  				Violate_SP_Satety => false;
+--				  	  				SPF_SM => "SM2";
+--					  				SPF_DC => 99.0;
+				 	  				Violate_MP_Satety => true;
+				 	  				MPF_SM => "SM4";
+					  				MPF_DC => 90.0;
+				  				] applies to speed.OutOfRange;		
+		ISO26262::FailureMode => [	ModeName => "Loss of speed from wheel sensor";
+				  	  			 	Distribution => 50.0;
+				  	  				Violate_SP_Satety => false;
+--				  	  				SPF_SM => "SM2";
+--					  				SPF_DC => 99.0;
+				 	  				Violate_MP_Satety => true;
+				 	  				MPF_SM => "SM4";
+					  				MPF_DC => 90.0;
+				  				]applies to speed.ItemOmission;
+**};
+end speed_wheel_sensor;
+
+device speed_wheel_sensor0 extends speed_wheel_sensor
+annex EMV2 {**
+	properties								 	
+		ISO26262::FailureMode => [	ModeName => "Invalid value from wheel sensor";
+				  	  			 	Distribution => 50.0;
+				  	  				Violate_SP_Satety => true;
+--				  	  				SPF_SM => "SM2";
+--					  				SPF_DC => 99.0;
+				 	  				Violate_MP_Satety => false;
+--				 	  				MPF_SM => "SM4";
+--					  				MPF_DC => 90.0;
+				  				] applies to speed.OutOfRange;		
+		ISO26262::FailureMode => [	ModeName => "Loss of speed from wheel sensor";
+				  	  			 	Distribution => 50.0;
+				  	  				Violate_SP_Satety => true;
+--				  	  				SPF_SM => "SM2";
+--					  				SPF_DC => 99.0;
+				 	  				Violate_MP_Satety => false;
+--				 	  				MPF_SM => "SM4";
+--					  				MPF_DC => 90.0;
+				  				]applies to speed.ItemOmission;
+**};
+end speed_wheel_sensor0;
+
+device speed_laser_sensor extends speed_sensor
+properties
+	Period => 10ms;
+	compute_execution_time => 6 ms .. 9 ms;
+annex EMV2 {**
+
+	properties
+		ISO26262::hazards =>([ HazardName =>"Invalid value from laser sensor";
+				  SafetyCategory=>FSR;
+				  SafetyDescription=>"Indicates the vehicle speed";
+				   Comment=>"The speed sensor sends invalid value. This should be then discovered and handled by the speed controller.";]) applies to  speed.OutOfRange; 
+  		ISO26262::hazards =>([ HazardName =>"Loss of speed from laser sensor";
+		  		  SafetyDescription=>"Indicates the vehicle speed";
+		  		  SafetyCategory=>FSR;
+		  		   Comment=>"The sensor does not sendn any speed, might be an error if all sensors does not send a consistent value";]) applies to  speed.ItemOmission;
+		ISO26262::FmeaRiskAnalysis=>[	PC=>"NONE";
+									 	Occurrence=>6;
+									 	DC=>"NONE";
+									 	Detection=>7;] applies to speed.OutOfRange;					 											 	
+		ISO26262::FmeaOptimization=>([OptPC=>"Data redundancy";
+		  								OptDC=>"Fault diagnosis";
+									 	ResponsPerson=>"David";
+									 	TargetCompletionData=>"2023/3/15";
+									 	Status=>"in progress";
+									 	OPTOccurrence=>3;
+									 	OPTDetection=>4;]) applies to speed.OutOfRange;
+		ISO26262::FmeaRiskAnalysis=>[	PC=>"NONE";
+									 	Occurrence=>6;
+									 	DC=>"NONE";
+									 	Detection=>7;] applies to speed.ItemOmission;					 											 	
+		ISO26262::FmeaOptimization=>([OptPC=>"Data redundancy";
+		  								OptDC=>"Fault diagnosis";
+									 	ResponsPerson=>"David";
+									 	TargetCompletionData=>"2023/3/15";
+									 	Status=>"in progress";
+									 	OPTOccurrence=>3;
+									 	OPTDetection=>4;]) applies to speed.ItemOmission;   
+		ISO26262::FMEDASafetyProperties => [FailureRate => 5.0; SafetyRelated => true;] applies to FmedaState;									 	
+		ISO26262::FailureMode => [	ModeName => "Invalid value from laser sensor";
+				  	  			 	Distribution => 50.0;
+				  	  				Violate_SP_Satety => false;
+--				  	  				SPF_SM => "SM2";
+--					  				SPF_DC => 99.0;
+				 	  				Violate_MP_Satety => true;
+				 	  				MPF_SM => "SM4";
+					  				MPF_DC => 90.0;
+				  				] applies to speed.OutOfRange;		
+		ISO26262::FailureMode => [	ModeName => "Loss of speed from laser sensor";
+				  	  			 	Distribution => 50.0;
+				  	  				Violate_SP_Satety => false;
+--				  	  				SPF_SM => "SM2";
+--					  				SPF_DC => 99.0;
+				 	  				Violate_MP_Satety => true;
+				 	  				MPF_SM => "SM4";
+					  				MPF_DC => 90.0;
+				  				]applies to speed.ItemOmission;
+				  				
+**};
+end speed_laser_sensor;
+
+-------------
+--  Brake  --
+-------------
+
+device brake 
+features
+	cmd : in data port aadlbook::icd::brake_cmd;
+flows
+	f0 : flow sink cmd;
+properties
+	Period => 2 ms; 
+annex EMV2 {**
+	use types 		ErrorLibrary;
+	use behavior  	lib::FailStop;
+
+	error propagations
+		cmd : in propagation {ItemOmission,OutOfRange};
+	flows
+		ef0 : error sink cmd{ItemOmission,OutOfRange};
+	end propagations;
+	
+	component error behavior
+	events
+		Reset : recover event;
+	transitions
+		t0 : Operational -[cmd{ItemOmission}]-> FailStop;
+		t1 : Operational -[cmd{OutOfRange}]-> FailStop;
+		t2 : FailStop -[Reset]-> Operational;
+	end component;
+	properties
+		ISO26262::hazards =>([ HazardName =>"Unable to brake due to abnormal brake command";
+				  SafetyDescription=>"Brakes according to the brake command";
+				  SafetyCategory=>FSR;]) applies to  FailStop; 
+		ISO26262::FmeaRiskAnalysis=>[	Severity=>7; ] applies to FailStop;  
+		ISO26262::FMEDASafetyProperties => [FailureRate => 8.0; SafetyRelated => true;] applies to FmedaState;
+		ISO26262::FailureMode => [	ModeName => "Unable to brake due to abnormal brake command";
+				  	  			 	Distribution => 100.0;
+				  	  				Violate_SP_Satety => true;
+				  	  				SPF_SM => "SM1";
+					  				SPF_DC => 99.0;
+				 	  				Violate_MP_Satety => false;
+				  				] applies to FailStop; 
+		EMV2::OccurrenceDistribution => [ ProbabilityValue => 0.5e-5 ; Distribution => Poisson;] applies to Failure;
+**};
+end brake;
+
+device acceleration
+features
+	cmd : in data port aadlbook::icd::speed_cmd;
+flows
+	f0 : flow sink cmd;
+properties
+	Period => 2 ms;
+annex EMV2 {** 
+	use types 		ErrorLibrary;
+	use behavior  	lib::FailStop;
+
+	error propagations
+		cmd : in propagation {ItemOmission,OutOfRange};
+	flows
+		ef0 : error sink cmd{ItemOmission,OutOfRange};
+	end propagations;
+	
+	component error behavior
+	events
+		Reset : recover event;
+	transitions
+		t0 : Operational -[cmd{ItemOmission}]-> FailStop;
+		t1 : Operational -[cmd{OutOfRange}]-> FailStop;
+		t2 : FailStop -[Reset]-> Operational;
+	end component;
+	properties
+		ISO26262::hazards =>([ HazardName =>"Unable to accelerate due to abnormal acceleration command";
+				  SafetyDescription=>"Accelerates according to the acceleration command";
+				  SafetyCategory=>FSR;]) applies to  FailStop; 
+		ISO26262::FmeaRiskAnalysis=>[	Severity=>7; ] applies to FailStop;  
+		ISO26262::FMEDASafetyProperties => [FailureRate => 8.0; SafetyRelated => true;] applies to FmedaState;
+				  
+		ISO26262::FailureMode => [	ModeName => "Unable to accelerate due to abnormal acceleration command";
+				  	  			 	Distribution => 100.0;
+				  	  				Violate_SP_Satety => true;
+				  	  				SPF_SM => "SM1";
+					  				SPF_DC => 99.0;
+				 	  				Violate_MP_Satety => false;
+				  				] applies to FailStop;
+
+		ISO26262::hazards =>([ HazardName =>"Invalid command from software";
+		  		  SafetyDescription=>"Receive acceleration command";
+		  		  SafetyCategory=>FSR;]) applies to  cmd.OutOfRange; 
+  		ISO26262::hazards =>([ HazardName =>"Loss of acceleration command from software";
+		  	      SafetyDescription=>"Receive acceleration command";
+		  	      SafetyCategory=>FSR;]) applies to  cmd.ItemOmission; 
+		EMV2::OccurrenceDistribution => [ ProbabilityValue => 0.5e-5 ; Distribution => Poisson;] applies to Failure;
+**};
+end acceleration;
+
+device panel
+features
+	increase_speed : out event port;
+	decrease_speed : out event port;
+flows
+	f80 : flow source increase_speed;
+annex EMV2 {**
+	use types 		ErrorLibrary;
+	use behavior  	lib::FailStop;
+
+	error propagations
+		increase_speed : out propagation {ItemOmission};
+		decrease_speed : out propagation {ItemOmission};
+	flows
+		ef0 : error source increase_speed{ItemOmission};
+		ef1 : error source decrease_speed{ItemOmission};
+	end propagations;
+	properties
+		ISO26262::hazards =>([ HazardName =>"Panel failure";
+				  SafetyDescription=>"For increasing and decreasing the speed of the car";
+				  SafetyCategory=>FSR;]) applies to  FailStop; 
+		ISO26262::hazards =>([ HazardName =>"Loss of acceleration instruction";
+		  SafetyDescription=>"Sends signals to the panel_controller";
+		  SafetyCategory=>FSR;]) applies to  increase_speed.ItemOmission; 
+		ISO26262::hazards =>([ HazardName =>"Loss of deceleration instructions";
+		  SafetyDescription=>"Sends signals to the panel_controller";
+		  SafetyCategory=>FSR;]) applies to  decrease_speed.ItemOmission; 
+		  
+		ISO26262::FMEDASafetyProperties => [FailureRate => 2.0; SafetyRelated => false;] applies to FmedaState;
+				  
+		ISO26262::FailureMode => [	ModeName => "Panel failure";
+				  	  			 	Distribution => 40.0;
+				  	  				Violate_SP_Satety => false;
+--				  	  				SPF_SM => "SM2";
+--					  				SPF_DC => 99.0;
+				 	  				Violate_MP_Satety => false;
+				  				] applies to FailStop;
+		ISO26262::FailureMode => [	ModeName => "Loss of acceleration instruction";
+				  	  			 	Distribution => 30.0;
+				  	  				Violate_SP_Satety => false;
+--				  	  				SPF_SM => "SM2";
+--					  				SPF_DC => 99.0;
+				 	  				Violate_MP_Satety => false;
+				  				] applies to increase_speed.ItemOmission;		
+		ISO26262::FailureMode => [	ModeName => "Loss of deceleration instructions";
+				  	  			 	Distribution => 30.0;
+				  	  				Violate_SP_Satety => false;
+--				  	  				SPF_SM => "SM2";
+--					  				SPF_DC => 99.0;
+				 	  				Violate_MP_Satety => false;
+				  				]applies to decrease_speed.ItemOmission;
+				  				
+		EMV2::OccurrenceDistribution => [ ProbabilityValue => 0.5e-5 ; Distribution => Poisson;] applies to Failure;
+		EMV2::OccurrenceDistribution => [ ProbabilityValue => 0.5e-5 ; Distribution => Poisson;] applies to ef0;
+		EMV2::OccurrenceDistribution => [ ProbabilityValue => 0.5e-5 ; Distribution => Poisson;] applies to ef1;
+**};
+end panel;
+
+device screen
+features
+	tire_pressure : in data port aadlbook::icd::pressure;
+	desired_speed : in data port aadlbook::icd::speed;
+	actual_speed : in data port aadlbook::icd::speed;
+	warning : in data port aadlbook::icd::boolean;
+	entertainment_infos : in data port aadlbook::icd::entertainment_infos;
+flows
+	f0 : flow sink warning;
+annex EMV2 {**
+	use types 		ErrorLibrary;
+	use behavior  	lib::FailStop;
+
+	error propagations
+		tire_pressure : in propagation {OutOfRange};
+		desired_speed : in propagation {ItemOmission,OutOfRange};
+		actual_speed : in propagation {ItemOmission,OutOfRange};
+		warning : in propagation {ItemOmission};
+	flows
+		ef0 : error sink tire_pressure{OutOfRange};
+		ef1 : error sink desired_speed{ItemOmission};
+		ef2 : error sink desired_speed{OutOfRange};
+		ef3 : error sink actual_speed{ItemOmission};
+		ef4 : error sink actual_speed{OutOfRange};
+		ef5 : error sink warning{ItemOmission};
+	end propagations;
+	properties
+		ISO26262::hazards =>([ HazardName =>"Screen failure";
+		  		SafetyDescription=>"Display information on the dashboard";
+		  		SafetyCategory=>FSR;]) applies to  FailStop; 
+		EMV2::OccurrenceDistribution => [ ProbabilityValue => 0.5e-5 ; Distribution => Poisson;] applies to Failure;
+**};
+end screen;
+
+device tpms
+features
+	pressure : out data port aadlbook::icd::pressure;
+end tpms;
+
+device bluetooth_controller
+features
+	bt        : requires bus access aadlbook::platform::bluetooth;
+	music     : out data port aadlbook::icd::music.i;
+	contacts  : out data port aadlbook::icd::contacts.i;
+end bluetooth_controller;
+
+device speaker
+features
+	music  : in data port aadlbook::icd::music.i;
+flows
+	f0 : flow sink music;
+end speaker;
+
+end aadlbook::devices;
