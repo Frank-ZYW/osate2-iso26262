@@ -58,20 +58,6 @@ annex EMV2 {**
 **};	
 end camera;
 
-device camera0 extends camera
-annex EMV2 {**
-	properties
-		ISO26262::FailureMode => [ ModeName => "Loss of picture from the camera";
-				  	  			   Distribution => 100.0;
-				  	  			   Violate_SP_Satety => true;
---				  	  			   SPF_SM => "SM2";
---					  			   SPF_DC => 99.0;
-				 	  			   Violate_MP_Satety => false;
---				 	  			   MPF_SM => "SM3";
---					  			   MPF_DC => 90.0;
-				  				] applies to picture.itemomission;
-**};
-end camera0;
 
 device radar
 features
@@ -228,29 +214,6 @@ annex EMV2 {**
 **};
 end speed_wheel_sensor;
 
-device speed_wheel_sensor0 extends speed_wheel_sensor
-annex EMV2 {**
-	properties								 	
-		ISO26262::FailureMode => [	ModeName => "Invalid value from wheel sensor";
-				  	  			 	Distribution => 50.0;
-				  	  				Violate_SP_Satety => true;
---				  	  				SPF_SM => "SM2";
---					  				SPF_DC => 99.0;
-				 	  				Violate_MP_Satety => false;
---				 	  				MPF_SM => "SM4";
---					  				MPF_DC => 90.0;
-				  				] applies to speed.OutOfRange;		
-		ISO26262::FailureMode => [	ModeName => "Loss of speed from wheel sensor";
-				  	  			 	Distribution => 50.0;
-				  	  				Violate_SP_Satety => true;
---				  	  				SPF_SM => "SM2";
---					  				SPF_DC => 99.0;
-				 	  				Violate_MP_Satety => false;
---				 	  				MPF_SM => "SM4";
---					  				MPF_DC => 90.0;
-				  				]applies to speed.ItemOmission;
-**};
-end speed_wheel_sensor0;
 
 device speed_laser_sensor extends speed_sensor
 properties
