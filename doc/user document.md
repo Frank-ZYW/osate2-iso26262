@@ -164,6 +164,8 @@ ISO 26262 基于V模型，汽车功能安全开发活动始于概念阶段，该
 
 3. 插件最终会将所有的hazards属性，以及自动计算的`ASIL`以EXCEL表格的形式输出到实例化文件.aaxl2的相对路径`./reports/hazard`的文件夹中。
 
+具体执行步骤可以参考 `doc/video/HAZARD分析实例演示.mp4` 视频文件。
+
 ### FMEA分析
 
 新的AIAG-VDA DFMEA在分析步骤中增加了对系统结构、功能和风险分析的考虑，从而使FMEA的开发过程更加健全。DFMEA分析过程由七个步骤组成。
@@ -293,7 +295,7 @@ ISO 26262 基于V模型，汽车功能安全开发活动始于概念阶段，该
 
 6. 分析报告将在项目的 `./instances/reports/fmea` 目录下生成。 
 
-有关 FMEA 分析的更多细节可以参考 `doc/video/FMEA分析实例演示.mp4` 视频文件。
+具体执行步骤可以参考 `doc/video/FMEA分析实例演示.mp4` 视频文件。
 
 ### FMEDA分析
 

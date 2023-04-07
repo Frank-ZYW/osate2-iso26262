@@ -96,27 +96,28 @@ org.osate.iso26262.fmea
             └───iso26262
                 └───fmea
                     │   Activator.java  		-- 插件的激活类
-                    │   AP.java					-- Action Priority 行动优先级定义类
+                    │   AP.java				-- Action Priority 行动优先级定义类
                     │   ASIL.java				-- ASIL 安全完整性等级定义类
-                    │   FailureElement.java		-- 组件的故障元素定义类
+                    │   FailureElement.java	-- 组件的故障元素定义类
                     │   FmeaBuilder.java		-- FMEA分析功能类
                     │   FmeaHead.java			-- FMEA表头定义类
                     │   FMEDAPI.java			-- 供FMEDA插件使用的API
                     │   Function.java			-- 组件的功能定义类
-                    │   Optimization.java		-- 故障元素优化定义类
-                    │   SafetyCategory.java		-- 安全需求种类定义类
-                    │   Structure.java			-- 组件结构定义类
+                    │   Optimization.java	-- 故障元素优化定义类
+                    │   SafetyCategory.java	-- 安全需求种类定义类
+                    │   Structure.java		-- 组件结构定义类
                     ├───export
-                    │       Error_item.java		-- 输出的单个故障分析条目的定义类
-                    │       FileExport.java 	-- Excel格式分析报告生成功能类
-                    │       Func_item.java		-- 输出的单个功能分析条目的定义类
+                    │       Error_item.java	-- 输出的单个故障分析条目的定义类
+                    │       FileExport.java -- Excel格式分析报告生成功能类
+                    │       Func_item.java	-- 输出的单个功能分析条目的定义类
                     │       Pair.java			-- Pair模板定义
-                    │       Struc_item.java		-- 输出的结构分析条目的定义类
+                    │       Struc_item.java	-- 输出的结构分析条目的定义类
                     ├───fixfta
                     │       CreateFTAModel.java	-- 故障模型生成的功能类
                     │       FaultTreeUtils.java	-- 故障树分析工具类
                     │       FTAGenerator.java	-- 故障树生成器
-                    │       PropagationGraphBackwardTraversal.java -- 故障传播图生成类
+                    │       PropagationGraphBackwardTraversal.java 
+                    │								-- 故障传播图生成类
                     └───handler
                             FmeaDialog.java		-- 插件交互界面定义类
                             FMEAhandler.java	-- FMEA分析入口
