@@ -12,11 +12,11 @@
 
 2. 打开 OSATE2 (***version >= 2.11.0***) 工具，在顶层工具栏 `Help` -> `Install New Software` -> `Add` -> `Local` -> 浏览并选中上一步骤中解压得到的文件夹 -> `Add` -> 勾选插件 -> `Next` -> `Finish`，等待工具进行依赖检查及安装。
 
-   ![](imgs/install-doc.png) 
+   ![](imgs/install-user-doc.png)    
 
 3. 如遇安装过程中弹窗，选择 `Trust all unsigned content`，重启 OSATE2 工具完成安装。
 
-有关插件安装的更多细节可以参考 `doc/video/插件安装与示例项目.mp4` 视频文件。
+有关插件安装的更多细节可以参考 `doc/video/插件安装与示例项目.mkv` 视频文件。
 
 ## 示例项目
 
@@ -81,7 +81,7 @@
 
 打开 OSATE2 工具，在顶层工具栏 `File` -> `New` -> `Example` -> `AADL Examples `  -> `ISO26262 Examples`  -> `Automated Driving System` -> `Finish`，即可在项目栏看到生成的示例项目。
 
-![demo-import](imgs\demo-import.png) 
+![demo-import](imgs/demo-import.png) 
 
 ## 插件使用
 
@@ -170,7 +170,7 @@ ISO 26262 基于V模型，汽车功能安全开发活动始于概念阶段，该
 
 新的AIAG-VDA DFMEA在分析步骤中增加了对系统结构、功能和风险分析的考虑，从而使FMEA的开发过程更加健全。DFMEA分析过程由七个步骤组成。
 
-![DFMEA 七步法](imgs/7-step dfmea process.png) 
+![DFMEA 七步法](imgs/dfmea-process.png) 
 
 #### 属性集
 
@@ -289,7 +289,7 @@ ISO 26262 基于V模型，汽车功能安全开发活动始于概念阶段，该
 
    - `Show the whole failure net...` : 勾选后将创建一个新的图形界面展示系统完整的故障网络。
 
-   ![fmea-dialog](./imgs/fmea-dialog.png)
+   ![fmea-dialog](imgs/fmea-dialog.png) 
 
 5. 点击 `OK` 执行分析，插件会弹出“FMEA report generation complete”表示分析过程结束。
 
@@ -356,11 +356,10 @@ FailureModeSpecification: type record (
 
    - `Export CSV report` : 勾选后分析报告将以 CSV 格式输出，默认以 Excel 格式输出
 
-   ![fmeda-dialog](imgs\fmeda-dialog.png) 
+   ![fmeda-dialog](imgs\fmeda-dialog.png)  
 
 5. 点击 `OK` 执行分析，若检测到不合法的 FMEDA 属性集插件会弹出提示。
 
 6. 分析报告将在项目的 `./instances/reports/fmeda` 目录下生成。 
 
-有关 FMEDA 分析的更多细节可以参考 `doc/video/FMEDA分析实例演示.mp4` 视频文件。
-
+有关 FMEDA 分析的更多细节可以参考 `doc/video/FMEDA分析实例演示.mkv` 视频文件。
