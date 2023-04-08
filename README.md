@@ -14,9 +14,9 @@ from OSATE.
 
 2. Install plug-in from OSATE2 (***version >= 2.11.0***) via `Help` -> `Install New Software` -> `ADD` -> `Local` -> choose package path -> `Add` -> select package -> `Next` -> `Finish`.
 
-   ![](/doc/imgs/install.png)
+   ![](doc/imgs/install.png) 
 
-3. Trust all unsigned content, then restart OSATE
+3. Trust all unsigned content, then restart OSATE.
 
 ## Usage
 
@@ -24,7 +24,7 @@ Choose an ***Instance File*** or ***Component Instance*** in the AADL Navigator,
 
 The output of the command (reports, etc.) is stored in the `./reports` folder in your project.
 
-![](/doc/imgs/use.png)
+![](doc/imgs/usage.png) 
 
 ## Development
 
