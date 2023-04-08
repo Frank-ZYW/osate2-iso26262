@@ -356,7 +356,7 @@ FailureModeSpecification: type record (
 
    - `Export CSV report` : 勾选后分析报告将以 CSV 格式输出，默认以 Excel 格式输出
 
-   ![fmeda-dialog](imgs\fmeda-dialog.png)  
+   ![fmeda-dialog](imgs/fmeda-dialog.png)  
 
 5. 点击 `OK` 执行分析，若检测到不合法的 FMEDA 属性集插件会弹出提示。
 
